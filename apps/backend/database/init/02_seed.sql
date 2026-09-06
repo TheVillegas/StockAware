@@ -87,14 +87,16 @@ SELECT 4, id FROM funcion WHERE id IN (1, 2, 10, 11, 20, 22);
 -- -----------------------------------------------------------------------------
 --  Usuarios
 -- -----------------------------------------------------------------------------
---  ATENCIÓN: password_hash lleva un marcador, no un hash válido. El login se
---  implementa en la fase 2 y ahí se generan los hashes reales. Ningún usuario
---  puede autenticarse con estos valores, que es lo correcto para una semilla.
+--  Los tres usuarios comparten la contraseña de desarrollo: "stockaware".
+--  El hash es bcrypt con coste 10.
+--
+--  ATENCIÓN: esto es una semilla de desarrollo local. Estas credenciales no
+--  deben existir en ningún ambiente accesible desde fuera del equipo.
 -- -----------------------------------------------------------------------------
 INSERT INTO usuario (id, rut, nombre, email, username, password_hash, perfil_id) VALUES
-    (1, '11111111-1', 'Administrador',     'admin@stockaware.local',    'admin',    'PENDIENTE_FASE_2', 1),
-    (2, '22222222-2', 'Encargado Bodega',  'bodega@stockaware.local',   'bodega',   'PENDIENTE_FASE_2', 2),
-    (3, '33333333-3', 'Adquisiciones',     'compras@stockaware.local',  'compras',  'PENDIENTE_FASE_2', 3);
+    (1, '11111111-1', 'Administrador',    'admin@stockaware.local',   'admin',   '$2b$10$QO.3KKpVydh.0wE2BW9ZUOjYJ9RUP18u2EaiSPpTDLa7iFk53pGsW', 1),
+    (2, '22222222-2', 'Encargado Bodega', 'bodega@stockaware.local',  'bodega',  '$2b$10$QO.3KKpVydh.0wE2BW9ZUOjYJ9RUP18u2EaiSPpTDLa7iFk53pGsW', 2),
+    (3, '33333333-3', 'Adquisiciones',    'compras@stockaware.local', 'compras', '$2b$10$QO.3KKpVydh.0wE2BW9ZUOjYJ9RUP18u2EaiSPpTDLa7iFk53pGsW', 3);
 
 -- -----------------------------------------------------------------------------
 --  Centro de costo y bodegas
