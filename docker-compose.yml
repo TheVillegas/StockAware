@@ -1,0 +1,33 @@
+# StockAware — servicios locales
+#
+# Fase 1: solo PostgreSQL. El backend, el frontend y el servicio Python se
+# agregan en sus propias fases.
+#
+# Los scripts de apps/backend/database/init/ se ejecutan en orden alfabético
+# UNA SOLA VEZ, cuando el volumen de datos está vacío. Para reconstruir el
+# esquema desde cero:  docker compose down -v && docker compose up -d
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: stockaware-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-stockaware}
+      POSTGRES_USER: ${POSTGRES_USER:-stockaware}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stockaware}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - stockaware_pgdata:/var/lib/postgresql/data
+      - ./apps/backend/database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stockaware} -d ${POSTGRES_DB:-stockaware}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  stockaware_pgdata:
+    name: stockaware_pgdata
