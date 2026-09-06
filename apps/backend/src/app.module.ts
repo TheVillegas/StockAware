@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { configuracion, opcionesTypeOrm } from './config/configuracion.js';
 import { AuditoriaModule } from './common/auditoria.js';
 import { AuthModule } from './auth/auth.module.js';
+import { ComprasModule } from './compras/compras.module.js';
 import { HealthController } from './health/health.controller.js';
 import { InventarioModule } from './inventario/inventario.module.js';
 import { MantenedoresModule } from './mantenedores/mantenedores.module.js';
@@ -21,6 +22,7 @@ import { MantenedoresModule } from './mantenedores/mantenedores.module.js';
     TypeOrmModule.forRootAsync({ useFactory: opcionesTypeOrm }),
     AuditoriaModule,
     AuthModule,
+    ComprasModule,
     InventarioModule,
     MantenedoresModule,
   ],

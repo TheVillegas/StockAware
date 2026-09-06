@@ -305,9 +305,16 @@ CREATE INDEX ix_documento_estado    ON documento (estado);
 -- CAMBIA: el original une cabecera y detalle por la tripleta natural
 -- (numdoc, tipo_doc, cliente), sin llave foránea y sin índice único que la
 -- respalde. Se reemplaza por documento_id.
+-- CAMBIA: `origen_detalle_id` no existe en el ERP. Allí, al eliminar una HES,
+-- para saber qué línea de la OC hay que reversar se busca por coincidencia de
+-- producto + nombre + precio_uni + unidad + descto, excluyendo las ya usadas
+-- (DLL.php, caso ELIMINA_HES). Si dos líneas de la OC comparten esos cinco
+-- valores, cuál se reversa depende del ORDER BY id LIMIT 1. Aquí el vínculo es
+-- explícito.
 CREATE TABLE documento_detalle (
     id            serial PRIMARY KEY,
     documento_id  integer       NOT NULL REFERENCES documento(id) ON DELETE CASCADE,
+    origen_detalle_id integer   REFERENCES documento_detalle(id),
     producto      varchar(20),
     nombre        varchar(120)  NOT NULL,
     descripcion   varchar(512)  NOT NULL DEFAULT '',
@@ -325,6 +332,7 @@ CREATE TABLE documento_detalle (
 );
 
 CREATE INDEX ix_detalle_documento ON documento_detalle (documento_id);
+CREATE INDEX ix_detalle_origen    ON documento_detalle (origen_detalle_id);
 
 
 -- =============================================================================

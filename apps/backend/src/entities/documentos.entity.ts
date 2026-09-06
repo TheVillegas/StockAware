@@ -127,6 +127,20 @@ export class DocumentoDetalle {
   @JoinColumn({ name: 'documento_id' })
   documento: Documento;
 
+  /**
+   * Línea de la OC que esta línea de HES avanza.
+   *
+   * El ERP no tiene este vínculo: al eliminar una HES busca la línea de la OC
+   * por coincidencia de producto, nombre, precio, unidad y descuento. Si dos
+   * líneas comparten esos valores, cuál se reversa queda al azar del ORDER BY.
+   */
+  @Column({ name: 'origen_detalle_id', type: 'int', nullable: true })
+  origenDetalleId: number | null;
+
+  @ManyToOne(() => DocumentoDetalle, { nullable: true })
+  @JoinColumn({ name: 'origen_detalle_id' })
+  origenDetalle: DocumentoDetalle | null;
+
   @Column({ type: 'varchar', length: 20, nullable: true })
   producto: string | null;
 
