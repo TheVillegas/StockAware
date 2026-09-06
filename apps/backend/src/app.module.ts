@@ -7,7 +7,7 @@ import { AuditoriaModule } from './common/auditoria.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ComprasModule } from './compras/compras.module.js';
 import { HealthController } from './health/health.controller.js';
-import { InventarioModule } from './inventario/inventario.module.js';
+import { BodegaModule } from './bodega/bodega.module.js';
 import { MantenedoresModule } from './mantenedores/mantenedores.module.js';
 
 @Module({
@@ -23,7 +23,7 @@ import { MantenedoresModule } from './mantenedores/mantenedores.module.js';
     AuditoriaModule,
     AuthModule,
     ComprasModule,
-    InventarioModule,
+    BodegaModule,
     MantenedoresModule,
   ],
   controllers: [HealthController],

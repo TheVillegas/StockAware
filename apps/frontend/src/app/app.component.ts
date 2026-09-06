@@ -14,7 +14,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   cartOutline, cubeOutline, fileTrayFullOutline, homeOutline, logOutOutline,
-  peopleOutline, pricetagsOutline, serverOutline, walletOutline,
+  peopleOutline, pricetagsOutline, serverOutline, swapHorizontalOutline, walletOutline,
 } from 'ionicons/icons';
 
 import { AuthService } from './core/auth.service';
@@ -109,6 +109,7 @@ export class AppComponent {
       titulo: 'Bodega',
       opciones: [
         { titulo: 'Stock por bodega', ruta: '/bodega/stock', icono: 'cube-outline', permiso: 'Stock por bodega' },
+        { titulo: 'Movimientos', ruta: '/bodega/movimientos', icono: 'swap-horizontal-outline', permiso: 'Movimientos' },
       ],
     },
     {
@@ -135,7 +136,7 @@ export class AppComponent {
   constructor() {
     addIcons({
       homeOutline, cartOutline, cubeOutline, fileTrayFullOutline, serverOutline,
-      peopleOutline, pricetagsOutline, walletOutline, logOutOutline,
+      peopleOutline, pricetagsOutline, walletOutline, logOutOutline, swapHorizontalOutline,
     });
   }
 }

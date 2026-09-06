@@ -144,6 +144,10 @@ import { colorEstado } from './ordenes.page';
                     <td class="num">{{ h.ocAvance }} %</td>
                     <td>{{ h.cargadaABodega ? 'Sí' : 'No' }}</td>
                     <td>
+                      @if (!h.cargadaABodega && puede('Carga desde HES')) {
+                        <ion-button size="small" fill="clear"
+                          (click)="abrirCarga(h.id)" [disabled]="trabajando()">A bodega</ion-button>
+                      }
                       @if (!h.cargadaABodega && puede('Anula HES')) {
                         <ion-button size="small" fill="clear" color="danger"
                           (click)="eliminarHes(h.id)" [disabled]="trabajando()">Eliminar</ion-button>
@@ -160,6 +164,36 @@ import { colorEstado } from './ordenes.page';
           </p>
         }
       }
+
+      <ion-modal [isOpen]="cargaAbierta()" (didDismiss)="cargaAbierta.set(false)">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Cargar a bodega</ion-title>
+              <ion-buttons slot="end"><ion-button (click)="cargaAbierta.set(false)">Cerrar</ion-button></ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content>
+            <p class="nota">
+              El material entra a la bodega que elijas. El código de cada material se
+              extrae del texto de la línea, con el formato <code>/MC_nnn</code>. Si
+              alguna línea no resuelve, la carga completa se rechaza.
+            </p>
+            <ion-list>
+              <ion-item>
+                <ion-input label="Id de la bodega *" labelPlacement="stacked" type="number"
+                  [(ngModel)]="bodegaCarga" placeholder="1"></ion-input>
+              </ion-item>
+            </ion-list>
+            @if (errorCarga()) { <div class="error">{{ errorCarga() }}</div> }
+            <div style="padding:8px 16px 24px">
+              <ion-button expand="block" (click)="cargarABodega()" [disabled]="trabajando()">
+                @if (trabajando()) { <ion-spinner name="crescent"></ion-spinner> } @else { Cargar }
+              </ion-button>
+            </div>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
 
       <ion-modal [isOpen]="recepcionAbierta()" (didDismiss)="recepcionAbierta.set(false)">
         <ng-template>
@@ -227,6 +261,11 @@ export class OrdenDetallePage {
 
   recibido: Record<number, number | null> = {};
   obsRecepcion = '';
+
+  readonly cargaAbierta = signal(false);
+  readonly errorCarga = signal('');
+  hesACargar: number | null = null;
+  bodegaCarga: number | null = 1;
 
   readonly moneda = clp;
   readonly color = colorEstado;
@@ -303,6 +342,33 @@ export class OrdenDetallePage {
       await this.cargar();
     } catch (e) {
       this.errorRecepcion.set(mensajeDeError(e));
+    } finally {
+      this.trabajando.set(false);
+    }
+  }
+
+  abrirCarga(idHes: number): void {
+    this.hesACargar = idHes;
+    this.errorCarga.set('');
+    this.cargaAbierta.set(true);
+  }
+
+  async cargarABodega(): Promise<void> {
+    if (!this.hesACargar || !this.bodegaCarga) {
+      this.errorCarga.set('Indicá la bodega de destino.');
+      return;
+    }
+    this.trabajando.set(true);
+    this.errorCarga.set('');
+    try {
+      await this.api.crear('bodega/cargar-hes', {
+        hesId: this.hesACargar,
+        bodegaId: Number(this.bodegaCarga),
+      });
+      this.cargaAbierta.set(false);
+      await this.cargar();
+    } catch (e) {
+      this.errorCarga.set(mensajeDeError(e));
     } finally {
       this.trabajando.set(false);
     }

@@ -83,3 +83,23 @@ export const pendienteDe = (l: LineaDocumento): number =>
 
 export const clp = (n: number | null | undefined): string =>
   n == null ? '' : '$' + Math.round(n).toLocaleString('es-CL');
+
+export interface MovimientoBodega {
+  id: number;
+  numdoc: number;
+  tipoDoc: 'GR' | 'AJUSTE';
+  tipoMov: 'IN' | 'OUT';
+  fecha: string;
+  cantidad: number;
+  unidad: UnidadMedida;
+  tarifa: number;
+  observacion: string;
+  codMaterial: string;
+  material: string;
+  bodegaCodigo: number;
+  bodega: string;
+  ccosto: string | null;
+  responsable: string | null;
+  origenTipo: 'OC' | 'OC_EXENTA' | 'HES' | null;
+  origenNumdoc: number | null;
+}

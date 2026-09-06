@@ -36,6 +36,11 @@ export const routes: Routes = [
       import('./compras/orden-detalle.page').then((m) => m.OrdenDetallePage),
   },
   {
+    path: 'bodega/movimientos',
+    canActivate: [guardSesion, guardPermiso('Movimientos')],
+    loadComponent: () => import('./bodega/movimientos.page').then((m) => m.MovimientosPage),
+  },
+  {
     path: 'bodega/stock',
     canActivate: [guardSesion, guardPermiso('Stock por bodega')],
     loadComponent: () => import('./bodega/stock.page').then((m) => m.StockPage),

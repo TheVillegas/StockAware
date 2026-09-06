@@ -11,7 +11,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import type { Documento, FilaStock, Pagina } from './modelos';
+import type { Documento, FilaStock, MovimientoBodega, Pagina } from './modelos';
 
 export interface ConsultaListado {
   pagina?: number;
@@ -75,10 +75,14 @@ export class ApiService {
 
   stock(q: ConsultaListado = {}): Promise<FilaStock[]> {
     return firstValueFrom(
-      this.http.get<FilaStock[]>(`${environment.api}/inventario/stock`, {
+      this.http.get<FilaStock[]>(`${environment.api}/bodega/stock`, {
         params: this.params(q),
       }),
     );
+  }
+
+  movimientos(q: ConsultaListado = {}): Promise<Pagina<MovimientoBodega>> {
+    return this.listar<MovimientoBodega>('bodega/movimientos', q);
   }
 
   ordenes(q: ConsultaListado = {}): Promise<Pagina<Documento>> {
