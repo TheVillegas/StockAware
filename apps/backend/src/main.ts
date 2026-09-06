@@ -3,9 +3,13 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module.js';
+import { ErroresBdFilter } from './common/errores-bd.filter.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Una violación de restricción es culpa del que llama, no del servidor.
+  app.useGlobalFilters(new ErroresBdFilter());
 
   // Todo lo funcional cuelga de /api; la raíz queda libre para redirigir a la
   // documentación, que es lo que uno espera al abrir el puerto en el navegador.

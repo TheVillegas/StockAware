@@ -3,9 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { configuracion, opcionesTypeOrm } from './config/configuracion.js';
+import { AuditoriaModule } from './common/auditoria.js';
 import { AuthModule } from './auth/auth.module.js';
 import { HealthController } from './health/health.controller.js';
 import { InventarioModule } from './inventario/inventario.module.js';
+import { MantenedoresModule } from './mantenedores/mantenedores.module.js';
 
 @Module({
   imports: [
@@ -17,8 +19,10 @@ import { InventarioModule } from './inventario/inventario.module.js';
       envFilePath: ['../../.env', '.env'],
     }),
     TypeOrmModule.forRootAsync({ useFactory: opcionesTypeOrm }),
+    AuditoriaModule,
     AuthModule,
     InventarioModule,
+    MantenedoresModule,
   ],
   controllers: [HealthController],
 })
