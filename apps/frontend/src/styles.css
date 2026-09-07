@@ -1,0 +1,2 @@
+:root { --ion-font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+body { margin: 0; font-family: var(--ion-font-family); }

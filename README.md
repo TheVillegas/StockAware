@@ -2,11 +2,81 @@
 
 Aplicación web multiplataforma para consolidar un inventario MRO con descripciones heterogéneas y generar recomendaciones explicables de reposición. El proyecto se desarrolla para la asignatura **Ingeniería Web Avanzada** de la Pontificia Universidad Católica de Valparaíso.
 
-> **Estado actual:** estructura inicial del repositorio. Los componentes todavía no han sido generados ni configurados.
+> **Estado actual:** réplica funcional del ERP VAIPS sobre las tecnologías del proyecto.
+> Base PostgreSQL con datos anonimizados, backend NestJS y frontend Angular + Ionic,
+> todo levantable con Docker. Ver [Cómo levantar el entorno](#cómo-levantar-el-entorno).
 
 ## Contribución y flujo Git
 
 La guía completa para contribuir está en [CONTRIBUTING.md](CONTRIBUTING.md). En resumen, `develop` es la rama de integración y `main` contiene el estado estable. El trabajo diario se realiza en ramas cortas `feat/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`, `test/*` o `ci/*`, que abren pull requests hacia `develop`. Las releases pasan de `develop` a `main`; los hotfixes parten de `main`, se integran allí y luego se sincronizan con `develop`.
+
+## Cómo levantar el entorno
+
+Requiere solo Docker. No hace falta acceso a la base original ni instalar Node.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Luego entrar a **http://localhost:4200** con alguno de estos usuarios (clave `replica2026`):
+
+| Usuario | Perfil | Alcance |
+|---|---|---|
+| `admin` | Administrador | todo |
+| `gestion` | Control de Gestión | consulta y mantenedores |
+| `operador` | Op. Operaciones | operación diaria |
+| `consulta` | Visualización Documentos | solo lectura |
+
+El backend queda en `http://localhost:3000/api` y PostgreSQL en el puerto 5432.
+
+### Cómo se inicializa la base
+
+La primera vez que arranca, PostgreSQL corre en orden los scripts de
+`apps/backend/database/init/`:
+
+| Archivo | Qué hace |
+|---|---|
+| `01_schema.sql` | Estructura: 69 tablas, generada desde el `information_schema` del ERP |
+| `02_datos.sql.gz` | Datos ya anonimizados (~415.000 filas) |
+| `03_vistas.sql` | Las vistas, traducidas de MySQL a PostgreSQL |
+| `04_secuencias.sql` | Sincroniza los contadores de identidad con los datos cargados |
+
+El orden importa: los datos entran con sus `id` originales, y eso **no** avanza las
+secuencias. Sin el cuarto paso, el primer `INSERT` nuevo pide `id = 1` y choca con
+las filas existentes.
+
+Seis vistas no se pudieron traducir automáticamente y quedan sin crear; el arranque
+las informa como `WARNING` en `docker compose logs db` y continúa con el resto.
+
+### Comandos habituales
+
+```bash
+docker compose stop          # parar sin perder datos
+docker compose up -d         # volver a levantar
+docker compose down -v       # BORRA la base y la recarga desde la semilla
+docker compose logs -f backend
+```
+
+Para desarrollar el frontend con recarga en caliente conviene sacarlo de Docker:
+
+```bash
+docker compose stop frontend
+cd apps/frontend && npm install && npm start
+```
+
+### Cómo se regeneró la base
+
+En `apps/backend/database/migracion/` están los scripts que produjeron todo lo
+anterior leyendo la base original. **Solo leen MySQL**, nunca escriben:
+
+- `gen_ddl.php` — genera `01_schema.sql` desde el `information_schema`
+- `gen_vistas.php` — traduce las vistas y las ordena por dependencia
+- `anonimiza.php` — extrae y anonimiza los datos con remapeo consistente
+- `carga.sh` — crea la base y hace el `COPY`
+- `informe_anonimizacion.txt` — qué se hizo en cada tabla y columna
+
+Correrlos requiere acceso a la base original, que está restringido por IP.
 
 ## Problema abordado
 

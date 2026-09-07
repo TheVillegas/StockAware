@@ -1,0 +1,70 @@
+# Réplica del ERP VAIPS. Levanta todo con:  docker compose up -d --build
+#
+# La base se inicializa sola la primera vez, en este orden:
+#   01_schema.sql      estructura, generada desde el information_schema original
+#   02_datos.sql.gz    datos ya anonimizados (~415.000 filas)
+#   03_vistas.sql      las vistas traducidas de MySQL
+#   04_secuencias.sql  sincroniza los contadores de identidad con los datos
+#
+# Ese orden importa: los datos entran con sus id originales, lo que NO avanza
+# las secuencias. Sin el paso 04, el primer INSERT nuevo pide id=1 y choca.
+#
+# Los scripts de init solo corren si el volumen esta vacio. Para rehacer la
+# base desde cero:  docker compose down -v && docker compose up -d
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: erp-db
+    environment:
+      POSTGRES_USER: ${PG_USER:-erp}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-erp_local}
+      POSTGRES_DB: ${PG_DATABASE:-erp_replica}
+    ports:
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./apps/backend/database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-erp} -d ${PG_DATABASE:-erp_replica}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./apps/backend
+    container_name: erp-backend
+    environment:
+      PG_HOST: db
+      PG_PORT: 5432
+      PG_USER: ${PG_USER:-erp}
+      PG_PASSWORD: ${PG_PASSWORD:-erp_local}
+      PG_DATABASE: ${PG_DATABASE:-erp_replica}
+      PUERTO: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200}
+      JWT_SECRET: ${JWT_SECRET:-replica-erp-local-2026}
+      JWT_EXPIRA: ${JWT_EXPIRA:-3600s}
+      # El ERP no tiene el parametro PEPPER en la tabla parametros, asi que el
+      # HMAC de la clave corre con llave vacia. Se deja explicito a proposito.
+      PEPPER: ""
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./apps/frontend
+    container_name: erp-frontend
+    ports:
+      - "${FRONTEND_PORT:-4200}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
