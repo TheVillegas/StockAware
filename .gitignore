@@ -57,7 +57,7 @@ pnpm-debug.log*
 .yarn/build-state.yml
 .pnp.*
 .pnpm-store/
-.angular/cache/
+**/.angular/cache/
 .ionic/
 .capacitor/
 dist/
@@ -155,3 +155,8 @@ crash.*.log
 .vercel/
 .serverless/
 .terraform.d/
+
+# Excepcion: la semilla de datos anonimizados SI va al repositorio.
+# Son ~9 MB comprimidos y es lo que permite levantar la replica sin acceso
+# a la base original. La regla *.sql.gz de mas arriba la excluiria.
+!apps/backend/database/init/*.sql.gz

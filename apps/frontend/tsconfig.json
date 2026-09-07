@@ -1,8 +1,12 @@
+<<<<<<< Updated upstream
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
+=======
+>>>>>>> Stashed changes
 {
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
+<<<<<<< Updated upstream
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "strict": true,
@@ -26,5 +30,19 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
+=======
+    "strict": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "dom"]
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": false
+>>>>>>> Stashed changes
   }
 }

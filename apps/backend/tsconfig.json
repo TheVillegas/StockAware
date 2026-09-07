@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+<<<<<<< Updated upstream
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,
@@ -19,4 +20,21 @@
     "strictPropertyInitialization": false,
     "types": ["node"]
   }
+=======
+    "module": "commonjs",
+    "target": "ES2023",
+    "moduleResolution": "node",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "forceConsistentCasingInFileNames": false
+  },
+  "include": ["src/**/*"]
+>>>>>>> Stashed changes
 }

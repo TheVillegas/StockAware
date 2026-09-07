@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+<<<<<<< Updated upstream
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module.js';
@@ -17,6 +18,14 @@ import { BodegaService } from './bodega.service.js';
     ]),
     AuthModule,
   ],
+=======
+import { BodegaController } from './bodega.controller';
+import { BodegaService } from './bodega.service';
+import { AuthModule } from '../auth/auth.module';
+
+@Module({
+  imports: [AuthModule],
+>>>>>>> Stashed changes
   controllers: [BodegaController],
   providers: [BodegaService],
 })
