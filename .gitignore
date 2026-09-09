@@ -58,6 +58,7 @@ pnpm-debug.log*
 .pnp.*
 .pnpm-store/
 .angular/cache/
+**/.angular/cache/
 .ionic/
 .capacitor/
 dist/
