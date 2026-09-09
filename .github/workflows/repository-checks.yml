@@ -1,0 +1,62 @@
+name: Repository checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-checks:
+    name: Repository baseline checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate required baseline paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          required_paths=(
+            ".github"
+            ".github/PULL_REQUEST_TEMPLATE.md"
+            ".github/ISSUE_TEMPLATE/ep1.yml"
+            ".github/ISSUE_TEMPLATE/ep2.yml"
+            ".github/ISSUE_TEMPLATE/final.yml"
+            ".github/workflows/repository-checks.yml"
+          )
+
+          for path in "${required_paths[@]}"; do
+            if [[ ! -e "$path" ]]; then
+              echo "Missing required baseline path: $path" >&2
+              exit 1
+            fi
+          done
+
+      - name: Parse GitHub YAML files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' yaml_files < <(find .github -type f \( -name '*.yml' -o -name '*.yaml' \) -print0)
+          if [[ "${#yaml_files[@]}" -eq 0 ]]; then
+            echo "No YAML files found under .github" >&2
+            exit 1
+          fi
+          ruby -rpsych -e 'ARGV.each { |path| Psych.parse_file(path); puts "Valid YAML: #{path}" }' "${yaml_files[@]}"
+
+      - name: Reject tracked sensitive filenames
+        shell: bash
+        run: |
+          set -euo pipefail
+          sensitive_files="$(git ls-files | grep -E '(^|/)(\.env($|\.)|[^/]+\.(pem|key|p12|pfx|crt|cer))$' | grep -Ev '(^|/)\.env\.(example|sample|template)$' || true)"
+          if [[ -n "$sensitive_files" ]]; then
+            echo "Tracked sensitive filenames are not allowed:" >&2
+            echo "$sensitive_files" >&2
+            exit 1
+          fi

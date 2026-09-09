@@ -1,0 +1,70 @@
+name: "EP1 — Preparación y fundamentos"
+description: "Proponé trabajo para la primera entrega parcial de StockAware."
+title: "[EP1]: "
+labels:
+  - "phase:ep1"
+  - "status:planned"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por documentar el trabajo de la primera entrega. Completá cada sección con información verificable.
+  - type: textarea
+    id: objective_context
+    attributes:
+      label: Objetivo y contexto
+      description: ¿Qué problema se busca resolver y por qué es importante para EP1?
+      placeholder: Describí el objetivo, los usuarios involucrados y el contexto actual.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criterios de aceptación
+      description: Definí resultados observables que permitan considerar el trabajo terminado.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope_exclusions
+    attributes:
+      label: Alcance y exclusiones
+      description: Indicá qué incluye esta tarea y qué queda explícitamente fuera.
+      placeholder: Incluye... / No incluye...
+    validations:
+      required: true
+  - type: dropdown
+    id: affected_area
+    attributes:
+      label: Área afectada
+      description: Seleccioná el área principal impactada.
+      options:
+        - Documentación y organización
+        - Configuración del repositorio
+        - Frontend
+        - Backend o API
+        - Base de datos
+        - Integración continua
+        - Otra
+    validations:
+      required: true
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Evidencia y verificación
+      description: Confirmá cómo se verificará el resultado.
+      options:
+        - label: Incluiré comandos, capturas, enlaces o resultados de prueba como evidencia.
+          required: true
+        - label: Revisé que la propuesta no incluya secretos ni datos sensibles.
+          required: true
+  - type: textarea
+    id: evidence_details
+    attributes:
+      label: Detalle de evidencia esperada
+      description: Indicá la verificación concreta prevista o la evidencia disponible.
+      placeholder: Comando, resultado esperado, captura o enlace.
+    validations:
+      required: true
