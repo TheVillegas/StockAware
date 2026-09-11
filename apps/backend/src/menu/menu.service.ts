@@ -75,6 +75,8 @@ const IMPLEMENTADAS = new Set<string>([
   'EMITE_GR',
   'RECIBE_GR',
   'ENTREGA_MAT',
+  // Capa 4: distribucion de facturas
+  'DOC_DISTRIBUIR',
 ]);
 
 @Injectable()

@@ -67,6 +67,11 @@ export const rutas: Routes = [
     loadComponent: () => import('./bodega/guia.page').then((m) => m.GuiaPage),
   },
   {
+    path: 'f/DOC_DISTRIBUIR',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./distribucion/distribucion.page').then((m) => m.DistribucionPage),
+  },
+  {
     // Cada opcion del menu del ERP entra por aca hasta que tenga pantalla propia.
     path: 'f/:codigo',
     canActivate: [exigeSesion],
