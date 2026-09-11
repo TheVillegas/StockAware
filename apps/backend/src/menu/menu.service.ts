@@ -68,6 +68,13 @@ const IMPLEMENTADAS = new Set<string>([
   'EMITE_OC',
   'EDITA_OC',
   'EMITE_HES',
+  // Capa 3: bodega
+  'MATERIAL_X_BODEGA',
+  'BODEGA_MOVIMIENTOS',
+  'ING_MATERIAL',
+  'EMITE_GR',
+  'RECIBE_GR',
+  'ENTREGA_MAT',
 ]);
 
 @Injectable()
