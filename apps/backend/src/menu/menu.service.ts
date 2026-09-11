@@ -63,6 +63,11 @@ const IMPLEMENTADAS = new Set<string>([
   'ADM_U_OBRA',
   'ADM_LUGAR_TRABAJO',
   'PERFILES',
+  // Capa 2: compras
+  'CON_DOC_EMI',
+  'EMITE_OC',
+  'EDITA_OC',
+  'EMITE_HES',
 ]);
 
 @Injectable()
