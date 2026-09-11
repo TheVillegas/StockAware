@@ -45,6 +45,24 @@ export interface GrupoMenu {
 
 /** Lo que ya tiene pantalla construida. Crece capa por capa. */
 const IMPLEMENTADAS = new Set<string>([
+  // Capa 1: mantenedores de maestros
+  'ADM_COMUNA',
+  'ADM_CATEGORIA',
+  'ADM_CCOSTO',
+  'ADM_CLIENTE',
+  'ADM_PROVEEDOR',
+  'ADM_PERSONAL',
+  'ADM_EMPRESA',
+  'ADM_BANCO_CTA',
+  'ADM_VAL_ECONOMICO',
+  'ADM_AREAS',
+  'ADM_BODEGA',
+  'ADM_MAT_FUN',
+  'ADM_EQUIPOS',
+  'ADM_VEHICULO',
+  'ADM_U_OBRA',
+  'ADM_LUGAR_TRABAJO',
+  'PERFILES',
 ]);
 
 @Injectable()
