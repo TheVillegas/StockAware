@@ -124,6 +124,24 @@ for excluded in .env scanner-report.json image.tar node_modules/package.json; do
 done
 
 workflow="$root/.github/workflows/repository-checks.yml"
+full_history_workflow="$root/.github/workflows/full-history-secret-audit.yml"
+secret_range="$root/.github/scripts/secret-scan-range.sh"
+range_repo="$workspace/range-repo"
+mkdir -p "$range_repo"
+git -C "$range_repo" init -q
+git -C "$range_repo" config user.email ci@example.invalid
+git -C "$range_repo" config user.name ci
+printf 'base\n' > "$range_repo/file"
+git -C "$range_repo" add file && git -C "$range_repo" commit -qm base
+base="$(git -C "$range_repo" rev-parse HEAD)"
+printf 'change\n' >> "$range_repo/file"
+git -C "$range_repo" commit -am change -q
+target="$(git -C "$range_repo" rev-parse HEAD)"
+pr_range="$(cd "$range_repo" && bash "$secret_range" feature-range "$base" "$target")"
+manual_range="$(cd "$range_repo" && bash "$secret_range" feature-range "$base" "$target")"
+[[ "$pr_range" == "$manual_range" && "$pr_range" == "$base..$target" ]]
+if (cd "$range_repo" && bash "$secret_range" feature-range missing "$target"); then exit 1; fi
+
 grep -q '^  ci-security:' "$workflow"
 grep -q '^  ci-codeql:' "$workflow"
 grep -q '^  ci-frontend-quality:' "$workflow"
@@ -143,5 +161,11 @@ grep -q 'docker compose config' "$workflow"
 grep -q 'test:integration:ci' "$workflow"
 grep -q 'security:applicable:${{ needs.ci-security.result }}' "$workflow"
 grep -q 'codeql:${{' "$workflow"
+grep -q "feature-range \"origin/\$INTEGRATION_BASE_REF\" \"\$GITHUB_SHA\"" "$workflow"
+grep -q '/tmp/gitleaks git --redact --no-banner --log-opts="$range" .' "$workflow"
+grep -q '/tmp/gitleaks dir --redact --no-banner .' "$workflow"
+grep -q '^  full-history-secret-audit:' "$full_history_workflow"
+grep -q 'gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0' "$full_history_workflow"
+if grep -Eqi 'baseline-path|gitleaks-ignore|gitleaks:allow|allowlist' "$workflow" "$full_history_workflow" "$secret_range"; then exit 1; fi
 
 echo "CI contract fixtures passed"
