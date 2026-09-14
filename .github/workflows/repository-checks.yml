@@ -7,6 +7,16 @@ on:
       - main
       - develop
   workflow_dispatch:
+    inputs:
+      exercise_failure:
+        description: Exercise the disposable final-gate failure probe.
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: repository-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -15,9 +25,10 @@ jobs:
   repository-checks:
     name: Repository baseline checks
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Validate required baseline paths
         shell: bash
@@ -60,3 +71,77 @@ jobs:
             echo "$sensitive_files" >&2
             exit 1
           fi
+
+  manifest-discovery:
+    name: CI manifest discovery
+    needs: repository-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      frontend: ${{ steps.discovery.outputs.frontend }}
+      backend: ${{ steps.discovery.outputs.backend }}
+      intelligence: ${{ steps.discovery.outputs.intelligence }}
+      compose: ${{ steps.discovery.outputs.compose }}
+      postgres: ${{ steps.discovery.outputs.postgres }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - id: discovery
+        name: Record manifest applicability
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash .github/scripts/ci-contract.sh discover "$GITHUB_WORKSPACE" discovery.env
+          cat discovery.env >> "$GITHUB_OUTPUT"
+          sed "s/^/CI manifest state: /" discovery.env
+          {
+            echo "## CI manifest discovery"
+            echo "Commit: \`$GITHUB_SHA\` | Run: \`$GITHUB_RUN_ID\`"
+            sed "s/^/- /" discovery.env
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  policy-probe:
+    name: CI policy probe
+    needs: repository-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Exercise controlled failure only on manual dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.exercise_failure }}
+        shell: bash
+        run: |
+          echo "Controlled failure probe requested; CI critical gate must fail." >&2
+          exit 1
+      - name: Confirm normal policy probe
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.exercise_failure) }}
+        shell: bash
+        run: echo "Policy probe passed without a manual failure request."
+
+  ci-critical-gate:
+    name: CI critical gate
+    if: ${{ always() }}
+    needs:
+      - repository-checks
+      - manifest-discovery
+      - policy-probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Evaluate fail-closed CI contract
+        env:
+          GATE_ROWS: >-
+            baseline:applicable:${{ needs.repository-checks.result }};
+            discovery:applicable:${{ needs.manifest-discovery.result }};
+            policy-probe:applicable:${{ needs.policy-probe.result }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash .github/scripts/ci-contract.sh gate "$GATE_ROWS" gate-summary.env
+          sed "s/^/CI gate result: /" gate-summary.env
+          {
+            echo "## CI critical gate"
+            echo "Commit: \`$GITHUB_SHA\` | Run: \`$GITHUB_RUN_ID\`"
+            sed "s/^/- /" gate-summary.env
+          } >> "$GITHUB_STEP_SUMMARY"
