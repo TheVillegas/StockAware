@@ -1,0 +1,4 @@
+case|frontend|expected
+absent|none|not_applicable
+applicable|complete|applicable
+invalid-contract|missing-lock|invalid_contract
