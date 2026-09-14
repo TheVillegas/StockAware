@@ -98,7 +98,14 @@ jobs:
             echo "## CI manifest discovery"
             echo "Commit: \`$GITHUB_SHA\` | Run: \`$GITHUB_RUN_ID\`"
             sed "s/^/- /" discovery.env
-          } >> "$GITHUB_STEP_SUMMARY"
+           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Write redacted discovery evidence
+        if: ${{ always() }}
+        run: bash .github/scripts/ci-contract.sh evidence discovery ci-evidence "${{ job.status }}"
+      - name: Upload redacted discovery evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-discovery", path: ci-evidence/discovery-summary.env, if-no-files-found: error, retention-days: 30 }
 
   policy-probe:
     name: CI policy probe
@@ -218,10 +225,21 @@ jobs:
           cache: npm
           cache-dependency-path: apps/frontend/package-lock.json
       - run: npm ci
+      - name: Warn on LOW and MEDIUM npm findings
+        run: npm audit --audit-level=low || true
+      - name: Block HIGH and CRITICAL npm findings
+        run: npm audit --audit-level=high
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --watch=false
       - run: npm run build
+      - name: Write redacted frontend evidence
+        if: ${{ always() }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/ci-contract.sh" evidence frontend "$GITHUB_WORKSPACE/ci-evidence" "${{ job.status }}"
+      - name: Upload redacted frontend evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-frontend", path: ci-evidence/frontend-summary.env, if-no-files-found: error, retention-days: 30 }
 
   ci-backend-quality:
     name: CI backend quality
@@ -240,10 +258,21 @@ jobs:
           cache: npm
           cache-dependency-path: apps/backend/package-lock.json
       - run: npm ci
+      - name: Warn on LOW and MEDIUM npm findings
+        run: npm audit --audit-level=low || true
+      - name: Block HIGH and CRITICAL npm findings
+        run: npm audit --audit-level=high
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --runInBand
       - run: npm run build
+      - name: Write redacted backend evidence
+        if: ${{ always() }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/ci-contract.sh" evidence backend "$GITHUB_WORKSPACE/ci-evidence" "${{ job.status }}"
+      - name: Upload redacted backend evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-backend", path: ci-evidence/backend-summary.env, if-no-files-found: error, retention-days: 30 }
 
   ci-intelligence-quality:
     name: CI intelligence quality
@@ -261,10 +290,23 @@ jobs:
           python-version: ${{ vars.PYTHON_VERSION }}
       - run: pipx install uv==0.8.15
       - run: uv sync --frozen
+      - name: Warn on LOW and MEDIUM Python dependency findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+      - name: Block HIGH and CRITICAL Python dependency findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
       - run: uv run --frozen ruff check .
       - run: uv run --frozen ruff format --check .
       - run: uv run --frozen mypy .
       - run: uv run --frozen pytest
+      - name: Write redacted intelligence evidence
+        if: ${{ always() }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/ci-contract.sh" evidence intelligence "$GITHUB_WORKSPACE/ci-evidence" "${{ job.status }}"
+      - name: Upload redacted intelligence evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-intelligence", path: ci-evidence/intelligence-summary.env, if-no-files-found: error, retention-days: 30 }
 
   ci-postgres-integration:
     name: CI PostgreSQL integration
@@ -301,6 +343,13 @@ jobs:
         env: { PGHOST: 127.0.0.1, PGPORT: 5432, PGUSER: ci, PGPASSWORD: ci-only-password, PGDATABASE: stockaware_ci }
       - run: npm run test:integration:ci
         env: { PGHOST: 127.0.0.1, PGPORT: 5432, PGUSER: ci, PGPASSWORD: ci-only-password, PGDATABASE: stockaware_ci }
+      - name: Write redacted PostgreSQL evidence
+        if: ${{ always() }}
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/ci-contract.sh" evidence postgres "$GITHUB_WORKSPACE/ci-evidence" "${{ job.status }}"
+      - name: Upload redacted PostgreSQL evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-postgres", path: ci-evidence/postgres-summary.env, if-no-files-found: error, retention-days: 30 }
 
   ci-containers:
     name: CI containers
@@ -325,6 +374,13 @@ jobs:
       - name: Block HIGH and CRITICAL frontend image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with: { image-ref: stockaware-frontend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+      - name: Write redacted containers evidence
+        if: ${{ always() }}
+        run: bash .github/scripts/ci-contract.sh evidence containers ci-evidence "${{ job.status }}"
+      - name: Upload redacted containers evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-containers", path: ci-evidence/containers-summary.env, if-no-files-found: error, retention-days: 30 }
 
   ci-critical-gate:
     name: CI critical gate
@@ -368,3 +424,10 @@ jobs:
             echo "Commit: \`$GITHUB_SHA\` | Run: \`$GITHUB_RUN_ID\`"
             sed "s/^/- /" gate-summary.env
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Write redacted final-gate evidence
+        if: ${{ always() }}
+        run: bash .github/scripts/ci-contract.sh evidence critical-gate ci-evidence "${{ job.status }}"
+      - name: Upload redacted final-gate evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-critical-gate", path: ci-evidence/critical-gate-summary.env, if-no-files-found: error, retention-days: 30 }

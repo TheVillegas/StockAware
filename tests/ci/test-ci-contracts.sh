@@ -105,6 +105,23 @@ printf 'run_id=1\n' > "$workspace/evidence/security-summary.env"
 bash "$security_policy" validate-artifact "$workspace/evidence" | grep -qx 'artifact=redacted'
 printf 'unsafe\n' > "$workspace/evidence/.env"
 if bash "$security_policy" validate-artifact "$workspace/evidence"; then exit 1; fi
+rm "$workspace/evidence/.env"
+for control in discovery frontend backend intelligence postgres containers critical-gate; do
+  GITHUB_SHA=abc GITHUB_RUN_ID=123 bash "$contract" evidence "$control" "$workspace/evidence" success
+  grep -qx "control=$control" "$workspace/evidence/$control-summary.env"
+  grep -qx 'commit=abc' "$workspace/evidence/$control-summary.env"
+  grep -qx 'run_id=123' "$workspace/evidence/$control-summary.env"
+done
+bash "$security_policy" validate-artifact "$workspace/evidence" | grep -qx 'artifact=redacted'
+printf 'dump\n' > "$workspace/evidence/database.dump"
+if bash "$security_policy" validate-artifact "$workspace/evidence"; then exit 1; fi
+rm "$workspace/evidence/database.dump"
+for excluded in .env scanner-report.json image.tar node_modules/package.json; do
+  mkdir -p "$(dirname "$workspace/evidence/$excluded")"
+  : > "$workspace/evidence/$excluded"
+  if bash "$security_policy" validate-artifact "$workspace/evidence"; then exit 1; fi
+  rm "$workspace/evidence/$excluded"
+done
 
 workflow="$root/.github/workflows/repository-checks.yml"
 grep -q '^  ci-security:' "$workflow"
@@ -115,6 +132,13 @@ grep -q '^  ci-intelligence-quality:' "$workflow"
 grep -q '^  ci-postgres-integration:' "$workflow"
 grep -q '^  ci-containers:' "$workflow"
 grep -q 'uv sync --frozen' "$workflow"
+grep -q 'npm audit --audit-level=high' "$workflow"
+grep -q 'scan-ref: apps/intelligence-service' "$workflow"
+for evidence in discovery frontend backend intelligence postgres containers critical-gate; do
+  grep -q "evidence $evidence" "$workflow"
+  grep -q "ci-evidence-\${{ github.sha }}-\${{ github.run_id }}-$evidence" "$workflow"
+done
+[[ "$(grep -c 'retention-days: 30' "$workflow")" -ge 8 ]]
 grep -q 'docker compose config' "$workflow"
 grep -q 'test:integration:ci' "$workflow"
 grep -q 'security:applicable:${{ needs.ci-security.result }}' "$workflow"
