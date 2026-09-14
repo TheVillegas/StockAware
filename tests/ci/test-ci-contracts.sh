@@ -28,6 +28,29 @@ while IFS='|' read -r case frontend expected; do
   grep -qx "frontend=$expected" "$fixture/discovery.env"
 done < "$fixtures/manifest-cases.tsv"
 
+activated="$workspace/activated"
+mkdir -p "$activated/apps"/{frontend,backend,intelligence-service}
+printf '%s\n' '{"scripts":{"lint":"true","typecheck":"true","test":"true","build":"true"}}' > "$activated/apps/frontend/package.json"
+printf '%s\n' '{"scripts":{"lint":"true","typecheck":"true","test":"true","build":"true","db:migrate:ci":"true","db:seed:ci":"true","test:integration:ci":"true"}}' > "$activated/apps/backend/package.json"
+: > "$activated/apps/frontend/package-lock.json"
+: > "$activated/apps/backend/package-lock.json"
+printf '%s\n' '[project]' 'dependencies = ["ruff", "mypy", "pytest"]' > "$activated/apps/intelligence-service/pyproject.toml"
+: > "$activated/apps/intelligence-service/uv.lock"
+printf '%s\n' 'services: {}' > "$activated/docker-compose.yml"
+: > "$activated/apps/frontend/Dockerfile"
+: > "$activated/apps/backend/Dockerfile"
+bash "$contract" discover "$activated" "$activated/discovery.env"
+for contract_state in frontend backend intelligence compose postgres; do
+  grep -qx "$contract_state=applicable" "$activated/discovery.env"
+done
+sed -i 's/"db:seed:ci":"true",//' "$activated/apps/backend/package.json"
+if bash "$contract" discover "$activated" "$activated/discovery.env"; then exit 1; fi
+grep -qx 'postgres=invalid_contract' "$activated/discovery.env"
+sed -i 's/"db:migrate:ci":"true",/"db:migrate:ci":"true","db:seed:ci":"true",/' "$activated/apps/backend/package.json"
+rm "$activated/apps/frontend/Dockerfile"
+if bash "$contract" discover "$activated" "$activated/discovery.env"; then exit 1; fi
+grep -qx 'compose=invalid_contract' "$activated/discovery.env"
+
 while IFS='|' read -r case expected_exit rows; do
   [[ "$case" == "case" ]] && continue
   result=0
@@ -86,6 +109,14 @@ if bash "$security_policy" validate-artifact "$workspace/evidence"; then exit 1;
 workflow="$root/.github/workflows/repository-checks.yml"
 grep -q '^  ci-security:' "$workflow"
 grep -q '^  ci-codeql:' "$workflow"
+grep -q '^  ci-frontend-quality:' "$workflow"
+grep -q '^  ci-backend-quality:' "$workflow"
+grep -q '^  ci-intelligence-quality:' "$workflow"
+grep -q '^  ci-postgres-integration:' "$workflow"
+grep -q '^  ci-containers:' "$workflow"
+grep -q 'uv sync --frozen' "$workflow"
+grep -q 'docker compose config' "$workflow"
+grep -q 'test:integration:ci' "$workflow"
 grep -q 'security:applicable:${{ needs.ci-security.result }}' "$workflow"
 grep -q 'codeql:${{' "$workflow"
 

@@ -38,10 +38,12 @@ discover() {
   else
     intelligence=invalid_contract
   fi
-  if [[ -f "$repository/compose.yml" || -f "$repository/compose.yaml" || -f "$repository/docker-compose.yml" || -f "$repository/docker-compose.yaml" ]]; then
+  if [[ ! -f "$repository/compose.yml" && ! -f "$repository/compose.yaml" && ! -f "$repository/docker-compose.yml" && ! -f "$repository/docker-compose.yaml" ]]; then
+    compose=not_applicable
+  elif [[ -f "$repository/apps/frontend/Dockerfile" && -f "$repository/apps/backend/Dockerfile" ]]; then
     compose=applicable
   else
-    compose=not_applicable
+    compose=invalid_contract
   fi
   postgres="$(node_state "$repository/apps/backend" db:migrate:ci db:seed:ci test:integration:ci)"
   cat > "$output" <<EOF

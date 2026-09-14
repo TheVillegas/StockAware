@@ -201,6 +201,131 @@ jobs:
       - name: Analyze CodeQL database
         uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
 
+  ci-frontend-quality:
+    name: CI frontend quality
+    needs: manifest-discovery
+    if: ${{ needs.manifest-discovery.outputs.frontend == 'applicable' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --watch=false
+      - run: npm run build
+
+  ci-backend-quality:
+    name: CI backend quality
+    needs: manifest-discovery
+    if: ${{ needs.manifest-discovery.outputs.backend == 'applicable' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- --runInBand
+      - run: npm run build
+
+  ci-intelligence-quality:
+    name: CI intelligence quality
+    needs: manifest-discovery
+    if: ${{ needs.manifest-discovery.outputs.intelligence == 'applicable' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/intelligence-service
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ vars.PYTHON_VERSION }}
+      - run: pipx install uv==0.8.15
+      - run: uv sync --frozen
+      - run: uv run --frozen ruff check .
+      - run: uv run --frozen ruff format --check .
+      - run: uv run --frozen mypy .
+      - run: uv run --frozen pytest
+
+  ci-postgres-integration:
+    name: CI PostgreSQL integration
+    needs: [manifest-discovery, ci-backend-quality]
+    if: ${{ always() && needs.manifest-discovery.outputs.postgres == 'applicable' && needs.ci-backend-quality.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: stockaware_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d stockaware_ci" --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/backend/package-lock.json
+      - run: npm ci
+      - run: npm run db:migrate:ci
+        env: { PGHOST: 127.0.0.1, PGPORT: 5432, PGUSER: ci, PGPASSWORD: ci-only-password, PGDATABASE: stockaware_ci }
+      - run: npm run db:seed:ci
+        env: { PGHOST: 127.0.0.1, PGPORT: 5432, PGUSER: ci, PGPASSWORD: ci-only-password, PGDATABASE: stockaware_ci }
+      - run: npm run test:integration:ci
+        env: { PGHOST: 127.0.0.1, PGPORT: 5432, PGUSER: ci, PGPASSWORD: ci-only-password, PGDATABASE: stockaware_ci }
+
+  ci-containers:
+    name: CI containers
+    needs: manifest-discovery
+    if: ${{ needs.manifest-discovery.outputs.compose == 'applicable' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: docker compose config --quiet
+      - run: docker build --tag stockaware-backend-ci:local apps/backend
+      - run: docker build --tag stockaware-frontend-ci:local apps/frontend
+      - name: Warn on MEDIUM and LOW backend image findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { image-ref: stockaware-backend-ci:local, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+      - name: Warn on MEDIUM and LOW frontend image findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { image-ref: stockaware-frontend-ci:local, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+      - name: Block HIGH and CRITICAL backend image findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { image-ref: stockaware-backend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+      - name: Block HIGH and CRITICAL frontend image findings
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with: { image-ref: stockaware-frontend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+
   ci-critical-gate:
     name: CI critical gate
     if: ${{ always() }}
@@ -210,6 +335,11 @@ jobs:
       - policy-probe
       - ci-security
       - ci-codeql
+      - ci-frontend-quality
+      - ci-backend-quality
+      - ci-intelligence-quality
+      - ci-postgres-integration
+      - ci-containers
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -222,7 +352,12 @@ jobs:
             discovery:applicable:${{ needs.manifest-discovery.result }};
             policy-probe:applicable:${{ needs.policy-probe.result }};
             security:applicable:${{ needs.ci-security.result }};
-            codeql:${{ (needs.manifest-discovery.outputs.frontend == 'applicable' || needs.manifest-discovery.outputs.backend == 'applicable' || needs.manifest-discovery.outputs.intelligence == 'applicable') && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'applicable' || 'not_applicable' }}:${{ needs.ci-codeql.result }}
+            codeql:${{ (needs.manifest-discovery.outputs.frontend == 'applicable' || needs.manifest-discovery.outputs.backend == 'applicable' || needs.manifest-discovery.outputs.intelligence == 'applicable') && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && 'applicable' || 'not_applicable' }}:${{ needs.ci-codeql.result }};
+            frontend:${{ needs.manifest-discovery.outputs.frontend }}:${{ needs.ci-frontend-quality.result }};
+            backend:${{ needs.manifest-discovery.outputs.backend }}:${{ needs.ci-backend-quality.result }};
+            intelligence:${{ needs.manifest-discovery.outputs.intelligence }}:${{ needs.ci-intelligence-quality.result }};
+            postgres:${{ needs.manifest-discovery.outputs.postgres }}:${{ needs.ci-postgres-integration.result }};
+            containers:${{ needs.manifest-discovery.outputs.compose }}:${{ needs.ci-containers.result }}
         shell: bash
         run: |
           set -euo pipefail
