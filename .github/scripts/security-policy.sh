@@ -75,7 +75,7 @@ validate_artifact() {
   local file
   while IFS= read -r -d '' file; do
     case "${file#$directory/}" in
-      security-summary.env) ;;
+      discovery-summary.env|frontend-summary.env|backend-summary.env|intelligence-summary.env|postgres-summary.env|containers-summary.env|critical-gate-summary.env|security-summary.env) ;;
       *) echo "Unsafe evidence file: ${file#$directory/}" >&2; return 1 ;;
     esac
   done < <(find "$directory" -type f -print0)
