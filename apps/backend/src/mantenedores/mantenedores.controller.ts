@@ -2,7 +2,7 @@ import {
   Body, Controller, Get, Ip, Param, Put, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { MantenedoresService } from './mantenedores.service';
-import { JwtAuthGuard, PermisosGuard } from '../comun/permisos.guard';
+import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
 @Controller('mantenedores')
 @UseGuards(JwtAuthGuard, PermisosGuard)
@@ -15,6 +15,7 @@ export class MantenedoresController {
   }
 
   @Get(':codigo')
+  @Requiere('@codigo')
   listar(
     @Param('codigo') codigo: string,
     @Req() req: any,
@@ -30,11 +31,13 @@ export class MantenedoresController {
   }
 
   @Get(':codigo/:id')
+  @Requiere('@codigo')
   obtener(@Param('codigo') codigo: string, @Param('id') id: string) {
     return this.svc.obtener(codigo, id);
   }
 
   @Put(':codigo/:id')
+  @Requiere('@escritura')
   actualizar(
     @Param('codigo') codigo: string,
     @Param('id') id: string,

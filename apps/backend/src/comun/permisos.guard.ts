@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+import { buscaMantenedor } from '../mantenedores/catalogo';
 
 export const PERMISO_CLAVE = 'permiso_requerido';
 export const Requiere = (glosa: string) => SetMetadata(PERMISO_CLAVE, glosa);
@@ -29,12 +30,27 @@ export class PermisosGuard implements CanActivate {
     if (!requerido) return true;
 
     const req = ctx.switchToHttp().getRequest();
+    const glosa = resuelveGlosa(requerido, req);
     const permisos: string[] = req.user?.permisos ?? [];
-    if (!permisos.includes(requerido)) {
+    if (!permisos.includes(glosa)) {
       throw new ForbiddenException(
-        `El perfil "${req.user?.perfil ?? '?'}" no tiene la funcion ${requerido}`,
+        `El perfil "${req.user?.perfil ?? '?'}" no tiene la funcion ${glosa}`,
       );
     }
     return true;
   }
+}
+
+function resuelveGlosa(requerido: string, req: { params?: { codigo?: string } }): string {
+  if (requerido === '@codigo') return req.params?.codigo;
+  if (requerido === '@escritura') {
+    const mantenedor = buscaMantenedor(req.params?.codigo);
+    if (!mantenedor) {
+      throw new ForbiddenException(
+        `No existe el mantenedor ${req.params?.codigo ?? '?'}`,
+      );
+    }
+    return mantenedor.permisoEscritura ?? mantenedor.codigo;
+  }
+  return requerido;
 }
