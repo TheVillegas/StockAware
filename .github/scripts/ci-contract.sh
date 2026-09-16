@@ -38,10 +38,12 @@ discover() {
   else
     intelligence=invalid_contract
   fi
-  if [[ -f "$repository/compose.yml" || -f "$repository/compose.yaml" || -f "$repository/docker-compose.yml" || -f "$repository/docker-compose.yaml" ]]; then
+  if [[ ! -f "$repository/compose.yml" && ! -f "$repository/compose.yaml" && ! -f "$repository/docker-compose.yml" && ! -f "$repository/docker-compose.yaml" ]]; then
+    compose=not_applicable
+  elif [[ -f "$repository/apps/frontend/Dockerfile" && -f "$repository/apps/backend/Dockerfile" ]]; then
     compose=applicable
   else
-    compose=not_applicable
+    compose=invalid_contract
   fi
   postgres="$(node_state "$repository/apps/backend" db:migrate:ci db:seed:ci test:integration:ci)"
   cat > "$output" <<EOF
@@ -83,8 +85,25 @@ gate() {
   return "$failed"
 }
 
+evidence() {
+  local control="$1" directory="$2" status="$3"
+  case "$control" in
+    discovery|frontend|backend|intelligence|postgres|containers|critical-gate) ;;
+    *) echo "invalid evidence control: $control" >&2; return 64 ;;
+  esac
+  mkdir -p "$directory"
+  {
+    echo "control=$control"
+    echo "status=$status"
+    echo "commit=${GITHUB_SHA:?GITHUB_SHA is required}"
+    echo "run_id=${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}"
+    echo "content=redacted_metadata_only"
+  } > "$directory/$control-summary.env"
+}
+
 case "${1:-}" in
   discover) discover "$2" "$3" ;;
   gate) gate "$2" "$3" ;;
-  *) echo "usage: $0 {discover REPOSITORY OUTPUT|gate ROWS OUTPUT}" >&2; exit 64 ;;
+  evidence) evidence "$2" "$3" "$4" ;;
+  *) echo "usage: $0 {discover REPOSITORY OUTPUT|gate ROWS OUTPUT|evidence CONTROL DIRECTORY STATUS}" >&2; exit 64 ;;
 esac
