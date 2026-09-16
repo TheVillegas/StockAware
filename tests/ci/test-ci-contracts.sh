@@ -141,6 +141,7 @@ pr_range="$(cd "$range_repo" && bash "$secret_range" feature-range "$base" "$tar
 manual_range="$(cd "$range_repo" && bash "$secret_range" feature-range "$base" "$target")"
 [[ "$pr_range" == "$manual_range" && "$pr_range" == "$base..$target" ]]
 if (cd "$range_repo" && bash "$secret_range" feature-range missing "$target"); then exit 1; fi
+if (cd "$range_repo" && bash "$secret_range" feature-range "$target" "$target"); then exit 1; fi
 
 grep -q '^  ci-security:' "$workflow"
 grep -q '^  ci-codeql:' "$workflow"
@@ -162,6 +163,8 @@ grep -q 'test:integration:ci' "$workflow"
 grep -q 'security:applicable:${{ needs.ci-security.result }}' "$workflow"
 grep -q 'codeql:${{' "$workflow"
 grep -q "feature-range \"origin/\$INTEGRATION_BASE_REF\" \"\$GITHUB_SHA\"" "$workflow"
+grep -q 'EVENT_BEFORE: ${{ github.event.before }}' "$workflow"
+grep -q 'feature-range "$EVENT_BEFORE" "$GITHUB_SHA"' "$workflow"
 grep -q '/tmp/gitleaks git --redact --no-banner --log-opts="$range" .' "$workflow"
 grep -q '/tmp/gitleaks dir --redact --no-banner .' "$workflow"
 grep -q '^  full-history-secret-audit:' "$full_history_workflow"
