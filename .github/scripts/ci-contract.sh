@@ -24,6 +24,37 @@ node_state() {
   printf '%s\n' applicable
 }
 
+optional_script_group_state() {
+  local directory="$1"
+  shift
+  local package="$directory/package.json"
+  local lock="$directory/package-lock.json"
+  if [[ ! -e "$package" && ! -e "$lock" ]]; then
+    printf '%s\n' not_applicable
+    return
+  fi
+  if [[ ! -f "$package" || ! -f "$lock" ]]; then
+    printf '%s\n' invalid_contract
+    return
+  fi
+  local script found=0 total=0
+  for script in "$@"; do
+    total=$((total + 1))
+    if grep -Eq "\"$script\"[[:space:]]*:[[:space:]]*\"[^\"]+\"" "$package"; then
+      found=$((found + 1))
+    fi
+  done
+  if [[ "$found" -eq 0 ]]; then
+    printf '%s\n' not_applicable
+    return
+  fi
+  if [[ "$found" -eq "$total" ]]; then
+    printf '%s\n' applicable
+    return
+  fi
+  printf '%s\n' invalid_contract
+}
+
 discover() {
   local repository="$1"
   local output="$2"
@@ -45,7 +76,7 @@ discover() {
   else
     compose=invalid_contract
   fi
-  postgres="$(node_state "$repository/apps/backend" db:migrate:ci db:seed:ci test:integration:ci)"
+  postgres="$(optional_script_group_state "$repository/apps/backend" db:migrate:ci db:seed:ci test:integration:ci)"
   cat > "$output" <<EOF
 frontend=$frontend
 backend=$backend
