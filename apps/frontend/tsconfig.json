@@ -10,8 +10,10 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "lib": ["ES2022", "dom"]
+    "lib": ["ES2022", "dom"],
+    "allowJs": true
   },
+  "include": ["src/**/*", "eslint.config.js", "jest.config.cjs"],
   "angularCompilerOptions": {
     "strictTemplates": false
   }
