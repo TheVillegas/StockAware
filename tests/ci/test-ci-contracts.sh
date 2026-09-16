@@ -46,6 +46,13 @@ done
 sed -i 's/"db:seed:ci":"true",//' "$activated/apps/backend/package.json"
 if bash "$contract" discover "$activated" "$activated/discovery.env"; then exit 1; fi
 grep -qx 'postgres=invalid_contract' "$activated/discovery.env"
+quality_only="$workspace/quality-only"
+mkdir -p "$quality_only/apps/backend"
+printf '%s\n' '{"scripts":{"lint":"true","typecheck":"true","test":"true","build":"true"}}' > "$quality_only/apps/backend/package.json"
+: > "$quality_only/apps/backend/package-lock.json"
+bash "$contract" discover "$quality_only" "$quality_only/discovery.env"
+grep -qx 'backend=applicable' "$quality_only/discovery.env"
+grep -qx 'postgres=not_applicable' "$quality_only/discovery.env"
 sed -i 's/"db:migrate:ci":"true",/"db:migrate:ci":"true","db:seed:ci":"true",/' "$activated/apps/backend/package.json"
 rm "$activated/apps/frontend/Dockerfile"
 if bash "$contract" discover "$activated" "$activated/discovery.env"; then exit 1; fi
