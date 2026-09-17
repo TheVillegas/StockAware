@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { BodegaModule } from './bodega/bodega.module';
 import { ComprasModule } from './compras/compras.module';
+import { DistribucionModule } from './distribucion/distribucion.module';
 import { ComunModule } from './comun/comun.module';
 import { PeticionesMiddleware } from './comun/peticiones.middleware';
 import { MantenedoresModule } from './mantenedores/mantenedores.module';
@@ -34,6 +35,7 @@ import * as entidades from './entidades/acceso.entity';
     MantenedoresModule,
     ComprasModule,
     BodegaModule,
+    DistribucionModule,
   ],
 })
 export class AppModule implements NestModule {
