@@ -16,5 +16,11 @@ export const rutas: Routes = [
     canActivate: [exigeSesion],
     loadComponent: () => import('./inicio/inicio.page').then((m) => m.InicioPage),
   },
+  {
+    // Cada opcion del menu del ERP entra por aca hasta que tenga pantalla propia.
+    path: 'f/:codigo',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./mantenedor/mantenedor.page').then((m) => m.MantenedorPage),
+  },
   { path: '**', redirectTo: 'inicio' },
 ];

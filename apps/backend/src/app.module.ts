@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ComunModule } from './comun/comun.module';
 import { PeticionesMiddleware } from './comun/peticiones.middleware';
+import { MantenedoresModule } from './mantenedores/mantenedores.module';
 import { MenuModule } from './menu/menu.module';
 import * as entidades from './entidades/acceso.entity';
 
@@ -28,6 +29,7 @@ import * as entidades from './entidades/acceso.entity';
     ComunModule,
     AuthModule,
     MenuModule,
+    MantenedoresModule,
   ],
 })
 export class AppModule implements NestModule {
