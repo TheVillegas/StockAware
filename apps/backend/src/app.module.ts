@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './auth/auth.module';
+import { BalanceModule } from './balance/balance.module';
 import { BodegaModule } from './bodega/bodega.module';
 import { ComprasModule } from './compras/compras.module';
 import { DistribucionModule } from './distribucion/distribucion.module';
@@ -32,6 +33,7 @@ import * as entidades from './entidades/acceso.entity';
     ComunModule,
     AuthModule,
     MenuModule,
+    BalanceModule,
     MantenedoresModule,
     ComprasModule,
     BodegaModule,
