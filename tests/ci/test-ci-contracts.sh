@@ -152,6 +152,8 @@ if (cd "$range_repo" && bash "$secret_range" feature-range "$target" "$target");
 
 grep -q '^  ci-security:' "$workflow"
 grep -q '^  ci-codeql:' "$workflow"
+if grep -Fq 'languages: javascript-typescript, python' "$workflow"; then exit 1; fi
+grep -q 'languages: ${{ steps.' "$workflow"
 grep -q '^  ci-frontend-quality:' "$workflow"
 grep -q '^  ci-backend-quality:' "$workflow"
 grep -q '^  ci-intelligence-quality:' "$workflow"

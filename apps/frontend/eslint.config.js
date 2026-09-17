@@ -1,3 +1,5 @@
+const tsParser = require("@typescript-eslint/parser");
+
 const htmlNoopPlugin = {
   processors: {
     html: {
@@ -28,6 +30,7 @@ module.exports = [
   {
     files: ["src/**/*.ts"],
     languageOptions: {
+      parser: tsParser,
       ecmaVersion: 2022,
       sourceType: "module",
     },
