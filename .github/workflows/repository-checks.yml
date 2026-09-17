@@ -219,10 +219,33 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: codeql-languages
+        name: Select CodeQL languages
+        env:
+          FRONTEND: ${{ needs.manifest-discovery.outputs.frontend }}
+          BACKEND: ${{ needs.manifest-discovery.outputs.backend }}
+          INTELLIGENCE: ${{ needs.manifest-discovery.outputs.intelligence }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          languages=()
+          if [[ "${FRONTEND}" == "applicable" || "${BACKEND}" == "applicable" ]]; then
+            languages+=("javascript-typescript")
+          fi
+          if [[ "${INTELLIGENCE}" == "applicable" ]]; then
+            languages+=("python")
+          fi
+          if [[ "${#languages[@]}" -eq 0 ]]; then
+            echo "No CodeQL languages selected from manifest discovery" >&2
+            exit 1
+          fi
+          joined="$(printf '%s, ' "${languages[@]}")"
+          joined="${joined%, }"
+          echo "languages=${joined}" >> "$GITHUB_OUTPUT"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
         with:
-          languages: javascript-typescript, python
+          languages: ${{ steps.codeql-languages.outputs.languages }}
           build-mode: none
       - name: Analyze CodeQL database
         uses: github/codeql-action/analyze@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
