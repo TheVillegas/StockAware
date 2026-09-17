@@ -44,6 +44,29 @@ export const rutas: Routes = [
     loadComponent: () => import('./compras/orden.page').then((m) => m.OrdenPage),
   },
   {
+    path: 'f/MATERIAL_X_BODEGA',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./bodega/stock.page').then((m) => m.StockPage),
+  },
+  {
+    path: 'f/BODEGA_MOVIMIENTOS',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./bodega/movimientos.page').then((m) => m.MovimientosPage),
+  },
+  {
+    path: 'f/ING_MATERIAL',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./bodega/recepcion.page').then((m) => m.RecepcionPage),
+  },
+  {
+    // Un solo componente para los tres modos, igual que Emite_Documento_GR.
+    matcher: (segs) => segs.length === 2 && segs[0].path === 'f'
+      && ['EMITE_GR', 'RECIBE_GR', 'ENTREGA_MAT'].includes(segs[1].path)
+      ? { consumed: segs, posParams: { codigo: segs[1] } } : null,
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./bodega/guia.page').then((m) => m.GuiaPage),
+  },
+  {
     // Cada opcion del menu del ERP entra por aca hasta que tenga pantalla propia.
     path: 'f/:codigo',
     canActivate: [exigeSesion],
