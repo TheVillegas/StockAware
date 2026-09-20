@@ -3,8 +3,8 @@
 Aplicación web multiplataforma para consolidar un inventario MRO con descripciones heterogéneas y generar recomendaciones explicables de reposición. El proyecto se desarrolla para la asignatura **Ingeniería Web Avanzada** de la Pontificia Universidad Católica de Valparaíso.
 
 > **Estado actual:** réplica funcional del ERP VAIPS sobre las tecnologías del proyecto.
-> Base PostgreSQL con datos anonimizados, backend NestJS y frontend Angular + Ionic,
-> todo levantable con Docker. Ver [Cómo levantar el entorno](#cómo-levantar-el-entorno).
+> Base PostgreSQL con datos anonimizados, backend NestJS, servicio FastAPI y frontend
+> Angular + Ionic, todo levantable con Docker. Ver [Cómo levantar el entorno](#cómo-levantar-el-entorno).
 
 ## Contribución y flujo Git
 
@@ -28,7 +28,7 @@ Luego entrar a **http://localhost:4200** con alguno de estos usuarios (clave `re
 | `operador` | Op. Operaciones | operación diaria |
 | `consulta` | Visualización Documentos | solo lectura |
 
-El backend queda en `http://localhost:3000/api` y PostgreSQL en el puerto 5432.
+El backend queda en `http://localhost:3000/api`, FastAPI en `http://localhost:8000` y PostgreSQL en el puerto 5432. El frontend sigue hablando solo con NestJS.
 
 ### Cómo se inicializa la base
 
@@ -56,6 +56,34 @@ docker compose stop          # parar sin perder datos
 docker compose up -d         # volver a levantar
 docker compose down -v       # BORRA la base y la recarga desde la semilla
 docker compose logs -f backend
+docker compose logs -f intelligence
+```
+
+### Hop NestJS → FastAPI
+
+Compose levanta `erp-intelligence` junto al resto. Entre contenedores el backend
+usa `http://intelligence:8000`. Desde el host:
+
+```bash
+curl -s http://localhost:8000/health
+```
+
+El hop autenticado (cualquier usuario logueado) es `GET /api/inteligencia/salud`
+y `POST /api/inteligencia/eco`:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"user":"admin","clave":"replica2026"}' \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
+
+curl -s http://localhost:3000/api/inteligencia/salud \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -s -X POST http://localhost:3000/api/inteligencia/eco \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"mensaje":"hola"}'
 ```
 
 Para desarrollar el frontend con recarga en caliente conviene sacarlo de Docker:
@@ -188,7 +216,7 @@ Cada recomendación deberá ser explicable y permitir intervención humana. La d
 - [ ] Generar el frontend con Ionic y Angular.
 - [ ] Configurar Capacitor y PWA.
 - [ ] Generar el backend NestJS.
-- [ ] Crear el servicio Python con FastAPI.
+- [x] Crear el servicio Python con FastAPI.
 - [ ] Configurar PostgreSQL y las migraciones iniciales.
 
 ### 3. Integración local
