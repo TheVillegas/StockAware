@@ -5,6 +5,7 @@ description = "StockAware intelligence service"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "fastapi>=0.115.2",
+    "uvicorn>=0.32.0",
 ]
 
 [dependency-groups]
