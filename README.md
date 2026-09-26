@@ -3,8 +3,8 @@
 Aplicación web multiplataforma para consolidar un inventario MRO con descripciones heterogéneas y generar recomendaciones explicables de reposición. El proyecto se desarrolla para la asignatura **Ingeniería Web Avanzada** de la Pontificia Universidad Católica de Valparaíso.
 
 > **Estado actual:** réplica funcional del ERP VAIPS sobre las tecnologías del proyecto.
-> Base PostgreSQL con datos anonimizados, backend NestJS y frontend Angular + Ionic,
-> todo levantable con Docker. Ver [Cómo levantar el entorno](#cómo-levantar-el-entorno).
+> Base PostgreSQL con datos anonimizados, backend NestJS, servicio FastAPI y frontend
+> Angular + Ionic, todo levantable con Docker. Ver [Cómo levantar el entorno](#cómo-levantar-el-entorno).
 
 ## Contribución y flujo Git
 
@@ -12,14 +12,32 @@ La guía completa para contribuir está en [CONTRIBUTING.md](CONTRIBUTING.md). E
 
 ## Cómo levantar el entorno
 
-Requiere solo Docker. No hace falta acceso a la base original ni instalar Node.
+Requiere solo Docker. No hace falta acceso a la base original ni instalar Node o Python.
+
+### Camino rápido
+
+`PG_PASSWORD` y `JWT_SECRET` no van en `.env.example`. Hay que exportarlos en el entorno antes de Compose.
 
 ```bash
+export PG_PASSWORD='...'     # requerido por PostgreSQL
+export JWT_SECRET='...'      # requerido por NestJS
 cp .env.example .env
 docker compose up -d --build
+docker compose ps
 ```
 
-Luego entrar a **http://localhost:4200** con alguno de estos usuarios (clave `replica2026`):
+Cuando `db`, `intelligence` y `backend` figuran healthy (el frontend no tiene healthcheck):
+
+| Qué | Dónde |
+|---|---|
+| Aplicación | http://localhost:4200 |
+| API NestJS | http://localhost:3000/api |
+| FastAPI | http://localhost:8000 |
+| PostgreSQL | localhost:5432 |
+
+El frontend habla **solo** con NestJS. NestJS habla con PostgreSQL y con FastAPI en la red de Compose (`http://intelligence:8000`).
+
+Usuarios de la semilla (clave `replica2026`):
 
 | Usuario | Perfil | Alcance |
 |---|---|---|
@@ -28,7 +46,38 @@ Luego entrar a **http://localhost:4200** con alguno de estos usuarios (clave `re
 | `operador` | Op. Operaciones | operación diaria |
 | `consulta` | Visualización Documentos | solo lectura |
 
-El backend queda en `http://localhost:3000/api` y PostgreSQL en el puerto 5432.
+### Servicios que levanta Compose
+
+| Servicio | Contenedor | Puerto host | Rol |
+|---|---|---|---|
+| `db` | `erp-db` | 5432 | PostgreSQL (réplica anonimizada) |
+| `intelligence` | `erp-intelligence` | 8000 | FastAPI (health + echo) |
+| `backend` | `erp-backend` | 3000 | NestJS; espera a `db` e `intelligence` healthy |
+| `frontend` | `erp-frontend` | 4200 | Angular + Ionic |
+
+### Comprobar que el stack responde
+
+```bash
+curl -s http://localhost:8000/health
+# {"status":"ok","service":"intelligence-service"}
+```
+
+Login y hop NestJS → FastAPI (cualquier usuario logueado):
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"user":"admin","clave":"replica2026"}' \
+  | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
+
+curl -s http://localhost:3000/api/inteligencia/salud \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -s -X POST http://localhost:3000/api/inteligencia/eco \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"mensaje":"hola"}'
+```
 
 ### Cómo se inicializa la base
 
@@ -56,6 +105,7 @@ docker compose stop          # parar sin perder datos
 docker compose up -d         # volver a levantar
 docker compose down -v       # BORRA la base y la recarga desde la semilla
 docker compose logs -f backend
+docker compose logs -f intelligence
 ```
 
 Para desarrollar el frontend con recarga en caliente conviene sacarlo de Docker:
@@ -188,7 +238,7 @@ Cada recomendación deberá ser explicable y permitir intervención humana. La d
 - [ ] Generar el frontend con Ionic y Angular.
 - [ ] Configurar Capacitor y PWA.
 - [ ] Generar el backend NestJS.
-- [ ] Crear el servicio Python con FastAPI.
+- [x] Crear el servicio Python con FastAPI.
 - [ ] Configurar PostgreSQL y las migraciones iniciales.
 
 ### 3. Integración local

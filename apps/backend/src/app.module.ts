@@ -11,6 +11,7 @@ import { ComunModule } from './comun/comun.module';
 import { PeticionesMiddleware } from './comun/peticiones.middleware';
 import { MantenedoresModule } from './mantenedores/mantenedores.module';
 import { MenuModule } from './menu/menu.module';
+import { InteligenciaModule } from './inteligencia/inteligencia.module';
 import * as entidades from './entidades/acceso.entity';
 
 @Module({
@@ -32,6 +33,7 @@ import * as entidades from './entidades/acceso.entity';
     }),
     ComunModule,
     AuthModule,
+    InteligenciaModule,
     MenuModule,
     BalanceModule,
     MantenedoresModule,
