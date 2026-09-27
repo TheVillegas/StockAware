@@ -17,12 +17,13 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, map } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonMenuButton,
-  IonNote, IonSearchbar, IonSelect, IonSelectOption, IonTitle, IonToolbar,
+  IonButton, IonContent, IonInput, IonItem,
+  IonNote, IonSearchbar, IonSelect, IonSelectOption,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
 import type { Bodega } from './stock.page';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface Item { codigo: string; nombre: string; unidad: string; tarifa: number; stock: number; }
 interface Linea { id_vhe: string; nombre: string; cantidad: number; unidad: string; tarifa: number; }
@@ -36,11 +37,11 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
 @Component({
   selector: 'app-guia',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonSearchbar, IonSelect, IonSelectOption, IonButton, IonItem, IonInput, IonNote,
   ],
   styles: [`
-    .cuerpo { padding: 12px 14px 40px; max-width: 900px; }
+    .cuerpo { padding: 0; }
     h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
          color: var(--ion-color-medium); margin: 22px 0 6px; }
     .fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
@@ -62,13 +63,10 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
     .ok { color: var(--ion-color-success); font-size: 13px; margin: 10px 0; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>{{ modo().titulo }}</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header [title]="modo().titulo"></app-page-header>
 
     <ion-content>
-      <div class="cuerpo">
+      <div class="cuerpo page-content">
         @if (error()) { <div class="aviso">{{ error() }}</div> }
         @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
 

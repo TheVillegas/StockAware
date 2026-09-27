@@ -11,12 +11,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonMenuButton,
-  IonNote, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonContent, IonInput, IonItem,
+  IonNote, IonSelect, IonSelectOption, IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
 import type { Bodega } from './stock.page';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface LineaHes {
   id: number; nombre: string; descripcion: string; cantidad: number;
@@ -28,11 +29,11 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
 @Component({
   selector: 'app-recepcion',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonSelect, IonSelectOption, IonSpinner, IonButton, IonItem, IonInput, IonNote,
   ],
   styles: [`
-    .cuerpo { padding: 12px 14px 40px; max-width: 900px; }
+    .cuerpo { padding: 0; }
     h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
          color: var(--ion-color-medium); margin: 22px 0 6px; }
     .fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
@@ -51,13 +52,10 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
     .nota { font-size: 12px; color: var(--ion-color-medium); margin-top: 10px; line-height: 1.5; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>Recibe material fungible</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header title="Recibe material fungible"></app-page-header>
 
     <ion-content>
-      <div class="cuerpo">
+      <div class="cuerpo page-content">
         @if (error()) { <div class="aviso">{{ error() }}</div> }
         @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
 

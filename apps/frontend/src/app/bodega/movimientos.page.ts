@@ -8,12 +8,13 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonMenuButton, IonSearchbar,
-  IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonContent, IonSearchbar,
+  IonSelect, IonSelectOption, IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
 import type { Bodega } from './stock.page';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface Mov {
   id: number; numdoc: number; tipoDoc: string; id_bodega: number;
@@ -26,7 +27,7 @@ interface Mov {
 @Component({
   selector: 'app-movimientos',
   imports: [
-    IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    PageHeaderComponent, IonContent,
     IonSearchbar, IonSelect, IonSelectOption, IonSpinner, IonButton,
   ],
   styles: [`
@@ -49,12 +50,10 @@ interface Mov {
     .aviso { color: var(--ion-color-danger); padding: 8px 14px; font-size: 13px; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>Movimientos de bodega</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header title="Movimientos de bodega"></app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (error()) { <div class="aviso">{{ error() }}</div> }
 
       <div class="barra">
@@ -121,6 +120,7 @@ interface Mov {
           </div>
         }
       }
+      </div>
     </ion-content>
   `,
 })

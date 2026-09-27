@@ -15,12 +15,13 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, map } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonNote,
-  IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonContent, IonInput, IonItem, IonNote,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
 import { clp, Oc } from './ordenes.page';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface Linea {
   id: number; producto: number; nombre: string; descripcion: string;
@@ -36,11 +37,11 @@ interface Hes {
 @Component({
   selector: 'app-orden',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonButton, IonNote, IonSpinner, IonItem, IonInput,
   ],
   styles: [`
-    .cuerpo { padding: 16px 16px 40px; }
+    .cuerpo { padding: 0; }
     h3 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em;
          color: var(--ion-color-medium); margin: 26px 0 8px; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 22px; margin: 0; }
@@ -61,13 +62,12 @@ interface Hes {
     ion-input { --padding-start: 0; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-button (click)="volver()">Volver</ion-button></ion-buttons>
-      <ion-title>{{ esNueva() ? 'Nueva orden de compra' : 'OC ' + (oc()?.numdoc ?? '') }}</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header [title]="esNueva() ? 'Nueva orden de compra' : 'OC ' + (oc()?.numdoc ?? '')">
+      <ion-button header-actions (click)="volver()">Volver</ion-button>
+    </app-page-header>
 
     <ion-content>
-      <div class="cuerpo">
+      <div class="cuerpo page-content">
         @if (error()) { <div class="aviso">{{ error() }}</div> }
         @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
 
