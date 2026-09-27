@@ -11,12 +11,12 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonMenuButton,
+  IonButton, IonContent, IonInput, IonItem,
   IonNote, IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner,
-  IonTitle, IonToolbar,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface FilaResumen {
   ccosto: string; proyecto: string; estado: string;
@@ -41,7 +41,7 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
 @Component({
   selector: 'app-balance',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonSegment, IonSegmentButton, IonSelect, IonSelectOption, IonSpinner, IonNote,
     IonButton, IonItem, IonInput,
   ],
@@ -65,12 +65,10 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
     .paginas { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 14px; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>Balance de centro de costo</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header title="Balance de centro de costo"></app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (error()) { <div class="aviso">{{ error() }}</div> }
 
       <div class="barra">
@@ -232,6 +230,7 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
           }
         }
       }
+      </div>
     </ion-content>
   `,
 })

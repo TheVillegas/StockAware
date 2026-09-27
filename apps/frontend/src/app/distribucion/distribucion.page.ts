@@ -10,12 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonMenuButton,
+  IonButton, IonContent, IonInput, IonItem,
   IonNote, IonSearchbar, IonSegment, IonSegmentButton, IonSelect, IonSelectOption,
-  IonSpinner, IonTitle, IonToolbar,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface Factura {
   id: number; numdoc: number; tipo_doc: string; fecha: string; cliente: number;
@@ -39,7 +40,7 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
 @Component({
   selector: 'app-distribucion',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonSearchbar, IonSegment, IonSegmentButton, IonSpinner, IonNote, IonButton,
     IonItem, IonInput, IonSelect, IonSelectOption,
   ],
@@ -64,7 +65,7 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
     .paginas { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 14px; }
     .aviso { color: var(--ion-color-danger); padding: 8px 14px; font-size: 13px; }
     .ok { color: var(--ion-color-success); padding: 8px 14px; font-size: 13px; }
-    .cuerpo { padding: 14px 16px 40px; }
+    .cuerpo { padding: 0; }
     h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
          color: var(--ion-color-medium); margin: 22px 0 6px; }
     dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 22px; margin: 0; }
@@ -76,17 +77,12 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
     .acciones { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start">
-        @if (sel()) { <ion-button (click)="cerrar()">Volver</ion-button> }
-        @else { <ion-menu-button></ion-menu-button> }
-      </ion-buttons>
-      <ion-title>
-        {{ sel() ? 'Factura ' + sel()!.numdoc : 'Distribuye factura por centro de costo' }}
-      </ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header [title]="sel() ? 'Factura ' + sel()!.numdoc : 'Distribuye factura por centro de costo'">
+      @if (sel()) { <ion-button header-actions (click)="cerrar()">Volver</ion-button> }
+    </app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (error()) { <div class="aviso">{{ error() }}</div> }
       @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
 
@@ -238,6 +234,7 @@ const clp = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocal
           }
         }
       }
+      </div>
     </ion-content>
   `,
 })

@@ -10,11 +10,12 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonMenuButton, IonNote,
-  IonSearchbar, IonSegment, IonSegmentButton, IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonContent, IonNote,
+  IonSearchbar, IonSegment, IonSegmentButton, IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 export interface Oc {
   id: number; numdoc: number; tipo_doc: string; fecha: string;
@@ -30,11 +31,11 @@ export const clp = (n: unknown): string =>
 @Component({
   selector: 'app-ordenes',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
+    FormsModule, PageHeaderComponent,
     IonContent, IonSearchbar, IonSpinner, IonNote, IonButton, IonSegment, IonSegmentButton,
   ],
   styles: [`
-    .barra { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+    .barra { display: flex; align-items: center; gap: 10px; padding: 0 8px; flex-wrap: wrap; }
     .barra ion-searchbar { flex: 1; }
     .conteo { font-size: 12px; color: var(--ion-color-medium); white-space: nowrap; padding-right: 12px; }
     ion-segment { padding: 4px 12px; }
@@ -60,15 +61,14 @@ export const clp = (n: unknown): string =>
     .barraAvance > i { display: block; height: 100%; border-radius: 3px; background: var(--ion-color-primary); }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>Órdenes de compra</ion-title>
+    <app-page-header title="Órdenes de compra">
       @if (puedeEmitir()) {
-        <ion-buttons slot="end"><ion-button (click)="nueva()">Nueva OC</ion-button></ion-buttons>
+        <ion-button header-actions (click)="nueva()">Nueva OC</ion-button>
       }
-    </ion-toolbar></ion-header>
+    </app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (error()) { <div class="aviso">{{ error() }}</div> }
 
       <ion-segment [value]="estado()" (ionChange)="estado.set($any($event).detail.value)">
@@ -125,6 +125,7 @@ export const clp = (n: unknown): string =>
           </div>
         }
       }
+      </div>
     </ion-content>
   `,
 })

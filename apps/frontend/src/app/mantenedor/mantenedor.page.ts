@@ -14,11 +14,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonLabel,
-  IonMenuButton, IonNote, IonSearchbar, IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonButtons, IonContent, IonInput, IonItem, IonLabel,
+  IonNote, IonSearchbar, IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 interface Pagina {
   codigo: string;
@@ -36,11 +37,11 @@ interface Pagina {
 @Component({
   selector: 'app-mantenedor',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
+    FormsModule, PageHeaderComponent,
     IonContent, IonSearchbar, IonSpinner, IonNote, IonButton, IonItem, IonInput, IonLabel,
   ],
   styles: [`
-    .barra { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+    .barra { display: flex; align-items: center; gap: 10px; padding: 0 8px; flex-wrap: wrap; }
     .barra ion-searchbar { flex: 1; }
     .conteo { font-size: 12px; color: var(--ion-color-medium); white-space: nowrap; padding-right: 12px; }
     .tabla { overflow-x: auto; padding: 0 12px 20px; }
@@ -59,17 +60,14 @@ interface Pagina {
     .aviso { color: var(--ion-color-danger); padding: 0 14px; font-size: 13px; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>{{ pag()?.titulo ?? codigo() }}</ion-title>
+    <app-page-header [title]="pag()?.titulo ?? codigo()">
       @if (editando()) {
-        <ion-buttons slot="end">
-          <ion-button (click)="cerrarFicha()">Volver</ion-button>
-        </ion-buttons>
+        <ion-button header-actions (click)="cerrarFicha()">Volver</ion-button>
       }
-    </ion-toolbar></ion-header>
+    </app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (cargando()) {
         <div class="vacio"><ion-spinner></ion-spinner></div>
       } @else if (noEsMantenedor()) {
@@ -150,6 +148,7 @@ interface Pagina {
           @if (error()) { <p class="aviso">{{ error() }}</p> }
         </div>
       }
+      </div>
     </ion-content>
   `,
 })

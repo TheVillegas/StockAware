@@ -9,11 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonMenuButton,
-  IonNote, IonSearchbar, IonSelect, IonSelectOption, IonSpinner, IonTitle, IonToolbar,
+  IonButton, IonContent, IonInput, IonItem,
+  IonNote, IonSearchbar, IonSelect, IonSelectOption, IonSpinner,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 export interface Bodega { bodega: number; descr: string; ccosto: string; estado: string; }
 interface FilaStock {
@@ -25,7 +26,7 @@ interface FilaStock {
 @Component({
   selector: 'app-stock',
   imports: [
-    FormsModule, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, IonContent,
+    FormsModule, PageHeaderComponent, IonContent,
     IonSearchbar, IonSelect, IonSelectOption, IonSpinner, IonNote, IonButton, IonItem, IonInput,
   ],
   styles: [`
@@ -47,12 +48,10 @@ interface FilaStock {
     .ficha { padding: 8px 14px 20px; max-width: 460px; }
   `],
   template: `
-    <ion-header><ion-toolbar>
-      <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
-      <ion-title>Materiales por bodega</ion-title>
-    </ion-toolbar></ion-header>
+    <app-page-header title="Materiales por bodega"></app-page-header>
 
     <ion-content>
+      <div class="page-content page-content--wide">
       @if (error()) { <div class="aviso">{{ error() }}</div> }
       @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
 
@@ -124,6 +123,7 @@ interface FilaStock {
           </div>
         }
       }
+      </div>
     </ion-content>
   `,
 })
