@@ -22,14 +22,10 @@ En el mismo run, `CI security` también falló. La causa observada en el log no 
 
 No uses la captura de `CI security` como evidencia de un secreto expuesto. Si hace falta mostrarla, el epígrafe tiene que decir que el rango estaba vacío.
 
-## Dónde van las imágenes
+## Captura observada
 
-Todavía no hay capturas en el repositorio. No se inventan. Cuando existan, van en `docs/ep1/images/` y se enlazan desde esta sección. Cada archivo tiene que mostrar lo que dice la tabla, y el epígrafe tiene que incluir la URL del run.
+La imagen muestra el resumen del run, no el log interno del probe. Alcanza para ver `Failure`, el policy probe en rojo y el gate crítico en rojo. No alcanza para leer el mensaje del step. El job de seguridad también está en rojo por el rango vacío, no por un secreto.
 
-| Archivo previsto | Qué tiene que mostrar | Qué no debe implicar |
-|---|---|---|
-| `docs/ep1/images/ep1-controlled-failure-run.png` | La página del run 36371534531 con conclusión `failure` | Que `develop` esté rojo en un push normal |
-| `docs/ep1/images/ep1-policy-probe.png` | El step del policy probe con el mensaje de fallo controlado y exit code 1 | Un scanner de vulnerabilidades |
-| `docs/ep1/images/ep1-critical-gate.png` | `CI critical gate` en `failure` | Que el fallo sea un secreto o un deploy |
+![Resumen del fallo controlado](images/ep1-fallo-controlado.png)
 
-Hasta que esos archivos existan, esta página no los enlaza. Un enlace roto no es evidencia.
+Run: https://github.com/TheVillegas/StockAware/actions/runs/36371534531
