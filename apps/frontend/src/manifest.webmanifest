@@ -1,0 +1,7 @@
+{
+  "name": "StockAware",
+  "short_name": "StockAware",
+  "start_url": "/",
+  "display": "standalone",
+  "lang": "es"
+}
