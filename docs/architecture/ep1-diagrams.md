@@ -54,13 +54,13 @@ flowchart LR
 
 ## Despliegue preliminar
 
-Hoy el único entorno descrito es un host de desarrollo que corre Docker Compose con los cuatro contenedores anteriores. Staging no está desplegado. Este commit no incluye Terraform. No hay cuenta cloud, balanceador ni URL pública que este repositorio pueda mostrar.
+Hoy el único entorno que se ejecuta es un host de desarrollo que corre Docker Compose con los cuatro contenedores anteriores. Staging está definido en Terraform y no está desplegado. No hay cuenta cloud, balanceador ni URL pública que este repositorio pueda mostrar.
 
 ```mermaid
 flowchart TB
   host["Un host de desarrollo"]
   compose["Docker Compose<br/>erp-frontend, erp-backend, erp-intelligence, erp-db"]
-  ausente["Staging no desplegado<br/>Terraform no está en este commit"]
+  ausente["Staging definido, no desplegado<br/>sin cuenta cloud ni URL pública"]
 
   host --> compose
 ```
