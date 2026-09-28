@@ -31,3 +31,26 @@ Estos nombres existen como tablas en `01_schema.sql`. Sirven solo para reconocer
 | Documentos | `docs_emitidos`, `docs_recibidos` |
 
 Hay más tablas en el script. La lista anterior no es el modelo de dominio previsto para la reposición adaptativa.
+
+El diagrama agrupa solo esos ejemplos. No muestra columnas ni claves foráneas.
+
+```mermaid
+flowchart TB
+  subgraph acceso [Acceso]
+    acceso_perfiles
+    acceso_permisos
+  end
+  subgraph bodega_grupo [Bodega y materiales]
+    bodega
+    materiales
+    materiales_x_bodega
+    mov_bodega
+  end
+  subgraph centro [Centro de costo]
+    centro_costo
+  end
+  subgraph documentos [Documentos]
+    docs_emitidos
+    docs_recibidos
+  end
+```
