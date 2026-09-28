@@ -58,6 +58,7 @@ Un solo color de acento (petróleo). Los colores de estado (ok, alerta, crítico
 | `--sa-shell-ink` | `#cfe0df` | Texto de ítems de menú |
 | `--sa-shell-soft` | `#7fa3a1` | Títulos de sección del menú, textos secundarios del armazón |
 | `--sa-shell-mark` | `#4fd0bd` | Solo la franja de 3px del ítem activo y la marca "Aware" del logotipo. Nunca como texto sobre fondo claro |
+| `--sa-shell-strong` | `#ffffff` | Texto blanco del armazón: marca "Stock", ítem de menú activo, título y botón de la barra móvil |
 
 **Estado (semánticos)**
 
@@ -119,7 +120,8 @@ Reglas:
 | `--sa-radius` | 6px | Botones, inputs, selects, paneles, avisos, tarjetas de KPI, modales |
 | `--sa-radius-pill` | 3px | Solo pastillas de estado |
 | `--sa-border` | 1px | Todo borde y divisor |
-| `--sa-focus` | `2px solid var(--sa-accent)`, offset 2px | Foco visible de todo control |
+| `--sa-focus-ring` | `2px solid var(--sa-accent)` | Contorno del foco visible de todo control |
+| `--sa-focus-offset` | 2px | Separación del contorno de foco |
 
 - **Sin sombras** en la interfaz. La jerarquía se marca con fondo, borde de 1px y espacio. Excepción: el menú superpuesto y los modales conservan la sombra por defecto de Ionic.
 - Un único radio (6px). La única excepción documentada son las pastillas (3px).
@@ -168,11 +170,11 @@ Reglas:
 | Parte | Especificación |
 |-------|----------------|
 | Fondo | `--sa-shell` en todo el menú, incluido `ion-content` del menú |
-| Marca | "Stock" en `#ffffff` y "Aware" en `--sa-shell-mark`, Mono 600, 15px, padding 16px, borde inferior `--sa-shell-line` |
+| Marca | "Stock" en `--sa-shell-strong` y "Aware" en `--sa-shell-mark`, Mono 600, tamaño `title`, padding `--sa-space-4`, borde inferior `--sa-shell-line` |
 | Título de área (encabezado del acordeón) | Tamaño `label`, color `--sa-shell-soft`, fondo transparente, padding 16px 16px 4px. Sin `color="light"` |
 | Ítem | 13px, color `--sa-shell-ink`, alto 36px, padding horizontal 16px |
 | Ítem hover | Fondo `--sa-shell-2` |
-| Ítem activo | Fondo `--sa-shell-2`, texto `#ffffff` peso 600, franja izquierda de 3px `--sa-shell-mark` |
+| Ítem activo | Fondo `--sa-shell-2`, texto `--sa-shell-strong` peso 600, franja izquierda de 3px `--sa-shell-mark` |
 | Ítem no implementado (`pendiente`) | Opacidad .55, se mantiene clicable como hoy |
 | Contenido | Lo entrega el backend (`agruparAreas`). No se escriben opciones a mano |
 
@@ -181,9 +183,9 @@ Reglas:
 | Parte | Especificación |
 |-------|----------------|
 | Alto y fondo | 48px, `--sa-surface`, borde inferior `--sa-line-strong` |
-| Izquierda | Título de página (tamaño `page`) y debajo el código de función en Mono 11px `--sa-ink-soft` |
+| Izquierda | Título de página (tamaño `page`) y debajo el código de función en Mono, tamaño `label`, `--sa-ink-soft`. El código sale de la URL: si calza con `/f/<CODE>` se muestra `<CODE>`, si no, no se muestra nada |
 | Nombre "StockAware" en la barra | Se elimina en escritorio: ya está en el menú lateral |
-| Derecha | Acciones de la página (`header-actions`), luego usuario (12px 600) y perfil (12px `--sa-ink-soft`) en dos líneas, luego botón "Salir" secundario |
+| Derecha | Acciones de la página (`header-actions`), luego usuario (tamaño `meta` 600) y perfil (tamaño `meta` `--sa-ink-soft`) en dos líneas, luego botón "Salir" secundario (`fill="outline"`, alto `--sa-control-h-sm`) |
 | Botón de menú | Oculto en escritorio (lo resuelve `ion-split-pane`) |
 
 **Área de contenido**
@@ -256,7 +258,7 @@ Cada componente se implementa una sola vez en `src/theme/components.css` (o como
 | Texto | transparente | `--sa-accent` | ninguno | Enlaces de acción dentro de avisos o vacíos |
 
 - Etiqueta 13px peso 600, tipo oración, verbo concreto ("Guardar ajuste", "Emitir OC"). Máximo 3 palabras. Nunca en dos líneas.
-- Estados: hover (primario pasa a `--sa-accent-hover`, secundario toma fondo `--sa-surface-2`), foco (`--sa-focus`), deshabilitado (opacidad .45, sin hover), cargando (spinner de 16px en lugar del texto, mismo ancho, deshabilitado).
+- Estados: hover (primario pasa a `--sa-accent-hover`, secundario toma fondo `--sa-surface-2`), foco (`--sa-focus-ring`), deshabilitado (opacidad .45, sin hover), cargando (spinner de 16px en lugar del texto, mismo ancho, deshabilitado).
 - En Ionic: `ion-button` con `fill="solid"` (primario), `fill="outline"` (secundario y peligro) y `fill="clear"` (texto). Radio y alto vía `--border-radius` y `--min-height` según [1.4](#14-tamaños-de-control-y-breakpoints).
 
 ### 3.2 Campo de formulario
@@ -276,7 +278,7 @@ El stock no puede ser negativo <- error, 12px --sa-crit-fg
 | Unidad | Dentro del control a la derecha, 12px `--sa-ink-soft` |
 | Ayuda | Debajo, 12px `--sa-ink-soft`. Opcional |
 | Error | Debajo, 12px `--sa-crit-fg`, reemplaza a la ayuda. Borde del control pasa a 2px `--sa-crit` |
-| Foco | Borde `--sa-accent` + `--sa-focus` |
+| Foco | Borde `--sa-accent` + `--sa-focus-ring` |
 | Solo lectura | Fondo `--sa-surface-2`, texto `--sa-ink-soft`, sin borde de foco |
 | Separación | 4px entre etiqueta y control, 16px entre campos |
 | Validación | Al salir del campo y al enviar. No mientras se escribe |
@@ -325,8 +327,8 @@ En Ionic: `ion-input` y `ion-select` con `label-placement="stacked"` y `fill="ou
 ### 3.6 Fila de KPIs (`.sa-kpis`)
 
 - Grilla de 4 columnas en escritorio, 2 en móvil. Celdas unidas por líneas de 1px (`gap: 1px` sobre fondo `--sa-line-strong`), dentro de un panel con radio 6px.
-- Cada celda: etiqueta (tamaño `label`), valor (tamaño `kpi`, Mono) y variación opcional (Mono 12px; `--sa-ok-fg` si mejora, `--sa-crit-fg` si empeora, `--sa-ink-soft` si es neutra).
-- Solo en Inicio y en pantallas cuyo propósito sea un resumen. No se agregan KPIs decorativos.
+- Cada celda: etiqueta (tamaño `label`), valor (tamaño `kpi`, Mono) y variación opcional (Mono tamaño `meta`; `--sa-ok-fg` si mejora, `--sa-crit-fg` si empeora, `--sa-ink-soft` si es neutra).
+- KPIs solo muestran valores que provienen de datos reales del backend. Inicio no muestra KPIs ni actividad inventados (issue #33). No se agregan KPIs decorativos.
 
 ### 3.7 Estados vacío, carga y error
 
@@ -429,6 +431,7 @@ Contenido de referencia de `src/theme/tokens.css`. Es la traducción literal de 
   --sa-shell-ink: #cfe0df;
   --sa-shell-soft: #7fa3a1;
   --sa-shell-mark: #4fd0bd;
+  --sa-shell-strong: #ffffff;
 
   /* estados */
   --sa-ok-fg: #1d6b2f;   --sa-ok-bg: #d6ecd8;   --sa-ok-line: #b9dcbd;
@@ -458,6 +461,9 @@ Contenido de referencia de `src/theme/tokens.css`. Es la traducción literal de 
   --sa-space-6: 32px;
   --sa-radius: 6px;
   --sa-radius-pill: 3px;
+  --sa-border: 1px;
+  --sa-focus-ring: 2px solid var(--sa-accent);
+  --sa-focus-offset: 2px;
 
   /* controles */
   --sa-control-h: 36px;
@@ -476,7 +482,7 @@ Contenido de referencia de `src/theme/tokens.css`. Es la traducción literal de 
 
 Puente hacia Ionic, `src/theme/ionic.css`:
 
-Los colores base se toman de los tokens con var(). Los valores -rgb, -shade y -tint quedan escritos porque Ionic los necesita en crudo; theme.spec.ts verifica que coincidan con tokens.css.
+Los colores base se toman de los tokens con var(). Los valores -rgb se escriben en crudo porque Ionic los necesita así y theme.spec.ts verifica que coincidan con tokens.css. Los valores -shade y -tint son constantes derivadas (shade = base por 0.88, tint = base mas 10% hacia el blanco) y quedan documentadas aquí en el documento de diseño.
 
 ```css
 :root {
@@ -530,8 +536,11 @@ Los colores base se toman de los tokens con var(). Los valores -rgb, -shade y -t
   --ion-color-light-tint: #f0f2f3;
 }
 
-ion-split-pane { --side-width: var(--sa-menu-w); --side-max-width: var(--sa-menu-w); }
+ion-split-pane { --side-width: var(--sa-menu-w); --side-min-width: var(--sa-menu-w); --side-max-width: var(--sa-menu-w); }
 ion-menu ion-content { --background: var(--sa-shell); }
+
+/* Buttons use sentence case (spec 3.1); Material mode forces uppercase by default. */
+ion-button { text-transform: none; letter-spacing: normal; }
 ```
 
 ---

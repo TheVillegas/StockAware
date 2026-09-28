@@ -1,7 +1,8 @@
 /*
- * Base color values reference design tokens via var(). The -rgb triples, -shade,
- * and -tint values stay as literal hex/rgb because Ionic requires raw values there.
- * apps/frontend/src/app/shared/theme.spec.ts guards these raw values against tokens.css.
+ * Base color values reference design tokens via var(). The -rgb triples are raw
+ * because Ionic needs them, and theme.spec.ts verifies each triple against the hex
+ * in tokens.css. The -shade and -tint values are derived constants
+ * (shade = base * 0.88, tint = base + 10% toward white) documented in the design doc.
  */
 :root {
   --ion-font-family: var(--sa-font-sans);
@@ -54,5 +55,8 @@
   --ion-color-light-tint: #f0f2f3;
 }
 
-ion-split-pane { --side-width: var(--sa-menu-w); --side-max-width: var(--sa-menu-w); }
+ion-split-pane { --side-width: var(--sa-menu-w); --side-min-width: var(--sa-menu-w); --side-max-width: var(--sa-menu-w); }
 ion-menu ion-content { --background: var(--sa-shell); }
+
+/* Buttons use sentence case (spec 3.1); Material mode forces uppercase by default. */
+ion-button { text-transform: none; letter-spacing: normal; }
