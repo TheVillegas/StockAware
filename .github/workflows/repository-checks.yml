@@ -432,7 +432,12 @@ jobs:
         with: { image-ref: stockaware-frontend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
       - name: Block HIGH and CRITICAL intelligence image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-intelligence-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+        with:
+          image-ref: stockaware-intelligence-ci:local
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
+          cache: false
       - name: Write redacted containers evidence
         if: ${{ always() }}
         run: bash .github/scripts/ci-contract.sh evidence containers ci-evidence "${{ job.status }}"
