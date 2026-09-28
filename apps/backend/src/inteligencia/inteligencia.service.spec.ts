@@ -86,6 +86,30 @@ describe('IntelligenceService', () => {
     );
   });
 
+  it('proxies description normalization JSON on success', async () => {
+    const payload = {
+      tokens: ['guantes', 'nitrilo'],
+      descripcion_normalizada: 'guantes nitrilo',
+      servicio: 'intelligence-service',
+    };
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => payload,
+    });
+
+    await expect(svc.normalizar('Guantes de nitrilo, guantes')).resolves.toEqual(payload);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://intelligence:8000/v1/materiales/normalizar',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ descripcion: 'Guantes de nitrilo, guantes' }),
+        signal: expect.any(AbortSignal),
+      }),
+    );
+  });
+
   it('maps FastAPI 422 to controlled invalid_request', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: false,

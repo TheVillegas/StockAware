@@ -10,6 +10,13 @@ export class EcoDto {
   mensaje: string;
 }
 
+export class NormalizarDto {
+  @IsString()
+  @IsNotEmpty({ message: 'La descripcion es obligatoria' })
+  @MaxLength(500, { message: 'La descripcion no puede superar 500 caracteres' })
+  descripcion: string;
+}
+
 @Controller('inteligencia')
 @UseGuards(JwtAuthGuard)
 export class InteligenciaController {
@@ -23,5 +30,10 @@ export class InteligenciaController {
   @Post('eco')
   eco(@Body() dto: EcoDto) {
     return this.intelligence.eco(dto.mensaje);
+  }
+
+  @Post('normalizar')
+  normalizar(@Body() dto: NormalizarDto) {
+    return this.intelligence.normalizar(dto.descripcion);
   }
 }
