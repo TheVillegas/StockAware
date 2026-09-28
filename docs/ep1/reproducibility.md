@@ -103,11 +103,19 @@ docker compose exec -T db psql -U erp -d erp_replica \
 
 ### 7. GitHub Actions y prueba controlada del gate
 
+Las variables de GitHub Actions `NODE_VERSION=22` y `PYTHON_VERSION=3.13` están configuradas. El job de PostgreSQL en CI no carga el volcado anonimizado.
+
 El workflow `.github/workflows/repository-checks.yml` corre en pull requests, pushes a `main`/`develop` y permite `workflow_dispatch` con un único input booleano `exercise_failure` (default `false`). La ejecución manual **requiere dispatch explícito en GitHub y permisos adecuados**; esta guía no lo ejecuta. Para evidencia real, en GitHub elegí **Actions → Repository checks → Run workflow**, dejá el input desactivado y guardá URL/ID del run, commit, estado de jobs y artifacts `ci-evidence-<sha>-<run_id>-…` (discovery, security, frontend, backend, intelligence, postgres, containers y critical-gate, según aplique). Los artifacts son resúmenes de metadatos redactados.
 
 El job de seguridad valida el contrato de excepciones y variables de entorno, escanea secretos del rango de cambios y working tree, y usa Trivy: LOW/MEDIUM advierte; HIGH/CRITICAL bloquea. El job policy-probe es una prueba independiente del gate, no un scanner de vulnerabilidades.
 
 Un YAML o una respuesta esperada no equivale a un run observado. Los jobs `skipped` o `not_applicable` no cuentan como aprobados; informá el resultado de cada control según su aplicabilidad. Para probar de manera intencional y desechable que el gate falla de forma cerrada, ejecutá un **segundo** `workflow_dispatch` con `exercise_failure=true`. `CI policy probe` termina con error deliberado y `CI critical gate` debe fallar porque ese control aplicable falló. Este probe solo verifica el gate final ante un fallo simulado: no introduce vulnerabilidades ni secretos y no prueba los scanners. No lo presentes como pipeline verde ni como hallazgo de seguridad. Para una corrida normal, volvé a despachar con `false`; guardá ambos enlaces por separado. GitHub Actions habilitado y permiso de dispatch son requisitos.
+
+### Salud de NestJS y normalización de descripciones
+
+`GET /api/health` no exige JWT. **Esperado por el handler:** HTTP 200 y `{"estado":"ok","servicio":"erp-backend"}`.
+
+`POST /api/inteligencia/normalizar` sí exige JWT. El cuerpo es `{"descripcion":"..."}` (1 a 500 caracteres). NestJS reenvía la descripción a FastAPI `POST /v1/materiales/normalizar` y no inventa una respuesta si ese servicio no responde. **Esperado por el handler:** `tokens`, `descripcion_normalizada` y `servicio` igual a `intelligence-service`. Ejemplo: `"Guantes de nitrilo, guantes"` produce `tokens` `["guantes","nitrilo"]` y `descripcion_normalizada` `"guantes nitrilo"`.
 
 ## Inicialización y operación de la base
 

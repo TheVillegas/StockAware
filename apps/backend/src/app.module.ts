@@ -12,6 +12,7 @@ import { PeticionesMiddleware } from './comun/peticiones.middleware';
 import { MantenedoresModule } from './mantenedores/mantenedores.module';
 import { MenuModule } from './menu/menu.module';
 import { InteligenciaModule } from './inteligencia/inteligencia.module';
+import { SaludController } from './salud/salud.controller';
 import * as entidades from './entidades/acceso.entity';
 
 @Module({
@@ -41,6 +42,7 @@ import * as entidades from './entidades/acceso.entity';
     BodegaModule,
     DistribucionModule,
   ],
+  controllers: [SaludController],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

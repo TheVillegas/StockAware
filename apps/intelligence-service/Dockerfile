@@ -18,9 +18,21 @@ RUN uv sync --frozen --no-dev --no-editable
 
 FROM python:3.13-slim-bookworm
 WORKDIR /app
+# Upgrade Debian packages, then drop the base image's pip, setuptools and
+# msgpack. The app runs from the copied venv. Those base packages are not
+# needed at runtime and Trivy flags fixed HIGH findings in them.
 RUN apt-get update \
     && apt-get upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf \
+        /usr/local/lib/python3.13/site-packages/pip* \
+        /usr/local/lib/python3.13/site-packages/setuptools* \
+        /usr/local/lib/python3.13/site-packages/pkg_resources \
+        /usr/local/lib/python3.13/site-packages/msgpack* \
+        /usr/local/lib/python3.13/site-packages/_distutils_hack \
+        /usr/local/bin/pip \
+        /usr/local/bin/pip3 \
+        /usr/local/bin/pip3.13
 COPY --from=build /app/.venv /app/.venv
 COPY --from=build /app/app /app/app
 ENV PATH="/app/.venv/bin:$PATH" \

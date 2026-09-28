@@ -26,6 +26,14 @@ export class IntelligenceService {
     });
   }
 
+  normalizar(descripcion: string) {
+    return this.pedir('/v1/materiales/normalizar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ descripcion }),
+    });
+  }
+
   private base(): string {
     return (this.config.get<string>('INTELLIGENCE_SERVICE_URL') ?? '').replace(/\/$/, '');
   }

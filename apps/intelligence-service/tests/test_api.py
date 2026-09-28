@@ -47,6 +47,44 @@ def test_echo_rejects_oversized_message(client: TestClient) -> None:
     assert response.json() == {"error": "invalid_request"}
 
 
+def test_normalizar_real_phrase(client: TestClient) -> None:
+    response = client.post(
+        "/v1/materiales/normalizar",
+        json={"descripcion": "Guantes de nitrilo, guantes"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "tokens": ["guantes", "nitrilo"],
+        "descripcion_normalizada": "guantes nitrilo",
+        "servicio": "intelligence-service",
+    }
+
+
+def test_normalizar_rejects_empty_input(client: TestClient) -> None:
+    response = client.post("/v1/materiales/normalizar", json={"descripcion": ""})
+    assert response.status_code == 422
+    assert response.json() == {"error": "invalid_request"}
+
+
+def test_normalizar_drops_duplicate_tokens(client: TestClient) -> None:
+    response = client.post(
+        "/v1/materiales/normalizar",
+        json={"descripcion": "nitrilo nitrilo extra"},
+    )
+    assert response.status_code == 200
+    assert response.json()["tokens"] == ["nitrilo", "extra"]
+    assert response.json()["descripcion_normalizada"] == "nitrilo extra"
+
+
+def test_normalizar_rejects_description_with_no_tokens(client: TestClient) -> None:
+    response = client.post(
+        "/v1/materiales/normalizar",
+        json={"descripcion": "de la y"},
+    )
+    assert response.status_code == 422
+    assert response.json() == {"error": "invalid_request"}
+
+
 def test_echo_rejects_non_json_body(client: TestClient) -> None:
     response = client.post(
         "/v1/echo",
