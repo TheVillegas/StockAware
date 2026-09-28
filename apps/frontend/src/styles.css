@@ -1,0 +1,16 @@
+:root { --ion-font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+body { margin: 0; font-family: var(--ion-font-family); }
+
+.page-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+  padding: 24px clamp(16px, 4vw, 40px) 32px;
+}
+
+.page-content--wide { max-width: 1440px; }
+
+@media (max-width: 600px) {
+  .page-content { padding: 16px 16px 24px; }
+}

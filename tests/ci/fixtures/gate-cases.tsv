@@ -1,0 +1,9 @@
+case|expected_exit|rows
+applicable-success|0|frontend:applicable:success
+not-applicable-skipped|0|frontend:not_applicable:skipped
+applicable-failure|1|frontend:applicable:failure
+applicable-skipped|1|frontend:applicable:skipped
+applicable-cancelled|1|frontend:applicable:cancelled
+missing-result|1|frontend:applicable:missing
+indeterminate-result|1|frontend:applicable:indeterminate
+invalid-contract|1|frontend:invalid_contract:success

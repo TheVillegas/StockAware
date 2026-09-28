@@ -1,0 +1,66 @@
+acceso_funciones                209 filas | sin cambios
+acceso_perfiles                 31 filas | sin cambios
+acceso_permisos                 1207 filas | sin cambios
+adm_bancos                      2 filas | sin cambios
+base_digital                    VACIADA
+bodega                          541 filas | anonimiza: id_responsable
+cambia_pw                       55 filas | anonimiza: pw_secuencia, pw_user, pw_IP, pw_mail
+categorias                      303 filas | sin cambios
+centro_costo                    390 filas | anonimiza: cliente, presupuesto, presupuesto_neto, id_responsable
+comunas                         346 filas | sin cambios
+data_cheques                    0 filas | anonimiza: cheque, ctacte
+data_clientes                   2718 filas | anonimiza: codigo, rut, nombre, apellido, direcc, comuna, ciudad, fono, celular, email, contacto, bco_direcc, bco_comuna, bco_fono, codigo_cc
+data_clientes_bco               1303 filas | anonimiza: cliente, ctacte, rut
+data_clientes_cargos            0 filas | anonimiza: codigo, obs
+data_clientes_cheques           0 filas | anonimiza: cliente, ctacte, cheque
+data_clientes_factura           0 filas | anonimiza: codigo, rut, razon, giro, direcc, ciudad, email, contacto
+data_clientes_sucursal          6 filas | anonimiza: cliente, sucursal, direccion, ciudad, email, contacto
+data_personal                   417 filas | anonimiza: codigo, rut, nombre, apellido, materno, direcc, ciudad, email, contacto, dia_anticipo
+depositos                       0 filas | anonimiza: cheques_id
+docs_emitidos                   23267 filas | anonimiza: cliente, rut, usuario
+docs_emitidos_detalle           60897 filas | anonimiza: cliente
+docs_emitidos_plan_pago         2 filas | sin cambios
+docs_pagos                      11223 filas | anonimiza: cliente, num_cheque, num_ctacte, usuario
+docs_pagos_fac                  10226 filas | anonimiza: cliente
+docs_recibidos                  29942 filas | anonimiza: cliente, rut, guia_patente, guia_rut_transporte, guia_direcc, guia_comuna, guia_ciudad, obs, url_PDF, url_XML, usuario
+docs_recibidos_detalle          63111 filas | anonimiza: cliente, nombre, descripcion
+empresa                         2 filas | anonimiza: rut, razon, giro, direcc, comuna, ciudad, acteto
+herramientas                    2911 filas | anonimiza: asigna, accion
+lugar_trabajo                   8 filas | sin cambios
+materiales                      1024 filas | sin cambios
+materiales_x_bodega             1210 filas | sin cambios
+mov_bodega                      16099 filas | anonimiza: id_responsable
+pagos                           9448 filas | anonimiza: cliente, user_valida, user_confirma, obs, ctacte, rut_ctacte, id_transaccion, user_ing
+parametros                      32 filas | sin cambios
+protocolos                      91 filas | sin cambios
+registro                        VACIADA
+registro_error                  VACIADA
+rinde_gastos                    88470 filas | anonimiza: usr_rinde, usr_reporte, rut_proveedor, descripcion, URL_informe, URL_Boleta
+sot_at                          VACIADA
+sot_at_herramienta              VACIADA
+sot_at_om                       VACIADA
+sot_at_personal                 VACIADA
+sot_at_vehiculo                 VACIADA
+sot_entregable                  VACIADA
+sot_equipo                      VACIADA
+sot_informe                     VACIADA
+sot_presupuesto                 VACIADA
+sot_presupuesto_cargo           VACIADA
+sot_presupuesto_herramienta     VACIADA
+sot_presupuesto_material        VACIADA
+sot_presupuesto_personal        VACIADA
+sot_presupuesto_u_obra          VACIADA
+sot_presupuesto_vehiculo        VACIADA
+sot_trabajo                     VACIADA
+sot_trabajo_instalacion         VACIADA
+sot_trabajo_u_obra              VACIADA
+stat_acum_veh_X_BD              166 filas | sin cambios
+stat_acum_vhe                   4587 filas | sin cambios
+tab_cartola_bco                 0 filas | anonimiza: hora, rut, detalle, banco, tipo_ref, cliente
+tab_lista_explode               VACIADA
+tablas_varias                   226 filas | sin cambios
+tmp_vhe_acum                    80820 filas | sin cambios
+u_obra                          626 filas | sin cambios
+usuarios                        4 filas | admin + 3 genericos, 137 originales descartados
+valores_economicos              3111 filas | sin cambios
+vehiculos                       159 filas | anonimiza: patente, chasis, motor
