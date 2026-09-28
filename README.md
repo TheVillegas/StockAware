@@ -10,4 +10,5 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 - [Configuración inicial de Capacitor EP1](docs/ep1/capacitor.md)
 - [Fallo controlado del gate EP1](docs/ep1/controlled-failure.md)
 - [Modelo de datos de la réplica](docs/architecture/data-model.md)
+- [Prototipo Figma EP1](https://www.figma.com/proto/RIvAtOoqdvHUBkURaxOopG/StockAware---Prototipo-EP1?node-id=7-3&t=g1gJZm5z4YR3dYPn-1)
 - [Contribuir al proyecto](CONTRIBUTING.md)
