@@ -21,11 +21,73 @@ import { agruparAreas } from './shared/workspace-navigation';
     IonAccordion, IonAccordionGroup,
   ],
   styles: [`
-    ion-list-header { font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
-      color: var(--ion-color-medium); min-height: 28px; margin-top: 12px; }
-    ion-item.activo { --color: var(--ion-color-primary); font-weight: 600; }
-    ion-item.pendiente { opacity: .55; }
-    .pie { padding: 12px 8px 24px; }
+    ion-menu {
+      --background: var(--sa-shell);
+      /* ion-accordion paints --ion-background-color; keep it dark inside the menu. */
+      --ion-background-color: var(--sa-shell);
+    }
+    ion-menu ion-content {
+      --background: var(--sa-shell);
+    }
+    ion-list {
+      background: transparent;
+      padding: 0;
+    }
+    .marca {
+      font-family: var(--sa-font-mono);
+      font-weight: 600;
+      font-size: var(--sa-text-title);
+      padding: var(--sa-space-4);
+      border-bottom: var(--sa-border) solid var(--sa-shell-line);
+    }
+    .marca .marca-stock { color: var(--sa-shell-strong); }
+    .marca .marca-aware { color: var(--sa-shell-mark); }
+
+    ion-accordion-group ion-item[slot="header"] {
+      --background: transparent;
+      --color: var(--sa-shell-soft);
+      --background-hover: transparent;
+      --min-height: var(--sa-control-h);
+      --padding-start: var(--sa-space-4);
+      --padding-end: var(--sa-space-4);
+    }
+    ion-accordion-group ion-item[slot="header"] ion-label,
+    ion-list-header {
+      font-size: var(--sa-text-label);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+      color: var(--sa-shell-soft);
+    }
+    ion-accordion-group ion-item[slot="header"]::part(native) {
+      color: var(--sa-shell-soft);
+    }
+    /* Ionic injects the toggle icon at runtime, outside this template's encapsulation. */
+    ion-menu ::ng-deep .ion-accordion-toggle-icon {
+      color: var(--sa-shell-soft);
+    }
+    ion-list-header {
+      padding-inline-start: var(--sa-space-5);
+      min-height: var(--sa-control-h);
+    }
+
+    ion-menu-toggle ion-item {
+      --background: transparent;
+      --background-hover: var(--sa-shell-2);
+      --background-hover-opacity: 1;
+      --color: var(--sa-shell-ink);
+      --min-height: var(--sa-control-h);
+      --padding-start: var(--sa-space-4);
+      --padding-end: var(--sa-space-4);
+      font-size: var(--sa-text-dense);
+    }
+    ion-menu-toggle ion-item.activo {
+      --background: var(--sa-shell-2);
+      --color: var(--sa-shell-strong);
+      font-weight: 600;
+      border-inline-start: 3px solid var(--sa-shell-mark);
+    }
+    ion-menu-toggle ion-item.pendiente { opacity: .55; }
   `],
   template: `
     <ion-app>
@@ -33,6 +95,7 @@ import { agruparAreas } from './shared/workspace-navigation';
         <ion-split-pane contentId="principal">
           <ion-menu contentId="principal" type="overlay">
             <ion-content>
+              <div class="marca"><span class="marca-stock">Stock</span><span class="marca-aware">Aware</span></div>
               <ion-list lines="none">
                 <ion-menu-toggle [autoHide]="false">
                   <ion-item routerLink="/inicio" routerLinkActive="activo" detail="false">
@@ -43,7 +106,7 @@ import { agruparAreas } from './shared/workspace-navigation';
                 <ion-accordion-group [multiple]="true">
                   @for (area of areas(); track area.key) {
                     <ion-accordion [value]="area.key">
-                      <ion-item slot="header" color="light">
+                      <ion-item slot="header">
                         <ion-label>{{ area.titulo }}</ion-label>
                       </ion-item>
                       <div slot="content">
