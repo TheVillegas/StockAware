@@ -23,6 +23,8 @@ import { agruparAreas } from './shared/workspace-navigation';
   styles: [`
     ion-menu {
       --background: var(--sa-shell);
+      /* ion-accordion paints --ion-background-color; keep it dark inside the menu. */
+      --ion-background-color: var(--sa-shell);
     }
     ion-menu ion-content {
       --background: var(--sa-shell);
@@ -43,6 +45,7 @@ import { agruparAreas } from './shared/workspace-navigation';
 
     ion-accordion-group ion-item[slot="header"] {
       --background: transparent;
+      --color: var(--sa-shell-soft);
       --background-hover: transparent;
       --min-height: var(--sa-control-h);
       --padding-start: var(--sa-space-4);
@@ -59,7 +62,8 @@ import { agruparAreas } from './shared/workspace-navigation';
     ion-accordion-group ion-item[slot="header"]::part(native) {
       color: var(--sa-shell-soft);
     }
-    ion-accordion .ion-accordion-toggle-icon {
+    /* Ionic injects the toggle icon at runtime, outside this template's encapsulation. */
+    ion-menu ::ng-deep .ion-accordion-toggle-icon {
       color: var(--sa-shell-soft);
     }
     ion-list-header {

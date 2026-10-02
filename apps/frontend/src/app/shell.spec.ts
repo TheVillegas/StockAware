@@ -37,4 +37,16 @@ describe('AppComponent shell structural contracts', () => {
     expect(styles).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
     expect(styles).not.toMatch(/font-size:\s*\d+px/);
   });
+
+  it('paints accordion areas with the shell color instead of the page background', () => {
+    expect(source).toMatch(/ion-menu\s*\{[^}]*--ion-background-color:\s*var\(--sa-shell\)/);
+  });
+
+  it('colors the accordion header and its toggle icon with the shell soft tone', () => {
+    expect(source).toMatch(/ion-item\[slot="header"\]\s*\{[^}]*--color:\s*var\(--sa-shell-soft\)/);
+  });
+
+  it('reaches the runtime-injected accordion toggle icon through ::ng-deep', () => {
+    expect(source).toMatch(/ion-menu\s+::ng-deep\s+\.ion-accordion-toggle-icon\s*\{[^}]*color:\s*var\(--sa-shell-soft\)/);
+  });
 });
