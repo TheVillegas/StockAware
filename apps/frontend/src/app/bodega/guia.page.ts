@@ -17,8 +17,8 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom, map } from 'rxjs';
 import {
-  IonButton, IonContent, IonInput, IonItem,
-  IonNote, IonSearchbar, IonSelect, IonSelectOption,
+  IonButton, IonContent, IonInput,
+  IonSearchbar, IonSelect, IonSelectOption,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
@@ -38,41 +38,33 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
   selector: 'app-guia',
   imports: [
     FormsModule, PageHeaderComponent, IonContent,
-    IonSearchbar, IonSelect, IonSelectOption, IonButton, IonItem, IonInput, IonNote,
+    IonSearchbar, IonSelect, IonSelectOption, IonButton, IonInput,
   ],
   styles: [`
-    .cuerpo { padding: 0; }
-    h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); margin: 22px 0 6px; }
-    .fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    h3 { font-size: var(--sa-text-label); text-transform: uppercase; letter-spacing: .06em;
+         color: var(--sa-ink-soft); margin: var(--sa-space-5) 0 var(--sa-space-1); font-weight: 600; }
+    .fila { display: flex; gap: var(--sa-space-3); flex-wrap: wrap; align-items: flex-end; }
     .fila > * { flex: 1; min-width: 200px; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 6px; }
-    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); padding: 7px 9px;
-         border-bottom: 1px solid var(--ion-color-light-shade); }
-    td { padding: 6px 9px; border-bottom: 1px solid var(--ion-color-light); }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .desplaza { overflow-x: auto; }
-    .sug { border: 1px solid var(--ion-color-light-shade); border-radius: 6px;
-           max-height: 220px; overflow-y: auto; margin-top: 4px; }
-    .sug div { padding: 7px 10px; cursor: pointer; font-size: 13px;
-               border-bottom: 1px solid var(--ion-color-light); }
-    .sug div:hover { background: var(--ion-color-light); }
-    .acciones { display: flex; gap: 10px; margin-top: 20px; }
-    .aviso { color: var(--ion-color-danger); font-size: 13px; margin: 10px 0; }
-    .ok { color: var(--ion-color-success); font-size: 13px; margin: 10px 0; }
+    .fila > ion-button { flex: none; min-width: 0; }
+    .sug { border: var(--sa-border) solid var(--sa-line-strong); border-radius: var(--sa-radius);
+           max-height: 220px; overflow-y: auto; margin-top: var(--sa-space-1); }
+    .sug div { padding: 7px 10px; cursor: pointer; font-size: var(--sa-text-dense);
+               border-bottom: var(--sa-border) solid var(--sa-line); }
+    .sug div:hover { background: var(--sa-surface-2); }
+    .sug-stock { color: var(--sa-ink-soft); }
+    .acciones { display: flex; gap: var(--sa-space-2); margin-top: var(--sa-space-5); }
   `],
   template: `
     <app-page-header [title]="modo().titulo"></app-page-header>
 
     <ion-content>
       <div class="cuerpo page-content">
-        @if (error()) { <div class="aviso">{{ error() }}</div> }
-        @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
+        @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
+        @if (mensaje()) { <div class="sa-notice sa-notice--ok">{{ mensaje() }}</div> }
 
         <h3>Encabezado</h3>
         <div class="fila">
-          <ion-select label="Bodega" labelPlacement="stacked" interface="popover"
+          <ion-select label="Bodega" labelPlacement="stacked" fill="outline" interface="popover"
                       [value]="bodega()" (ionChange)="bodega.set($any($event).detail.value)">
             @for (b of bodegas(); track b.bodega) {
               <ion-select-option [value]="b.bodega">{{ b.descr }}</ion-select-option>
@@ -80,20 +72,20 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
           </ion-select>
 
           @if (esMaterial()) {
-            <ion-select label="Destino" labelPlacement="stacked" interface="popover"
+            <ion-select label="Destino" labelPlacement="stacked" fill="outline" interface="popover"
                         [value]="tipoCambio()" (ionChange)="tipoCambio.set($any($event).detail.value)">
               <ion-select-option value="Persona">Persona</ion-select-option>
               <ion-select-option value="Bodega">Otra bodega</ion-select-option>
             </ion-select>
           } @else {
-            <ion-select label="Tipo de ítem" labelPlacement="stacked" interface="popover"
+            <ion-select label="Tipo de ítem" labelPlacement="stacked" fill="outline" interface="popover"
                         [value]="tipoVhe()" (ionChange)="tipoVhe.set($any($event).detail.value)">
               @for (t of tipos(); track t) { <ion-select-option [value]="t">{{ t }}</ion-select-option> }
             </ion-select>
           }
 
           @if (esMaterial() && tipoCambio() === 'Bodega') {
-            <ion-select label="Bodega destino" labelPlacement="stacked" interface="popover"
+            <ion-select label="Bodega destino" labelPlacement="stacked" fill="outline" interface="popover"
                         [value]="bodegaDestino()"
                         (ionChange)="bodegaDestino.set($any($event).detail.value)">
               @for (b of bodegas(); track b.bodega) {
@@ -101,50 +93,50 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
               }
             </ion-select>
           }
-        </div>
 
-        <div class="fila">
-          <ion-item><ion-input label="Centro de costo" labelPlacement="stacked"
-                               [(ngModel)]="ccosto"></ion-input></ion-item>
-          <ion-item><ion-input label="Cuenta contable (ccosto_ap)" labelPlacement="stacked"
-                               [(ngModel)]="ccostoAp"></ion-input></ion-item>
           @if (esMaterial() && tipoCambio() === 'Persona') {
-            <ion-item><ion-input label="Id de quien recibe" labelPlacement="stacked"
-                                 type="number" [(ngModel)]="responsable"></ion-input></ion-item>
+            <ion-input label="Responsable (id)" labelPlacement="stacked" fill="outline" type="number"
+                         [(ngModel)]="responsable"></ion-input>
           }
+
+          <ion-input label="Centro de costo" labelPlacement="stacked" fill="outline"
+                       [(ngModel)]="ccosto"></ion-input>
+          <ion-input label="Centro de costo AP" labelPlacement="stacked" fill="outline"
+                       [(ngModel)]="ccostoAp"></ion-input>
         </div>
 
-        <h3>Agregar ítems</h3>
-        <ion-searchbar placeholder="Buscar por código o nombre" [debounce]="350"
-                       (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
-        @if (sugerencias().length) {
-          <div class="sug">
-            @for (s of sugerencias(); track s.codigo) {
-              <div (click)="agregar(s)">
-                <strong>{{ s.codigo }}</strong> — {{ s.nombre }}
-                @if (esMaterial()) { <ion-note> · stock {{ s.stock }}</ion-note> }
+        <h3>Ítems</h3>
+        <div class="fila">
+          <div style="flex: 1; position: relative;">
+            <ion-searchbar placeholder="Buscar material o equipo" [debounce]="350"
+                           [value]="buscar()"
+                           (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+            @if (sugerencias().length) {
+              <div class="sug">
+                @for (s of sugerencias(); track s.codigo) {
+                  <div (click)="agregar(s)"><span class="code">{{ s.codigo }}</span> - {{ s.nombre }}@if (esMaterial()) { <span class="sug-stock"> · stock <span class="num">{{ s.stock }}</span></span> }</div>
+                }
               </div>
             }
           </div>
-        }
+        </div>
 
         @if (lineas().length) {
-          <h3>Líneas de la guía</h3>
-          <div class="desplaza">
-            <table>
+          <div class="sa-table-wrap">
+            <table class="sa-table">
               <thead><tr>
-                <th>Código</th><th>Descripción</th><th class="num">Cantidad</th>
+                <th class="code">Código</th><th>Descripción</th><th class="num">Cantidad</th>
                 <th>Unidad</th><th></th>
               </tr></thead>
               <tbody>
                 @for (l of lineas(); track l.id_vhe) {
                   <tr>
-                    <td>{{ l.id_vhe }}</td>
+                    <td class="code">{{ l.id_vhe }}</td>
                     <td>{{ l.nombre }}</td>
                     <td class="num"><ion-input type="number" [(ngModel)]="l.cantidad"></ion-input></td>
                     <td>{{ l.unidad }}</td>
                     <td>
-                      <ion-button size="small" fill="clear" color="danger"
+                      <ion-button size="small" fill="outline" color="danger"
                                   (click)="quitar(l)">Quitar</ion-button>
                     </td>
                   </tr>
@@ -159,7 +151,7 @@ const MODOS: Record<string, { tipoMov: 'IN' | 'OUT' | 'MATERIAL'; titulo: string
             Emitir guía
           </ion-button>
           @if (lineas().length) {
-            <ion-button fill="clear" (click)="lineas.set([])">Vaciar</ion-button>
+            <ion-button fill="outline" (click)="lineas.set([])">Vaciar</ion-button>
           }
         </div>
       </div>

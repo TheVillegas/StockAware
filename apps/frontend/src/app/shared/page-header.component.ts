@@ -7,6 +7,7 @@ import {
 } from '@ionic/angular/standalone';
 import { logOutOutline } from 'ionicons/icons';
 import { AuthService } from '../core/auth.service';
+import { functionCodeFromUrl } from './function-code';
 
 @Component({
   selector: 'app-page-header',
@@ -90,10 +91,7 @@ export class PageHeaderComponent {
   private readonly router = inject(Router);
   private readonly url = signal(this.router.url);
   // El codigo de funcion sale de la URL: /f/<CODE>. Si no calza, no se muestra.
-  readonly codigo = computed(() => {
-    const match = /\/f\/([^/?#]+)/.exec(this.url());
-    return match ? decodeURIComponent(match[1]) : '';
-  });
+  readonly codigo = computed(() => functionCodeFromUrl(this.url()));
 
   constructor() {
     this.router.events

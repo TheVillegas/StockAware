@@ -541,6 +541,24 @@ ion-menu ion-content { --background: var(--sa-shell); }
 
 /* Buttons use sentence case (spec 3.1); Material mode forces uppercase by default. */
 ion-button { text-transform: none; letter-spacing: normal; }
+
+/* Form controls and buttons follow spec 3.1 and 3.2: no shadows, 1px input border, token radius. */
+ion-button { --box-shadow: none; }
+/* Attribute selectors raise specificity above Ionic's scoped host rules. */
+ion-input.input-fill-outline[fill],
+ion-select.select-fill-outline[fill] {
+  --border-color: var(--sa-border-input);
+  --border-radius: var(--sa-radius);
+  --highlight-color-focused: var(--sa-accent);
+  min-height: var(--sa-control-h);
+}
+ion-searchbar[class] {
+  --box-shadow: none;
+  --background: var(--sa-surface);
+  --border-radius: var(--sa-radius);
+  padding-inline: 0;
+}
+ion-searchbar .searchbar-input-container .searchbar-input { border: var(--sa-border) solid var(--sa-border-input); }
 ```
 
 ---
