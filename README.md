@@ -15,12 +15,12 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 
 ## Integrantes
 
-La asignación es preliminar y refleja el trabajo visible en el repositorio. No incluye datos de contacto.
+La asignación la definió el equipo. No incluye datos de contacto.
 
 | Integrante | Ámbito |
 | --- | --- |
-| Matias Villegas | Repositorio, pipeline, documentación y el hop entre NestJS y FastAPI |
-| Matias Ignacio Romero Alvarez | Réplica del ERP (acceso, compras, bodega, facturas y reportes) y el sistema visual del frontend |
+| Matias Villegas | DevSecOps y gestión del repositorio |
+| Matias Ignacio Romero Alvarez | Desarrollo fullstack |
 
 ## Variables de entorno
 
