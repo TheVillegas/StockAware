@@ -13,14 +13,14 @@ body {
 
 /* Global focus (section 1.3 focus spec) */
 :focus-visible {
-  outline: 2px solid var(--sa-accent);
-  outline-offset: 2px;
+  outline: var(--sa-focus-ring);
+  outline-offset: var(--sa-focus-offset);
 }
 
 /* Table (section 3.3) */
 .sa-table-wrap {
   background: var(--sa-surface);
-  border: 1px solid var(--sa-line-strong);
+  border: var(--sa-border) solid var(--sa-line-strong);
   border-radius: var(--sa-radius);
   overflow-x: auto;
 }
@@ -40,7 +40,7 @@ body {
   color: var(--sa-ink-soft);
   text-align: left;
   padding: var(--sa-space-2) var(--sa-space-3);
-  border-bottom: 1px solid var(--sa-line-strong);
+  border-bottom: var(--sa-border) solid var(--sa-line-strong);
   position: sticky;
   top: 0;
   background: var(--sa-surface);
@@ -48,7 +48,7 @@ body {
 
 .sa-table td {
   padding: var(--sa-space-2) var(--sa-space-3);
-  border-bottom: 1px solid var(--sa-line);
+  border-bottom: var(--sa-border) solid var(--sa-line);
   white-space: nowrap;
 }
 
@@ -120,7 +120,7 @@ body {
   border-radius: var(--sa-radius);
   padding: var(--sa-space-2) var(--sa-space-3);
   font-size: var(--sa-text-dense);
-  border: 1px solid transparent;
+  border: var(--sa-border) solid transparent;
 }
 
 .sa-notice--ok {
@@ -170,7 +170,7 @@ body {
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--sa-line-strong);
-  border: 1px solid var(--sa-line-strong);
+  border: var(--sa-border) solid var(--sa-line-strong);
   border-radius: var(--sa-radius);
   overflow: hidden;
 }

@@ -24,6 +24,7 @@ const SA_TOKENS = {
   '--sa-shell-ink': '#cfe0df',
   '--sa-shell-soft': '#7fa3a1',
   '--sa-shell-mark': '#4fd0bd',
+  '--sa-shell-strong': '#ffffff',
   '--sa-ok-fg': '#1d6b2f',
   '--sa-ok-bg': '#d6ecd8',
   '--sa-ok-line': '#b9dcbd',
@@ -57,6 +58,9 @@ const SA_TOKENS = {
   '--sa-space-6': '32px',
   '--sa-radius': '6px',
   '--sa-radius-pill': '3px',
+  '--sa-border': '1px',
+  '--sa-focus-ring': '2px solid var(--sa-accent)',
+  '--sa-focus-offset': '2px',
   '--sa-control-h': '36px',
   '--sa-control-h-sm': '28px',
   '--sa-topbar-h': '48px',
@@ -168,6 +172,12 @@ describe('theme foundation contract', () => {
     expect(ionic).toMatch(/--ion-font-family:\s*var\(--sa-font-sans\)\s*;/);
   });
 
+  it('uses the focus tokens in the components :focus-visible rule', () => {
+    const components = asset('../../theme/components.css');
+    expect(components).toMatch(/:focus-visible\s*\{[^}]*outline:\s*var\(--sa-focus-ring\)/s);
+    expect(components).toMatch(/:focus-visible\s*\{[^}]*outline-offset:\s*var\(--sa-focus-offset\)/s);
+  });
+
   it('uses only tokens (no literal hex nor font-size px) in components.css', () => {
     const components = asset('../../theme/components.css');
     expect(components).not.toMatch(/#[0-9a-fA-F]{3,6}\b/);
@@ -205,5 +215,15 @@ describe('theme foundation contract', () => {
     });
     expect(components).toMatch(/font-variant-numeric:\s*tabular-nums/);
     expect(components).toMatch(/font-family:\s*var\(--sa-font-mono\)/);
+  });
+
+  it('renders Ionic buttons in sentence case, as the spec requires', () => {
+    const ionic = asset('../../theme/ionic.css');
+    expect(ionic).toMatch(/ion-button\s*\{[^}]*text-transform:\s*none/);
+  });
+
+  it('pins the side menu width to the --sa-menu-w token', () => {
+    const ionic = asset('../../theme/ionic.css');
+    expect(ionic).toMatch(/ion-split-pane\s*\{[^}]*--side-min-width:\s*var\(--sa-menu-w\)/);
   });
 });

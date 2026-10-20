@@ -22,6 +22,7 @@
   --sa-shell-ink: #cfe0df;
   --sa-shell-soft: #7fa3a1;
   --sa-shell-mark: #4fd0bd;
+  --sa-shell-strong: #ffffff;
 
   /* states */
   --sa-ok-fg: #1d6b2f;   --sa-ok-bg: #d6ecd8;   --sa-ok-line: #b9dcbd;
@@ -51,6 +52,9 @@
   --sa-space-6: 32px;
   --sa-radius: 6px;
   --sa-radius-pill: 3px;
+  --sa-border: 1px;
+  --sa-focus-ring: 2px solid var(--sa-accent);
+  --sa-focus-offset: 2px;
 
   /* controls */
   --sa-control-h: 36px;
