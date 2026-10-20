@@ -11,8 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonContent, IonInput, IonItem,
-  IonNote, IonSelect, IonSelectOption, IonSpinner,
+  IonButton, IonContent, IonInput,
+  IonNote, IonSelect, IonSelectOption, IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
@@ -30,41 +30,30 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
   selector: 'app-recepcion',
   imports: [
     FormsModule, PageHeaderComponent, IonContent,
-    IonSelect, IonSelectOption, IonSpinner, IonButton, IonItem, IonInput, IonNote,
+    IonSelect, IonSelectOption, IonSkeletonText, IonButton, IonInput, IonNote,
   ],
   styles: [`
-    .cuerpo { padding: 0; }
-    h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); margin: 22px 0 6px; }
-    .fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    h3 { font-size: var(--sa-text-label); text-transform: uppercase; letter-spacing: .06em;
+         color: var(--sa-ink-soft); margin: var(--sa-space-5) 0 var(--sa-space-1); font-weight: 600; }
+    .fila { display: flex; gap: var(--sa-space-3); flex-wrap: wrap; align-items: flex-end; }
     .fila > * { flex: 1; min-width: 200px; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 6px; }
-    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); padding: 7px 9px;
-         border-bottom: 1px solid var(--ion-color-light-shade); }
-    td { padding: 6px 9px; border-bottom: 1px solid var(--ion-color-light); }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .desplaza { overflow-x: auto; }
-    .sinCodigo { color: var(--ion-color-danger); font-weight: 600; }
-    .acciones { display: flex; gap: 10px; margin-top: 20px; }
-    .aviso { color: var(--ion-color-danger); font-size: 13px; margin: 10px 0; }
-    .ok { color: var(--ion-color-success); font-size: 13px; margin: 10px 0; }
-    .nota { font-size: 12px; color: var(--ion-color-medium); margin-top: 10px; line-height: 1.5; }
+    .fila > ion-button { flex: none; min-width: 0; }
+    .sinCodigo { color: var(--sa-crit-fg); font-weight: 600; }
+    .acciones { display: flex; gap: var(--sa-space-2); margin-top: var(--sa-space-5); }
+    .nota { font-size: var(--sa-text-meta); color: var(--sa-ink-soft); margin-top: var(--sa-space-2); line-height: 1.5; }
   `],
   template: `
     <app-page-header title="Recibe material fungible"></app-page-header>
 
     <ion-content>
       <div class="cuerpo page-content">
-        @if (error()) { <div class="aviso">{{ error() }}</div> }
-        @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
+        @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
+        @if (mensaje()) { <div class="sa-notice sa-notice--ok">{{ mensaje() }}</div> }
 
         <div class="fila">
-          <ion-item>
-            <ion-input label="Número de HES" labelPlacement="stacked" type="number"
+          <ion-input label="Número de HES" labelPlacement="stacked" fill="outline" type="number"
                        [(ngModel)]="numdoc" (keyup.enter)="cargarHes()"></ion-input>
-          </ion-item>
-          <ion-select label="Bodega de destino" labelPlacement="stacked" interface="popover"
+          <ion-select label="Bodega de destino" labelPlacement="stacked" fill="outline" interface="popover"
                       [value]="bodega()" (ionChange)="bodega.set($any($event).detail.value)">
             @for (b of bodegas(); track b.bodega) {
               <ion-select-option [value]="b.bodega">{{ b.descr }}</ion-select-option>
@@ -73,24 +62,24 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
           <ion-button (click)="cargarHes()" [disabled]="buscando()">Buscar HES</ion-button>
         </div>
 
-        @if (buscando()) { <ion-spinner></ion-spinner> }
+        @if (buscando()) { <ion-skeleton-text [animated]="true" style="width: 100%; height: 200px;"></ion-skeleton-text> }
 
         @if (hes(); as h) {
           <h3>HES {{ h.numdoc }} · centro de costo {{ h.ccosto }}</h3>
           @if (h.yaCargada) {
-            <div class="aviso">Esta HES ya fue cargada a bodega (marca MF).</div>
+            <div class="sa-notice sa-notice--warn">Esta HES ya fue cargada a bodega (marca MF).</div>
           }
-          <div class="desplaza">
-            <table>
+          <div class="sa-table-wrap">
+            <table class="sa-table">
               <thead><tr>
-                <th>Descripción de la línea</th><th>Código resuelto</th>
+                <th>Descripción de la línea</th><th class="code">Código resuelto</th>
                 <th class="num">Cantidad</th><th>Unidad</th><th class="num">Precio</th>
               </tr></thead>
               <tbody>
                 @for (l of h.lineas; track l.id) {
                   <tr>
                     <td>{{ l.nombre }}</td>
-                    <td [class.sinCodigo]="!l.cod_material">
+                    <td class="code" [class.sinCodigo]="!l.cod_material">
                       {{ l.cod_material ?? 'sin patrón /MC_' }}
                     </td>
                     <td class="num">{{ l.cantidad }}</td>
@@ -103,7 +92,7 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
           </div>
 
           @if (faltantes() > 0) {
-            <div class="aviso">
+            <div class="sa-notice sa-notice--crit">
               {{ faltantes() }} línea(s) sin el patrón <code>/MC_</code>. La carga se rechaza
               completa hasta que se corrija la descripción en la HES.
             </div>
@@ -112,7 +101,7 @@ interface Hes { numdoc: number; ccosto: string; yaCargada: boolean; lineas: Line
           <p class="nota">
             Al cargar: se suma el stock en la bodega elegida, se escribe un movimiento
             por línea, la tarifa del maestro queda con el precio de esta HES, y la HES
-            se marca como <code>MF</code> — desde ahí ya no se puede eliminar desde compras.
+            se marca como <code>MF</code>. Desde ahí ya no se puede eliminar desde compras.
           </p>
 
           <div class="acciones">
@@ -153,7 +142,7 @@ export class RecepcionPage {
   }
 
   async cargarHes(): Promise<void> {
-    if (!this.numdoc) { this.error.set('Indicá el número de HES'); return; }
+    if (!this.numdoc) { this.error.set('Indica el número de HES'); return; }
     this.buscando.set(true);
     this.error.set(''); this.mensaje.set(''); this.hes.set(null);
     try {
@@ -176,7 +165,7 @@ export class RecepcionPage {
       const r = await firstValueFrom(this.http.post<{ mensaje: string; numdoc: number }>(
         `${API}/bodega/cargar-hes`, { numdoc: h.numdoc, bodega: this.bodega() },
       ));
-      this.mensaje.set(`${r.mensaje} — guía ${r.numdoc}`);
+      this.mensaje.set(`${r.mensaje}, guía ${r.numdoc}`);
       await this.cargarHes();
     } catch (e: any) {
       this.error.set(e?.error?.message ?? 'No se pudo cargar');

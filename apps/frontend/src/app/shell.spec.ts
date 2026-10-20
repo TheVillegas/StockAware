@@ -10,7 +10,7 @@ const styles = source.match(/styles:\s*\[`([\s\S]*?)`\]/)?.[1] ?? '';
 
 describe('AppComponent shell structural contracts', () => {
   it('paints the whole menu with the shell background', () => {
-    expect(styles).toMatch(/ion-menu[^]*var\(--sa-shell\)/);
+    expect(styles).toMatch(/ion-menu[^}]*var\(--sa-shell\)/);
   });
 
   it('renders the brand block with Stock and Aware', () => {

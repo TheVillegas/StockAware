@@ -9,12 +9,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonContent, IonInput, IonItem,
-  IonNote, IonSearchbar, IonSelect, IonSelectOption, IonSpinner,
+  IonButton, IonContent, IonInput,
+  IonNote, IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { stockState } from './stock-state';
 
 export interface Bodega { bodega: number; descr: string; ccosto: string; estado: string; }
 interface FilaStock {
@@ -27,58 +28,41 @@ interface FilaStock {
   selector: 'app-stock',
   imports: [
     FormsModule, PageHeaderComponent, IonContent,
-    IonSearchbar, IonSelect, IonSelectOption, IonSpinner, IonNote, IonButton, IonItem, IonInput,
+    IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText, IonNote, IonButton, IonInput,
   ],
   styles: [`
-    .barra { display: flex; align-items: center; gap: 10px; padding: 4px 8px; flex-wrap: wrap; }
-    .barra ion-searchbar { flex: 1; min-width: 220px; }
     ion-select { max-width: 300px; }
-    .conteo { font-size: 12px; color: var(--ion-color-medium); white-space: nowrap; padding-right: 12px; }
-    .tabla { overflow-x: auto; padding: 0 12px 20px; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; }
-    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); padding: 8px 10px;
-         border-bottom: 1px solid var(--ion-color-light-shade); white-space: nowrap; }
-    td { padding: 7px 10px; border-bottom: 1px solid var(--ion-color-light); white-space: nowrap; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .bajo { color: var(--ion-color-danger); font-weight: 600; }
-    .vacio { padding: 40px 20px; text-align: center; color: var(--ion-color-medium); }
-    .aviso { color: var(--ion-color-danger); padding: 8px 14px; font-size: 13px; }
-    .ok { color: var(--ion-color-success); padding: 8px 14px; font-size: 13px; }
-    .ficha { padding: 8px 14px 20px; max-width: 460px; }
+    .sa-toolbar ion-searchbar { flex: 1; min-width: 220px; }
+    .ficha { padding: var(--sa-space-2) var(--sa-space-3) var(--sa-space-5); max-width: 460px; }
+    .skeleton-table { padding: 0 var(--sa-space-3) var(--sa-space-5); }
+    .skeleton-table ion-skeleton-text { margin-bottom: var(--sa-space-1); }
   `],
   template: `
     <app-page-header title="Materiales por bodega"></app-page-header>
 
     <ion-content>
       <div class="page-content page-content--wide">
-      @if (error()) { <div class="aviso">{{ error() }}</div> }
-      @if (mensaje()) { <div class="ok">{{ mensaje() }}</div> }
+      @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
+      @if (mensaje()) { <div class="sa-notice sa-notice--ok">{{ mensaje() }}</div> }
 
       @if (ajustando(); as f) {
         <div class="ficha">
-          <ion-note>Ajuste de stock — {{ f.cod_material }}</ion-note>
+          <ion-note>Ajuste de stock: {{ f.cod_material }}</ion-note>
           <p>{{ f.nombre }}</p>
-          <ion-item>
-            <ion-input label="Stock actual" labelPlacement="stacked"
+          <ion-input label="Stock actual" labelPlacement="stacked" fill="outline"
                        [value]="f.stock" disabled="true"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-input label="Stock que debe quedar" labelPlacement="stacked"
+          <ion-input label="Stock que debe quedar" labelPlacement="stacked" fill="outline"
                        type="number" [(ngModel)]="nuevoStock"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-input label="Motivo" labelPlacement="stacked"
+          <ion-input label="Motivo" labelPlacement="stacked" fill="outline"
                        [(ngModel)]="motivo" placeholder="Inventario físico"></ion-input>
-          </ion-item>
-          <div class="barra">
+          <div class="sa-toolbar">
             <ion-button (click)="confirmarAjuste()" [disabled]="trabajando()">Confirmar</ion-button>
-            <ion-button fill="clear" (click)="ajustando.set(null)">Cancelar</ion-button>
+            <ion-button fill="outline" (click)="ajustando.set(null)">Cancelar</ion-button>
           </div>
         </div>
       } @else {
-        <div class="barra">
-          <ion-select label="Bodega" labelPlacement="stacked" interface="popover"
+        <div class="sa-toolbar">
+          <ion-select label="Bodega" labelPlacement="stacked" fill="outline" interface="popover"
                       [value]="bodega()" (ionChange)="bodega.set($any($event).detail.value)">
             <ion-select-option [value]="0">Todas</ion-select-option>
             @for (b of bodegas(); track b.bodega) {
@@ -87,33 +71,52 @@ interface FilaStock {
           </ion-select>
           <ion-searchbar placeholder="Código o nombre" [debounce]="350"
                          (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
-          <span class="conteo">{{ datos().length }} materiales</span>
+          <span class="sa-count">{{ datos().length }} materiales</span>
         </div>
 
         @if (cargando()) {
-          <div class="vacio"><ion-spinner></ion-spinner></div>
+          <div class="skeleton-table">
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+          </div>
         } @else if (datos().length === 0) {
-          <div class="vacio">Sin resultados. Elegí una bodega o buscá por código.</div>
+          <div class="sa-empty">
+            <div class="title">Sin resultados</div>
+            <div class="text">Elige una bodega o busca por código</div>
+          </div>
         } @else {
-          <div class="tabla">
-            <table>
+          <div class="sa-table-wrap">
+            <table class="sa-table">
               <thead><tr>
-                <th>Código</th><th>Material</th><th>Bodega</th><th>Unidad</th>
-                <th class="num">Stock</th><th class="num">Mínimo</th><th class="num">Tarifa</th><th></th>
+                <th class="code">Código</th><th>Material</th><th>Bodega</th><th>Unidad</th>
+                <th class="num">Stock</th><th class="num">Mínimo</th><th class="num">Tarifa</th><th>Estado</th><th></th>
               </tr></thead>
               <tbody>
                 @for (f of datos(); track f.cod_material + '-' + f.id_bodega) {
+                  @let estado = estadoStock(f.stock, f.stock_minimo);
                   <tr>
-                    <td>{{ f.cod_material }}</td>
+                    <td class="code">{{ f.cod_material }}</td>
                     <td>{{ f.nombre }}</td>
                     <td>{{ f.bodega }}</td>
                     <td>{{ f.unidad }}</td>
-                    <td class="num" [class.bajo]="f.stock < f.stock_minimo">{{ f.stock }}</td>
+                    <td class="num" [class.is-low]="estado !== 'ok'">{{ f.stock }}</td>
                     <td class="num">{{ f.stock_minimo }}</td>
                     <td class="num">{{ moneda(f.tarifa) }}</td>
                     <td>
+                      @if (estado === 'crit') {
+                        <span class="sa-pill sa-pill--crit">SIN STOCK</span>
+                      } @else if (estado === 'warn') {
+                        <span class="sa-pill sa-pill--warn">BAJO MÍNIMO</span>
+                      } @else {
+                        <span class="sa-pill sa-pill--ok">OK</span>
+                      }
+                    </td>
+                    <td>
                       @if (puedeAjustar()) {
-                        <ion-button size="small" fill="clear" (click)="abrirAjuste(f)">Ajustar</ion-button>
+                        <ion-button size="small" fill="outline" (click)="abrirAjuste(f)">Ajustar</ion-button>
                       }
                     </td>
                   </tr>
@@ -146,6 +149,7 @@ export class StockPage {
 
   moneda = (n: unknown) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString('es-CL');
   puedeAjustar = () => (this.auth.sesion()?.permisos ?? []).includes('MATERIAL_X_BODEGA');
+  readonly estadoStock = stockState;
 
   constructor() {
     void this.cargarBodegas();

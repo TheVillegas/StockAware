@@ -226,4 +226,12 @@ describe('theme foundation contract', () => {
     const ionic = asset('../../theme/ionic.css');
     expect(ionic).toMatch(/ion-split-pane\s*\{[^}]*--side-min-width:\s*var\(--sa-menu-w\)/);
   });
+
+  it('removes Ionic shadows from buttons and searchbars and outlines form controls', () => {
+    const ionic = asset('../../theme/ionic.css');
+    expect(ionic).toMatch(/ion-button\s*\{[^}]*--box-shadow:\s*none/);
+    expect(ionic).toMatch(/ion-searchbar\[class\]\s*\{[^}]*--box-shadow:\s*none/);
+    expect(ionic).toMatch(/ion-searchbar\s+\.searchbar-input-container\s+\.searchbar-input\s*\{[^}]*border:[^;]*var\(--sa-border-input\)/);
+    expect(ionic).toMatch(/--border-color:\s*var\(--sa-border-input\)/);
+  });
 });

@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import {
   IonButton, IonContent, IonSearchbar,
-  IonSelect, IonSelectOption, IonSpinner,
+  IonSelect, IonSelectOption, IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
@@ -28,41 +28,32 @@ interface Mov {
   selector: 'app-movimientos',
   imports: [
     PageHeaderComponent, IonContent,
-    IonSearchbar, IonSelect, IonSelectOption, IonSpinner, IonButton,
+    IonSearchbar, IonSelect, IonSelectOption, IonSkeletonText, IonButton,
   ],
   styles: [`
-    .barra { display: flex; align-items: center; gap: 10px; padding: 4px 8px; flex-wrap: wrap; }
-    .barra ion-searchbar { flex: 1; min-width: 200px; }
     ion-select { max-width: 260px; }
-    .conteo { font-size: 12px; color: var(--ion-color-medium); white-space: nowrap; padding-right: 12px; }
-    .tabla { overflow-x: auto; padding: 0 12px 20px; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; }
-    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
-         color: var(--ion-color-medium); padding: 8px 10px;
-         border-bottom: 1px solid var(--ion-color-light-shade); white-space: nowrap; }
-    td { padding: 7px 10px; border-bottom: 1px solid var(--ion-color-light); white-space: nowrap; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .mov { display: inline-block; padding: 1px 8px; border-radius: 9px; font-size: 11px; font-weight: 600; }
-    .m-IN { background: #dcf0dc; color: #1d5c26; }
-    .m-OUT { background: #f6e2d5; color: #8a4a1c; }
-    .vacio { padding: 40px 20px; text-align: center; color: var(--ion-color-medium); }
-    .paginas { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 14px; }
-    .aviso { color: var(--ion-color-danger); padding: 8px 14px; font-size: 13px; }
+    .sa-toolbar ion-searchbar { flex: 1; min-width: 200px; }
+    .mov { display: inline-block; padding: 1px 6px; border-radius: var(--sa-radius-pill); font-size: var(--sa-text-label); font-weight: 600; }
+    .m-IN { background: var(--sa-ok-bg); color: var(--sa-ok-fg); }
+    .m-OUT { background: var(--sa-warn-bg); color: var(--sa-warn-fg); }
+    .paginas { display: flex; gap: var(--sa-space-2); align-items: center; justify-content: center; padding: var(--sa-space-3); }
+    .skeleton-table { padding: 0 var(--sa-space-3) var(--sa-space-5); }
+    .skeleton-table ion-skeleton-text { margin-bottom: var(--sa-space-1); }
   `],
   template: `
     <app-page-header title="Movimientos de bodega"></app-page-header>
 
     <ion-content>
       <div class="page-content page-content--wide">
-      @if (error()) { <div class="aviso">{{ error() }}</div> }
+      @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
 
-      <div class="barra">
-        <ion-select label="Tipo" labelPlacement="stacked" interface="popover"
+      <div class="sa-toolbar">
+        <ion-select label="Tipo" labelPlacement="stacked" fill="outline" interface="popover"
                     [value]="tipoVhe()" (ionChange)="tipoVhe.set($any($event).detail.value)">
           <ion-select-option value="">Todos</ion-select-option>
           @for (t of tipos(); track t) { <ion-select-option [value]="t">{{ t }}</ion-select-option> }
         </ion-select>
-        <ion-select label="Bodega" labelPlacement="stacked" interface="popover"
+        <ion-select label="Bodega" labelPlacement="stacked" fill="outline" interface="popover"
                     [value]="bodega()" (ionChange)="bodega.set($any($event).detail.value)">
           <ion-select-option [value]="0">Todas</ion-select-option>
           @for (b of bodegas(); track b.bodega) {
@@ -71,18 +62,26 @@ interface Mov {
         </ion-select>
         <ion-searchbar placeholder="Código del ítem" [debounce]="350"
                        (ionInput)="idVhe.set($any($event).detail.value ?? '')"></ion-searchbar>
-        <span class="conteo">{{ total() }} movimientos</span>
+        <span class="sa-count">{{ total() }} movimientos</span>
       </div>
 
       @if (cargando()) {
-        <div class="vacio"><ion-spinner></ion-spinner></div>
+        <div class="skeleton-table">
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 100%; height: 24px;"></ion-skeleton-text>
+        </div>
       } @else if (datos().length === 0) {
-        <div class="vacio">Sin movimientos</div>
+        <div class="sa-empty">
+          <div class="title">Sin movimientos</div>
+        </div>
       } @else {
-        <div class="tabla">
-          <table>
+        <div class="sa-table-wrap">
+          <table class="sa-table">
             <thead><tr>
-              <th>Fecha</th><th>Doc</th><th>N°</th><th>Tipo</th><th>Ítem</th>
+              <th>Fecha</th><th>Doc</th><th class="code">Nº</th><th>Tipo</th><th class="code">Ítem</th>
               <th>Descripción</th><th class="num">Cantidad</th><th>Centro costo</th>
               <th></th><th></th>
             </tr></thead>
@@ -91,16 +90,16 @@ interface Mov {
                 <tr>
                   <td>{{ m.fecha?.slice(0, 10) }}</td>
                   <td>{{ m.tipoDoc }}</td>
-                  <td>{{ m.numdoc }}</td>
+                  <td class="code">{{ m.numdoc }}</td>
                   <td>{{ m.tipo_vhe }}</td>
-                  <td>{{ m.id_vhe }}</td>
+                  <td class="code">{{ m.id_vhe }}</td>
                   <td>{{ m.nombre || m.descr }}</td>
                   <td class="num">{{ m.cantidad }} {{ m.unidad }}</td>
                   <td>{{ m.ccosto }}</td>
                   <td><span class="mov" [class]="'mov m-' + m.tipo_mov">{{ m.tipo_mov }}</span></td>
                   <td>
                     @if (puedeEliminar()) {
-                      <ion-button size="small" fill="clear" color="danger"
+                      <ion-button size="small" fill="outline" color="danger"
                                   (click)="eliminar(m)">Eliminar</ion-button>
                     }
                   </td>
@@ -112,10 +111,10 @@ interface Mov {
 
         @if (paginas() > 1) {
           <div class="paginas">
-            <ion-button size="small" fill="clear" [disabled]="pagina() <= 1"
+            <ion-button size="small" fill="outline" [disabled]="pagina() <= 1"
                         (click)="pagina.set(pagina() - 1)">Anterior</ion-button>
-            <span class="conteo">{{ pagina() }} / {{ paginas() }}</span>
-            <ion-button size="small" fill="clear" [disabled]="pagina() >= paginas()"
+            <span class="sa-count">{{ pagina() }} / {{ paginas() }}</span>
+            <ion-button size="small" fill="outline" [disabled]="pagina() >= paginas()"
                         (click)="pagina.set(pagina() + 1)">Siguiente</ion-button>
           </div>
         }
