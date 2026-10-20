@@ -43,6 +43,17 @@ export class BalanceController {
     return this.svc.porCategoria({ fini, ffin, ccosto: ccosto || undefined });
   }
 
+  /** Serie mensual del gasto: [{ mes: 'YYYY-MM', total }]. */
+  @Get('mensual')
+  @Requiere('BALANCE_CCOSTO')
+  mensual(
+    @Query('fini') fini: string,
+    @Query('ffin') ffin: string,
+    @Query('ccosto') ccosto?: string,
+  ) {
+    return this.svc.mensual({ fini, ffin, ccosto: ccosto || undefined });
+  }
+
   @Get('detalle')
   @Requiere('BALANCE_CCOSTO')
   detalle(

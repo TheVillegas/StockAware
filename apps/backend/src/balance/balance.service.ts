@@ -183,6 +183,20 @@ export class BalanceService {
     return filas;
   }
 
+  /**
+   * Gasto por mes calendario, con la misma union de origenes que el resumen.
+   * Devuelve solo los meses con movimientos; el cliente rellena los vacios.
+   */
+  async mensual(q: RangoDto): Promise<{ mes: string; total: number }[]> {
+    const filas: { mes: string; total: string }[] = await this.db.query(
+      `WITH gasto AS (${this.sqlDetalle})
+       SELECT to_char(g.fecha, 'YYYY-MM') AS mes, SUM(g.total)::numeric AS total
+       FROM gasto g GROUP BY 1 ORDER BY 1`,
+      [q.fini, q.ffin, q.ccosto ?? null],
+    );
+    return filas.map((f) => ({ mes: f.mes, total: Number(f.total) }));
+  }
+
   /** El detalle documento por documento. */
   async detalle(q: RangoDto & { pagina?: number; limite?: number }) {
     const limite = Math.min(Math.max(q.limite ?? 100, 1), 500);
