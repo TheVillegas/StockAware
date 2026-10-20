@@ -1,6 +1,7 @@
-@import "@fontsource/ibm-plex-sans/400.css";
-@import "@fontsource/ibm-plex-sans/500.css";
-@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/public-sans/400.css";
+@import "@fontsource/public-sans/500.css";
+@import "@fontsource/public-sans/600.css";
+@import "@fontsource/public-sans/700.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 @import "@fontsource/ibm-plex-mono/600.css";
@@ -15,7 +16,7 @@ body { margin: 0; font-family: var(--sa-font-sans); }
   width: 100%;
   max-width: 960px;
   margin-inline: auto;
-  padding: 24px clamp(16px, 4vw, 40px) 32px;
+  padding: 28px clamp(16px, 3vw, 36px) 48px;
 }
 
 .page-content--wide { max-width: 1440px; }

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Distribuir facturas StockAware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F7;font-family:'Public Sans',system-ui,sans-serif;color:#14212B}
+a{color:#7A4FC9}a:hover{color:#5E37A8}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.side{flex:1 1 248px;max-width:248px;background:#14212B;color:#E6EBF0;display:flex;flex-direction:column;gap:2px;padding:20px 12px;box-sizing:border-box}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#FFFFFF;font-weight:700;font-size:17px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:#2F5BDB;display:flex;align-items:center;justify-content:center}
+.navh{font-size:12px;color:#9AA8B6;padding:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;color:#D5DDE5;text-decoration:none;font-size:14px}
+.nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.nav.on{background:rgba(255,255,255,.12);color:#FFFFFF;font-weight:600}
+.who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.who small{display:block;color:#9AA8B6;font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2B3A47;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.main{flex:999 1 560px;min-width:0;padding:28px 36px 48px;box-sizing:border-box}
+.panel{background:#FFFFFF;border:1px solid #E1E6EB;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.fac{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:0;border-top:1px solid #EDF0F3;background:transparent;font:14px 'Public Sans',sans-serif;color:#14212B;text-align:left;cursor:pointer}
+.fac:hover{background:#F8F6FC}
+.fac.on{background:#F1EBFB}
+.dias{padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
+.field{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:1px solid #CBD3DB;border-radius:8px;background:#FFFFFF;box-sizing:border-box}
+.field input{border:0;outline:0;font:15px 'Public Sans',sans-serif;color:#14212B;flex:1;min-width:0;background:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;font:600 15px 'Public Sans',sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn.pri{background:#7A4FC9;color:#FFFFFF}
+.btn.pri:disabled{background:#CDBDEB;cursor:default}
+.btn.sec{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}
+.crear{margin:0 2px 8px}
+.crear summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:8px;background:#2F5BDB;color:#FFFFFF;font-weight:600;font-size:15px;cursor:pointer}
+.crear summary::-webkit-details-marker{display:none}
+.crear summary:hover{background:#2449B8}
+.crear .menu{display:flex;flex-direction:column;margin-top:6px;background:#1E2D39;border-radius:8px;padding:4px}
+.crear .menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;color:#E6EBF0;text-decoration:none;border-radius:6px;font-size:14px}
+.crear .menu a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.acc{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.b.az{background:#2F5BDB;color:#FFFFFF}.b.az:hover{background:#2449B8;color:#FFFFFF}
+.b.ve{background:#0B7A6F;color:#FFFFFF}.b.ve:hover{background:#086257;color:#FFFFFF}
+.b.vi{background:#7A4FC9;color:#FFFFFF}.b.vi:hover{background:#5E37A8;color:#FFFFFF}
+.b.se{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}.b.se:hover{border-color:#14212B;color:#14212B}
+.b.sm{min-height:34px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.side{max-width:none;flex-basis:100%}.main{padding:20px 16px 40px}}
+</style>
+</helmet>
+<div class="app">
+  <nav class="side" aria-label="Menú principal">
+    <a class="brand" href="Main.dc.html">
+      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      StockAware
+    </a>
+    <details class="crear">
+      <summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Crear</summary>
+      <div class="menu">
+        <a href="NuevaOC.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Orden de compra</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path></svg>Ingreso a bodega</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Salida de bodega</a>
+        <a href="Distribucion.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Reparto de factura</a>
+      </div>
+    </details>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</a>
+    <div class="navh">Compras</div>
+    <a class="nav" href="Ordenes.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Órdenes de compra</a>
+    <div class="navh">Bodega</div>
+    <a class="nav" href="Stock.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg>Stock</a>
+    <a class="nav" href="Registrar.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Registrar movimiento</a>
+    <div class="navh">Finanzas</div>
+    <a class="nav on" href="Distribucion.dc.html" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Distribuir facturas</a>
+    <a class="nav" href="Balance.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg>Balance</a>
+    <div class="navh">Sistema</div>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B4BEC8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><circle cx="16" cy="6" r="2"></circle><path d="M4 12h4"></path><path d="M12 12h8"></path><circle cx="10" cy="12" r="2"></circle><path d="M4 18h12"></path><circle cx="18" cy="18" r="2"></circle></svg>Configuración</a>
+    <div class="who">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <span style="flex: 1">Administrador<small>Perfil administrador</small></span>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span style="width: 44px; height: 44px; border-radius: 11px; background: #F1EBFB; display: flex; align-items: center; justify-content: center; flex: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4FC9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg></span>
+        <div>
+          <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.01em">Distribuir facturas</h1>
+          <p style="margin: 4px 0 0; color: #4A5866; font-size: 14px">Reparte el neto de cada factura aceptada entre centros de costo para que sume al balance.</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 20px; font-size: 14px">
+        <span><strong class="num" style="font-size: 20px; color: #8A5200">6.016</strong> por distribuir</span>
+        <span><strong class="num" style="font-size: 20px">122</strong> distribuidas</span>
+      </div>
+    </header>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="panel" aria-labelledby="cola" style="flex: 2 1 340px; min-width: 0">
+        <div style="padding: 16px">
+          <h2 id="cola" style="margin: 0 0 10px; font-size: 15px">Cola · las que más esperan primero</h2>
+          <label class="field">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input type="search" placeholder="Número o proveedor" aria-label="Buscar factura">
+          </label>
+        </div>
+        <sc-for list="{{ facturas }}" as="f" hint-placeholder-count="8">
+          <button class="{{ f.clase }}" type="button" onClick="{{ f.pick }}">
+            <span style="flex: 1; min-width: 0"><strong>Factura {{ f.numdoc }}</strong><br><span style="font-size: 13px; color: #4A5866">{{ f.prov }} · {{ f.fecha }}</span></span>
+            <span style="text-align: right"><span class="num" style="display: block; font-weight: 600">{{ f.neto }}</span><span class="dias num" style="{{ f.diasEstilo }}">{{ f.dias }}</span></span>
+          </button>
+        </sc-for>
+      </section>
+
+      <section class="panel" aria-labelledby="reparto" style="flex: 3 1 460px; min-width: 0; padding: 20px 22px">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+          <div>
+            <h2 id="reparto" style="margin: 0; font-size: 20px">Factura {{ sel.numdoc }}</h2>
+            <p style="margin: 4px 0 0; color: #4A5866; font-size: 14px">{{ sel.prov }} · emitida el {{ sel.fecha }} · espera {{ sel.dias }}</p>
+          </div>
+          <span style="padding: 4px 12px; border-radius: 999px; background: #EAF0FF; color: #1F44B0; font-size: 13px; font-weight: 600">Aceptada</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; padding: 14px 0; border-top: 1px solid #EDF0F3; border-bottom: 1px solid #EDF0F3">
+          <div><div style="font-size: 13px; color: #4A5866">Neto a repartir</div><div class="num" style="font-size: 22px; font-weight: 700">{{ sel.neto }}</div></div>
+          <div><div style="font-size: 13px; color: #4A5866">IVA</div><div class="num" style="font-size: 22px; font-weight: 700">{{ sel.iva }}</div></div>
+          <div><div style="font-size: 13px; color: #4A5866">Total</div><div class="num" style="font-size: 22px; font-weight: 700">{{ sel.total }}</div></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-bottom: 8px">
+          <span>Repartido <strong class="num">{{ rep.hecho }}</strong></span>
+          <span style="{{ rep.faltaEstilo }}">{{ rep.falta }}</span>
+        </div>
+        <div role="img" aria-label="{{ rep.aria }}" style="display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: #EEE8F8; gap: 2px; margin-bottom: 18px">
+          <div style="background: #4B2A91; width: {{ rep.a }}"></div>
+          <div style="background: #8F6AD8; width: {{ rep.b }}"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: grid; grid-template-columns: 14px minmax(0, 1fr) 160px; align-items: center; gap: 10px">
+            <span style="width: 12px; height: 12px; border-radius: 3px; background: #4B2A91"></span>
+            <label class="field"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Centro de costo 1</span><input type="text" value="1-00-12-001"></label>
+            <label class="field"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Monto centro 1</span><input class="num" type="text" value="$200.000" style="text-align: right"></label>
+          </div>
+          <sc-if value="{{ rep.completo }}" hint-placeholder-val="{{ false }}">
+            <div style="display: grid; grid-template-columns: 14px minmax(0, 1fr) 160px; align-items: center; gap: 10px">
+              <span style="width: 12px; height: 12px; border-radius: 3px; background: #8F6AD8"></span>
+              <label class="field"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Centro de costo 2</span><input type="text" value="1-00-12-007 · Bodega"></label>
+              <label class="field"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Monto centro 2</span><input class="num" type="text" value="{{ rep.segundo }}" style="text-align: right"></label>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px">
+          <button class="btn sec" type="button" onClick="{{ completar }}" disabled="{{ rep.completo }}">Asignar lo que falta a 1-00-12-007 · Bodega</button>
+          <button class="btn sec" type="button">Agregar centro de costo</button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 22px; padding-top: 18px; border-top: 1px solid #EDF0F3">
+          <span style="font-size: 13px; color: #4A5866">La distribución es un acto único: para cambiarla hay que deshacerla.</span>
+          <button class="btn pri" type="button" disabled="{{ rep.noListo }}">Distribuir factura</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 0, completo: false };
+  }
+  renderVals() {
+    const clp = (n) => '$' + Math.round(n).toLocaleString('es-CL');
+    const F = [
+      ['129088336', '31-10-2023', 4109, 781, 1085],
+      ['129523948', '26-11-2023', 77478, 14721, 1059],
+      ['129523954', '26-11-2023', 25664, 4876, 1059],
+      ['129713409', '03-12-2023', 29403, 5587, 1052],
+      ['129735109', '09-12-2023', 19766, 3756, 1046],
+      ['143921408', '03-12-2025', 78983, 15006, 321],
+      ['145382743', '27-02-2026', 63849, 12131, 235],
+      ['146395974', '02-04-2026', 293324, 55732, 201],
+    ];
+    const facturas = F.map(([numdoc, fecha, neto, iva, dias], i) => ({
+      numdoc, fecha, prov: 'Registro 0458', neto: clp(neto),
+      dias: dias.toLocaleString('es-CL') + ' días',
+      diasEstilo: dias > 365 ? 'background: #FDECEA; color: #B42318' : 'background: #FFF3D6; color: #8A5200',
+      clase: i === this.state.sel ? 'fac on' : 'fac',
+      pick: () => this.setState({ sel: i, completo: false }),
+    }));
+    const [numdoc, fecha, neto, iva, dias] = F[this.state.sel];
+    const sel = { numdoc, fecha, prov: 'Registro 0458', neto: clp(neto), iva: clp(iva), total: clp(neto + iva), dias: dias.toLocaleString('es-CL') + ' días' };
+    const primero = Math.round(neto * 0.68);
+    const segundo = this.state.completo ? neto - primero : 0;
+    const hecho = primero + segundo;
+    const rep = {
+      hecho: clp(hecho) + ' de ' + clp(neto),
+      falta: this.state.completo ? 'Listo para distribuir' : 'Falta ' + clp(neto - hecho),
+      faltaEstilo: this.state.completo ? 'color: #17703F; font-weight: 600' : 'color: #8A5200; font-weight: 600',
+      a: (primero / neto * 100).toFixed(1) + '%',
+      b: (segundo / neto * 100).toFixed(1) + '%',
+      aria: 'Repartido ' + Math.round(hecho / neto * 100) + ' por ciento del neto',
+      completo: this.state.completo,
+      noListo: !this.state.completo,
+      segundo: clp(segundo),
+    };
+    return { facturas, sel, rep, completar: () => this.setState({ completo: true }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,47 +1,53 @@
 :root {
   /* surfaces and text */
-  --sa-bg: #f6f7f8;
+  --sa-bg: #f3f5f7;
   --sa-surface: #ffffff;
-  --sa-surface-2: #eef1f2;
-  --sa-ink: #12161a;
-  --sa-ink-soft: #5a626b;
-  --sa-line: #e3e7ea;
-  --sa-line-strong: #d5dade;
-  --sa-border-input: #8b949c;
+  --sa-surface-2: #f7f9fa;
+  --sa-ink: #14212b;
+  --sa-ink-soft: #4a5866;
+  --sa-line: #edf0f3;
+  --sa-line-strong: #e1e6eb;
+  --sa-border-input: #cbd3db;
 
   /* accent */
-  --sa-accent: #155e63;
-  --sa-accent-hover: #125357;
+  --sa-accent: #2f5bdb;
+  --sa-accent-hover: #2449b8;
   --sa-accent-ink: #ffffff;
-  --sa-accent-tint: #e6f0f0;
+  --sa-accent-tint: #eaf0ff;
+
+  /* areas: each workspace has one color (prototype docs/design/prototipo) */
+  --sa-area-compras: #2f5bdb;  --sa-area-compras-tint: #eaf0ff;  --sa-area-compras-on-shell: #8fb0ff;
+  --sa-area-bodega: #0b7a6f;   --sa-area-bodega-tint: #e3f4f1;   --sa-area-bodega-on-shell: #5fd3c4;
+  --sa-area-finanzas: #7a4fc9; --sa-area-finanzas-tint: #f1ebfb; --sa-area-finanzas-on-shell: #c3a6ff;
+  --sa-area-sistema: #5b6672;  --sa-area-sistema-tint: #edf0f3;  --sa-area-sistema-on-shell: #b4bec8;
 
   /* shell */
-  --sa-shell: #0e2a2c;
-  --sa-shell-2: #12383a;
-  --sa-shell-line: #1c3d3f;
-  --sa-shell-ink: #cfe0df;
-  --sa-shell-soft: #7fa3a1;
-  --sa-shell-mark: #4fd0bd;
+  --sa-shell: #14212b;
+  --sa-shell-2: #1e2d39;
+  --sa-shell-line: #2b3a47;
+  --sa-shell-ink: #d5dde5;
+  --sa-shell-soft: #9aa8b6;
+  --sa-shell-mark: #ffffff;
   --sa-shell-strong: #ffffff;
 
   /* states */
-  --sa-ok-fg: #1d6b2f;   --sa-ok-bg: #d6ecd8;   --sa-ok-line: #b9dcbd;
-  --sa-warn-fg: #7a5a00; --sa-warn-bg: #fbe6c8; --sa-warn-line: #eedcb8;
-  --sa-crit-fg: #8f2019; --sa-crit-bg: #f7dcd9; --sa-crit-line: #efcccc;
-  --sa-info-fg: #14508a; --sa-info-bg: #d9e8f7; --sa-info-line: #c2d7ee;
-  --sa-crit: #b0281f;
+  --sa-ok-fg: #17703f;   --sa-ok-bg: #e4f4ea;   --sa-ok-line: #bfe3cb;
+  --sa-warn-fg: #8a5200; --sa-warn-bg: #fff3d6; --sa-warn-line: #f2dca6;
+  --sa-crit-fg: #b42318; --sa-crit-bg: #fdecea; --sa-crit-line: #f5c9c3;
+  --sa-info-fg: #1f44b0; --sa-info-bg: #eaf0ff; --sa-info-line: #c9d6fb;
+  --sa-crit: #b42318;
 
   /* typography */
-  --sa-font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sa-font-sans: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --sa-font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-  --sa-text-label: 11px;
+  --sa-text-label: 12px;
   --sa-text-meta: 12px;
   --sa-text-dense: 13px;
   --sa-text-body: 14px;
   --sa-text-input-mobile: 16px;
   --sa-text-title: 16px;
-  --sa-text-page: 18px;
-  --sa-text-kpi: 24px;
+  --sa-text-page: 26px;
+  --sa-text-kpi: 30px;
 
   /* space and shape */
   --sa-space-1: 4px;
@@ -50,17 +56,58 @@
   --sa-space-4: 16px;
   --sa-space-5: 24px;
   --sa-space-6: 32px;
-  --sa-radius: 6px;
-  --sa-radius-pill: 3px;
+  --sa-radius: 8px;
+  --sa-radius-pill: 999px;
   --sa-border: 1px;
   --sa-focus-ring: 2px solid var(--sa-accent);
   --sa-focus-offset: 2px;
 
   /* controls */
-  --sa-control-h: 36px;
-  --sa-control-h-sm: 28px;
-  --sa-topbar-h: 48px;
-  --sa-menu-w: 240px;
+  --sa-control-h: 40px;
+  --sa-control-h-sm: 34px;
+  --sa-topbar-h: 56px;
+  --sa-menu-w: 248px;
+
+  /* Prototipo EP1. Global so later screens reuse one palette.
+     Only a root with data-visual="ep1" applies it. Values follow the approved redesign. */
+  --sa-ep1-canvas: #f3f5f7;
+  --sa-ep1-surface: #ffffff;
+  --sa-ep1-surface-muted: #f7f9fa;
+  --sa-ep1-border: #e1e6eb;
+  --sa-ep1-border-strong: #cbd3db;
+  --sa-ep1-primary: #2f5bdb;
+  --sa-ep1-on-primary: #ffffff;
+  --sa-ep1-text: #14212b;
+  --sa-ep1-text-muted: #4a5866;
+  --sa-ep1-text-subtle: #6b7785;
+  --sa-ep1-radius: 8px;
+  --sa-ep1-radius-card: 12px;
+  --sa-ep1-radius-mark: 10px;
+  --sa-ep1-shadow-card: none;
+  --sa-ep1-focus: 0 0 0 3px rgba(47, 91, 219, 0.2);
+  --sa-ep1-font: var(--sa-font-sans);
+  --sa-ep1-text-title: 22px;
+  --sa-ep1-leading-title: 30px;
+  --sa-ep1-track-title: -0.2px;
+  --sa-ep1-text-label: 13px;
+  --sa-ep1-leading-label: 18px;
+  --sa-ep1-text-input: 14px;
+  --sa-ep1-leading-input: 20px;
+  --sa-ep1-text-caption: 12px;
+  --sa-ep1-leading-caption: 16px;
+  --sa-ep1-space-card: 32px;
+  --sa-ep1-gap-card: 24px;
+  --sa-ep1-gap-brand: 12px;
+  --sa-ep1-gap-field: 6px;
+  --sa-ep1-gap-form: 16px;
+  --sa-ep1-card-w: 400px;
+  --sa-ep1-menu-w: 248px;
+  --sa-ep1-mark: 44px;
+  --sa-ep1-control-pad-x: 12px;
+  --sa-ep1-control-pad-y: 10px;
+  --sa-ep1-border-focus: 2px;
+  --sa-ep1-btn-pad-y: 11px;
+  --sa-ep1-btn-pad-x: 14px;
 }
 
 @media (max-width: 767.98px) {

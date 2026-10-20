@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Inicio StockAware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F7;font-family:'Public Sans',system-ui,sans-serif;color:#14212B}
+a{color:#2F5BDB}a:hover{color:#1F44B0}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.side{flex:1 1 248px;max-width:248px;background:#14212B;color:#E6EBF0;display:flex;flex-direction:column;gap:2px;padding:20px 12px;box-sizing:border-box}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#FFFFFF;font-weight:700;font-size:17px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:#2F5BDB;display:flex;align-items:center;justify-content:center}
+.navh{font-size:12px;color:#9AA8B6;padding:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;color:#D5DDE5;text-decoration:none;font-size:14px}
+.nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.nav.on{background:rgba(255,255,255,.12);color:#FFFFFF;font-weight:600}
+.who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.who small{display:block;color:#9AA8B6;font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2B3A47;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.main{flex:999 1 560px;min-width:0;padding:28px 36px 48px;box-sizing:border-box}
+.panel{background:#FFFFFF;border:1px solid #E1E6EB;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;box-sizing:border-box}
+.btn.pri{background:#0B7A6F;color:#FFFFFF}
+.btn.pri:hover{background:#086257;color:#FFFFFF}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-top:1px solid #EDF0F3;text-decoration:none;color:#14212B}
+.row:hover{background:#F7F9FA;color:#14212B}
+.crear{margin:0 2px 8px}
+.crear summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:8px;background:#2F5BDB;color:#FFFFFF;font-weight:600;font-size:15px;cursor:pointer}
+.crear summary::-webkit-details-marker{display:none}
+.crear summary:hover{background:#2449B8}
+.crear .menu{display:flex;flex-direction:column;margin-top:6px;background:#1E2D39;border-radius:8px;padding:4px}
+.crear .menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;color:#E6EBF0;text-decoration:none;border-radius:6px;font-size:14px}
+.crear .menu a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.acc{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.b.az{background:#2F5BDB;color:#FFFFFF}.b.az:hover{background:#2449B8;color:#FFFFFF}
+.b.ve{background:#0B7A6F;color:#FFFFFF}.b.ve:hover{background:#086257;color:#FFFFFF}
+.b.vi{background:#7A4FC9;color:#FFFFFF}.b.vi:hover{background:#5E37A8;color:#FFFFFF}
+.b.se{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}.b.se:hover{border-color:#14212B;color:#14212B}
+.b.sm{min-height:34px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.side{max-width:none;flex-basis:100%}.main{padding:20px 16px 40px}}
+</style>
+</helmet>
+<div class="app">
+  <nav class="side" aria-label="Menú principal">
+    <a class="brand" href="Main.dc.html">
+      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      StockAware
+    </a>
+    <details class="crear">
+      <summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Crear</summary>
+      <div class="menu">
+        <a href="NuevaOC.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Orden de compra</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path></svg>Ingreso a bodega</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Salida de bodega</a>
+        <a href="Distribucion.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Reparto de factura</a>
+      </div>
+    </details>
+    <a class="nav on" href="Main.dc.html" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</a>
+    <div class="navh">Compras</div>
+    <a class="nav" href="Ordenes.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Órdenes de compra</a>
+    <div class="navh">Bodega</div>
+    <a class="nav" href="Stock.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg>Stock</a>
+    <a class="nav" href="Registrar.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Registrar movimiento</a>
+    <div class="navh">Finanzas</div>
+    <a class="nav" href="Distribucion.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Distribuir facturas</a>
+    <a class="nav" href="Balance.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg>Balance</a>
+    <div class="navh">Sistema</div>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B4BEC8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><circle cx="16" cy="6" r="2"></circle><path d="M4 12h4"></path><path d="M12 12h8"></path><circle cx="10" cy="12" r="2"></circle><path d="M4 18h12"></path><circle cx="18" cy="18" r="2"></circle></svg>Configuración</a>
+    <div class="who">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <span style="flex: 1">Administrador<small>Perfil administrador</small></span>
+      <a class="nav" href="Main.dc.html" aria-label="Cerrar sesión" style="min-height: 36px; padding: 0 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path></svg></a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px">
+      <div>
+        <h1 style="margin: 0; font-size: 28px; letter-spacing: -0.01em">Hola, Administrador</h1>
+        <p style="margin: 6px 0 0; color: #4A5866; font-size: 15px">Martes 20 de octubre · 4 frentes necesitan tu atención</p>
+      </div>
+      <div class="acc">
+        <a class="b se" href="Registrar.dc.html">Registrar movimiento</a>
+        <a class="b az" href="NuevaOC.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Nueva orden de compra</a>
+      </div>
+    </header>
+
+    <section class="panel" aria-labelledby="flujo" style="padding: 20px 22px 22px; margin-bottom: 24px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px">
+        <h2 id="flujo" style="margin: 0; font-size: 17px">Flujo de abastecimiento</h2>
+        <span style="color: #4A5866; font-size: 13px">De la orden de compra al gasto por centro de costo</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px">
+        <a href="OrdenesMovil.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: #FDECEA; color: #14212B; text-decoration: none">
+          <span style="font-size: 12px; font-weight: 600; color: #2F5BDB">1 · Compras</span>
+          <strong class="num" style="font-size: 34px; line-height: 1; color: #B42318">5</strong>
+          <span style="font-size: 14px; font-weight: 600">Órdenes por aprobar</span>
+          <span style="font-size: 12px; color: #4A5866">La más antigua espera desde el 28-05-2026</span>
+        </a>
+        <a href="OrdenesMovil.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: #EAF0FF; color: #14212B; text-decoration: none">
+          <span style="font-size: 12px; font-weight: 600; color: #2F5BDB">2 · Recepción</span>
+          <strong class="num" style="font-size: 34px; line-height: 1">6.701</strong>
+          <span style="font-size: 14px; font-weight: 600">Emitidas por recibir</span>
+          <span style="font-size: 12px; color: #4A5866">Falta registrar su HES</span>
+        </a>
+        <a href="OrdenesMovil.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: #EAF0FF; color: #14212B; text-decoration: none">
+          <span style="font-size: 12px; font-weight: 600; color: #2F5BDB">3 · Cierre</span>
+          <strong class="num" style="font-size: 34px; line-height: 1">1.840</strong>
+          <span style="font-size: 14px; font-weight: 600">Recibidas completas</span>
+          <span style="font-size: 12px; color: #4A5866">Más 2.844 pagadas</span>
+        </a>
+        <a href="Distribucion.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: #FFF3D6; color: #14212B; text-decoration: none">
+          <span style="font-size: 12px; font-weight: 600; color: #7A4FC9">4 · Facturas</span>
+          <strong class="num" style="font-size: 34px; line-height: 1; color: #8A5200">6.016</strong>
+          <span style="font-size: 14px; font-weight: 600">Por distribuir</span>
+          <span style="font-size: 12px; color: #4A5866">La más antigua lleva 1.085 días</span>
+        </a>
+        <a href="Balance.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: #F1EBFB; color: #14212B; text-decoration: none">
+          <span style="font-size: 12px; font-weight: 600; color: #7A4FC9">5 · Gasto</span>
+          <strong class="num" style="font-size: 34px; line-height: 1">122</strong>
+          <span style="font-size: 14px; font-weight: 600">Distribuidas</span>
+          <span style="font-size: 12px; color: #4A5866">Ya suman al balance</span>
+        </a>
+      </div>
+      <p style="margin: 14px 0 0; font-size: 13px; color: #4A5866">El cuello de botella está en el paso 4: por cada factura distribuida hay 49 esperando.</p>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px; align-items: start">
+      <section class="panel" aria-labelledby="urgente">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px">
+          <div>
+            <h2 id="urgente" style="margin: 0; font-size: 16px">Se agotó y se sigue usando</h2>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #4A5866"><strong class="num" style="color: #B42318">66</strong> materiales · Bodega</p>
+          </div>
+          <span style="width: 36px; height: 36px; border-radius: 9px; background: #E3F4F1; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B7A6F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+        </div>
+        <a class="row" href="Stock.dc.html"><span>MC_008 Anteojo policarbonato Spy Flex<br><small style="color: #4A5866">Usa 10 UNI por semana</small></span><strong class="num" style="color: #0B7A6F; white-space: nowrap">Pedir 48</strong></a>
+        <a class="row" href="Stock.dc.html"><span>MC_007 Anteojo Spy Flex gris<br><small style="color: #4A5866">Usa 6 UNI por semana</small></span><strong class="num" style="color: #0B7A6F; white-space: nowrap">Pedir 72</strong></a>
+        <a class="row" href="Stock.dc.html"><span>MC_016 Bloqueador solar FPS 50<br><small style="color: #4A5866">Usa 4 UNI por semana</small></span><strong class="num" style="color: #0B7A6F; white-space: nowrap">Pedir 20</strong></a>
+        <div style="padding: 14px 18px; border-top: 1px solid #EDF0F3">
+          <a class="btn pri" href="Stock.dc.html">Revisar y pedir los 66</a>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="aprobar">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px">
+          <div>
+            <h2 id="aprobar" style="margin: 0; font-size: 16px">Órdenes por aprobar</h2>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #4A5866"><strong class="num" style="color: #B42318">5</strong> órdenes · $145.324.123 en total</p>
+          </div>
+          <span style="width: 36px; height: 36px; border-radius: 9px; background: #EAF0FF; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F5BDB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg></span>
+        </div>
+        <sc-for list="{{ ocs }}" as="o" hint-placeholder-count="3">
+          <div class="row">
+            <a href="Ordenes.dc.html" style="color: #14212B; text-decoration: none; min-width: 0">OC {{ o.num }} · {{ o.prov }}<br><small style="color: #4A5866">{{ o.meta }}</small></a>
+            <span style="display: flex; align-items: center; gap: 10px"><strong class="num">{{ o.total }}</strong><button class="{{ o.clase }}" type="button" onClick="{{ o.aprobar }}" disabled="{{ o.hecha }}">{{ o.boton }}</button></span>
+          </div>
+        </sc-for>
+        <div style="padding: 14px 18px; border-top: 1px solid #EDF0F3; font-size: 14px">
+          <a href="Ordenes.dc.html">Ver las 5 órdenes</a>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="facturas">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px">
+          <div>
+            <h2 id="facturas" style="margin: 0; font-size: 16px">Facturas esperando reparto</h2>
+            <p style="margin: 4px 0 0; font-size: 13px; color: #4A5866"><strong class="num" style="color: #8A5200">6.016</strong> facturas · las más antiguas primero</p>
+          </div>
+          <span style="width: 36px; height: 36px; border-radius: 9px; background: #F1EBFB; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A4FC9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg></span>
+        </div>
+        <a class="row" href="Distribucion.dc.html"><span>Factura 129088336 · Registro 0458<br><small style="color: #4A5866">31-10-2023</small></span><strong class="num" style="color: #8A5200; white-space: nowrap">1.085 días</strong></a>
+        <a class="row" href="Distribucion.dc.html"><span>Factura 129523948 · Registro 0458<br><small style="color: #4A5866">26-11-2023</small></span><strong class="num" style="color: #8A5200; white-space: nowrap">1.059 días</strong></a>
+        <a class="row" href="Distribucion.dc.html"><span>Factura 146395974 · Registro 0458<br><small style="color: #4A5866">02-04-2026</small></span><strong class="num" style="color: #8A5200; white-space: nowrap">201 días</strong></a>
+        <div style="padding: 14px 18px; border-top: 1px solid #EDF0F3; font-size: 14px">
+          <a href="Distribucion.dc.html">Ir a distribuir</a>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { aprobadas: {} };
+  }
+  renderVals() {
+    const base = [
+      ['13257', 'Registro 2176', '28-08-2026 · 1-00-12-001', '$132.222.222'],
+      ['13255', 'Registro 2184', '28-08-2026 · 1-00-12-004', '$11.900.000'],
+      ['13258', 'Registro 3436', '28-08-2026 · 1-00-12-001', '$1.190.000'],
+    ];
+    const ap = this.state.aprobadas;
+    const ocs = base.map(([num, prov, meta, total]) => ({
+      num, prov, meta, total,
+      hecha: !!ap[num],
+      boton: ap[num] ? 'Aprobada' : 'Aprobar',
+      clase: ap[num] ? 'b sm se' : 'b sm az',
+      aprobar: () => this.setState({ aprobadas: { ...this.state.aprobadas, [num]: true } }),
+    }));
+    return { ocs };
+  }
+}
+</script>
+</body>
+</html>
