@@ -133,7 +133,17 @@ export class ComprasService {
        ${where} ORDER BY d.numdoc DESC LIMIT $${par.length + 1} OFFSET $${par.length + 2}`,
       [...par, limite, (pagina - 1) * limite],
     );
-    return { datos, total: n, pagina, paginas: Math.max(Math.ceil(n / limite), 1) };
+    const grupos = await this.db.query(
+      `SELECT d.estado::text AS estado, COUNT(*)::int AS n
+       FROM docs_emitidos d WHERE d.tipo_doc = ANY($1) GROUP BY d.estado`,
+      [TIPOS_OC],
+    );
+    const conteos: Record<string, number> = { TOTAL: 0 };
+    for (const g of grupos) {
+      conteos[g.estado] = g.n;
+      conteos.TOTAL += g.n;
+    }
+    return { datos, total: n, pagina, paginas: Math.max(Math.ceil(n / limite), 1), conteos };
   }
 
   async obtenerOc(id: number) {

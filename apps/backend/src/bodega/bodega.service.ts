@@ -63,6 +63,9 @@ export const codigoDesdeNombre = (nombre: string): string | null => {
   return cola ? `MC_${cola}` : null;
 };
 
+/** Ventana de salidas que se promedia para estimar el consumo diario. */
+const DIAS_CONSUMO = 365;
+
 @Injectable()
 export class BodegaService {
   constructor(
@@ -96,11 +99,21 @@ export class BodegaService {
     }
     if (q.bajoMinimo) cond.push(`v.stock < coalesce(m.stock_minimo, 0)`);
 
+    // consumo_diario: salidas de material de esa bodega en el ultimo año,
+    // promediadas por dia. Alimenta la cobertura en dias que muestra la pantalla.
     return this.db.query(
       `SELECT v.cod_material, v.nombre, v.estado, v.id_bodega, v.bodega,
-              v.stock, v.unidad, v.tarifa, coalesce(m.stock_minimo,0) AS stock_minimo
+              v.stock, v.unidad, v.tarifa, coalesce(m.stock_minimo,0) AS stock_minimo,
+              round(coalesce(c.salidas, 0) / ${DIAS_CONSUMO}.0, 3) AS consumo_diario
        FROM v_materiales_x_bodega v
        LEFT JOIN materiales m ON m.cod_material = v.cod_material
+       LEFT JOIN (
+         SELECT id_bodega, id_vhe, sum(cantidad) AS salidas
+         FROM mov_bodega
+         WHERE tipo_vhe::text = 'Material' AND tipo_mov::text = 'OUT'
+           AND fecha >= current_date - ${DIAS_CONSUMO}
+         GROUP BY id_bodega, id_vhe
+       ) c ON c.id_bodega::text = v.id_bodega::text AND c.id_vhe = v.cod_material::text
        WHERE ${cond.join(' AND ')}
        ORDER BY v.bodega, v.cod_material LIMIT 500`, par,
     );
@@ -109,6 +122,7 @@ export class BodegaService {
   /** BODEGA_MOVIMIENTOS */
   async movimientos(q: {
     bodega?: number; tipo_vhe?: string; id_vhe?: string;
+    tipo_mov?: string; desde?: string; hasta?: string;
     pagina?: number; limite?: number;
   }) {
     const limite = Math.min(Math.max(q.limite ?? 50, 1), 200);
@@ -118,6 +132,19 @@ export class BodegaService {
     if (q.bodega) { par.push(q.bodega); cond.push(`id_bodega = $${par.length}`); }
     if (q.tipo_vhe) { par.push(q.tipo_vhe); cond.push(`tipo_vhe::text = $${par.length}`); }
     if (q.id_vhe) { par.push(q.id_vhe); cond.push(`id_vhe = $${par.length}`); }
+    const fecha = /^\d{4}-\d{2}-\d{2}$/;
+    if (q.desde && fecha.test(q.desde)) { par.push(q.desde); cond.push(`fecha::date >= $${par.length}::date`); }
+    if (q.hasta && fecha.test(q.hasta)) { par.push(q.hasta); cond.push(`fecha::date <= $${par.length}::date`); }
+
+    // Los conteos por tipo de movimiento ignoran el filtro tipo_mov: son los totales de los chips.
+    const conteos: Record<string, number> = {};
+    const porTipo = await this.db.query(
+      `SELECT tipo_mov::text t, COUNT(*)::int n FROM v_mov_bodega WHERE ${cond.join(' AND ')} GROUP BY 1`,
+      par,
+    );
+    for (const f of porTipo) { conteos[f.t] = f.n; conteos.TOTAL = (conteos.TOTAL ?? 0) + f.n; }
+
+    if (q.tipo_mov) { par.push(q.tipo_mov); cond.push(`tipo_mov::text = $${par.length}`); }
     const where = `WHERE ${cond.join(' AND ')}`;
 
     const [{ n }] = await this.db.query(
@@ -128,7 +155,7 @@ export class BodegaService {
        LIMIT $${par.length + 1} OFFSET $${par.length + 2}`,
       [...par, limite, (pagina - 1) * limite],
     );
-    return { datos, total: n, pagina, paginas: Math.max(Math.ceil(n / limite), 1) };
+    return { datos, total: n, pagina, paginas: Math.max(Math.ceil(n / limite), 1), conteos };
   }
 
 

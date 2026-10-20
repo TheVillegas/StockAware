@@ -30,10 +30,13 @@ export class BodegaController {
     @Query('id_vhe') id_vhe?: string,
     @Query('pagina') pagina?: string,
     @Query('limite') limite?: string,
+    @Query('tipo_mov') tipo_mov?: string,
+    @Query('desde') desde?: string,
+    @Query('hasta') hasta?: string,
   ) {
     return this.svc.movimientos({
       bodega: bodega ? Number(bodega) : undefined,
-      tipo_vhe, id_vhe,
+      tipo_vhe, id_vhe, tipo_mov, desde, hasta,
       pagina: pagina ? Number(pagina) : undefined,
       limite: limite ? Number(limite) : undefined,
     });
