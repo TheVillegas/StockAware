@@ -41,13 +41,14 @@
     "piscina": "5.3.2",
     "http-cache-semantics": "4.3.0",
     "source-map-js": "1.2.2",
-    "@modelcontextprotocol/sdk": "1.31.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "braces": "npm:@franciscosolis/braces@3.1.1",
     "minimatch@3.1.5": {
       "brace-expansion": "1.1.21"
     },
     "minimatch@10.2.6": {
       "brace-expansion": "5.0.12"
-    }
+    },
+    "vite": "7.3.7"
   }
 }
