@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Registrar movimiento StockAware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F7;font-family:'Public Sans',system-ui,sans-serif;color:#14212B}
+a{color:#0B7A6F}a:hover{color:#086257}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.side{flex:1 1 248px;max-width:248px;background:#14212B;color:#E6EBF0;display:flex;flex-direction:column;gap:2px;padding:20px 12px;box-sizing:border-box}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#FFFFFF;font-weight:700;font-size:17px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:#2F5BDB;display:flex;align-items:center;justify-content:center}
+.navh{font-size:12px;color:#9AA8B6;padding:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;color:#D5DDE5;text-decoration:none;font-size:14px}
+.nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.nav.on{background:rgba(255,255,255,.12);color:#FFFFFF;font-weight:600}
+.who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.who small{display:block;color:#9AA8B6;font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2B3A47;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.main{flex:999 1 560px;min-width:0;padding:28px 36px 48px;box-sizing:border-box}
+.panel{background:#FFFFFF;border:1px solid #E1E6EB;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.tipo{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px;border-radius:12px;border:1px solid #E1E6EB;background:#FFFFFF;font:14px 'Public Sans',sans-serif;color:#14212B;text-align:left;cursor:pointer}
+.tipo:hover{border-color:#0B7A6F}
+.tipo.on{border:2px solid #0B7A6F;background:#F2FAF8;padding:15px}
+.tipo small{color:#4A5866;font-size:13px;line-height:1.4}
+.field{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid #CBD3DB;border-radius:8px;background:#FFFFFF;box-sizing:border-box}
+.field input{border:0;outline:0;font:15px 'Public Sans',sans-serif;color:#14212B;flex:1;min-width:0;background:transparent}
+.item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #EDF0F3}
+.add{min-height:36px;padding:0 14px;border-radius:8px;border:1px solid #0B7A6F;background:#FFFFFF;color:#0B7A6F;font:600 14px 'Public Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.add:disabled{border-color:#CBD3DB;color:#6B7785;cursor:default}
+.step{width:36px;height:36px;border-radius:8px;border:1px solid #CBD3DB;background:#FFFFFF;font:600 18px 'Public Sans',sans-serif;color:#14212B;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:8px;font:600 15px 'Public Sans',sans-serif;border:1px solid transparent;cursor:pointer;width:100%;box-sizing:border-box}
+.btn.pri{background:#0B7A6F;color:#FFFFFF}
+.btn.pri:disabled{background:#A9C9C4;cursor:default}
+.crear{margin:0 2px 8px}
+.crear summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:8px;background:#2F5BDB;color:#FFFFFF;font-weight:600;font-size:15px;cursor:pointer}
+.crear summary::-webkit-details-marker{display:none}
+.crear summary:hover{background:#2449B8}
+.crear .menu{display:flex;flex-direction:column;margin-top:6px;background:#1E2D39;border-radius:8px;padding:4px}
+.crear .menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;color:#E6EBF0;text-decoration:none;border-radius:6px;font-size:14px}
+.crear .menu a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.acc{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.b.az{background:#2F5BDB;color:#FFFFFF}.b.az:hover{background:#2449B8;color:#FFFFFF}
+.b.ve{background:#0B7A6F;color:#FFFFFF}.b.ve:hover{background:#086257;color:#FFFFFF}
+.b.vi{background:#7A4FC9;color:#FFFFFF}.b.vi:hover{background:#5E37A8;color:#FFFFFF}
+.b.se{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}.b.se:hover{border-color:#14212B;color:#14212B}
+.b.sm{min-height:34px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.side{max-width:none;flex-basis:100%}.main{padding:20px 16px 40px}}
+</style>
+</helmet>
+<div class="app">
+  <nav class="side" aria-label="Menú principal">
+    <a class="brand" href="Main.dc.html">
+      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      StockAware
+    </a>
+    <details class="crear">
+      <summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Crear</summary>
+      <div class="menu">
+        <a href="NuevaOC.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Orden de compra</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path></svg>Ingreso a bodega</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Salida de bodega</a>
+        <a href="Distribucion.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Reparto de factura</a>
+      </div>
+    </details>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</a>
+    <div class="navh">Compras</div>
+    <a class="nav" href="Ordenes.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Órdenes de compra</a>
+    <div class="navh">Bodega</div>
+    <a class="nav" href="Stock.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg>Stock</a>
+    <a class="nav on" href="Registrar.dc.html" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Registrar movimiento</a>
+    <div class="navh">Finanzas</div>
+    <a class="nav" href="Distribucion.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Distribuir facturas</a>
+    <a class="nav" href="Balance.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg>Balance</a>
+    <div class="navh">Sistema</div>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B4BEC8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><circle cx="16" cy="6" r="2"></circle><path d="M4 12h4"></path><path d="M12 12h8"></path><circle cx="10" cy="12" r="2"></circle><path d="M4 18h12"></path><circle cx="18" cy="18" r="2"></circle></svg>Configuración</a>
+    <div class="who">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <span style="flex: 1">Administrador<small>Perfil administrador</small></span>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px">
+      <span style="width: 44px; height: 44px; border-radius: 11px; background: #E3F4F1; display: flex; align-items: center; justify-content: center; flex: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B7A6F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg></span>
+      <div>
+        <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.01em">Registrar movimiento</h1>
+        <p style="margin: 4px 0 0; color: #4A5866; font-size: 14px">Elige qué pasa, agrega lo que se mueve y emite la guía.</p>
+      </div>
+    </header>
+
+    <div role="radiogroup" aria-label="Tipo de movimiento" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 12px; margin-bottom: 20px">
+      <sc-for list="{{ tipos }}" as="t" hint-placeholder-count="4">
+        <button class="{{ t.clase }}" type="button" role="radio" aria-checked="{{ t.on }}" onClick="{{ t.pick }}">
+          <strong style="font-size: 15px">{{ t.titulo }}</strong>
+          <small>{{ t.detalle }}</small>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="panel" aria-labelledby="catalogo" style="flex: 3 1 460px; min-width: 0">
+        <div style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <h2 id="catalogo" style="margin: 0; font-size: 15px">Catálogo de la bodega</h2>
+          <label class="field">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path></svg>
+            <input type="text" value="Bodega Central VAIPS HSEQ" aria-label="Bodega de origen">
+            <span style="font-size: 12px; color: #4A5866">cambiar</span>
+          </label>
+          <label class="field">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input type="search" placeholder="Busca por código o nombre" aria-label="Buscar en el catálogo">
+          </label>
+        </div>
+        <sc-for list="{{ catalogo }}" as="c" hint-placeholder-count="7">
+          <div class="item">
+            <span style="flex: 1; min-width: 0"><span style="font-family: ui-monospace, monospace; font-size: 12px; color: #4A5866">{{ c.cod }}</span><br>{{ c.nombre }}</span>
+            <span class="num" style="font-size: 13px; color: #4A5866; white-space: nowrap">{{ c.stock }}</span>
+            <button class="add" type="button" disabled="{{ c.agregado }}" onClick="{{ c.add }}">{{ c.boton }}</button>
+          </div>
+        </sc-for>
+      </section>
+
+      <section class="panel" aria-labelledby="guia" style="flex: 2 1 340px; min-width: 0; padding: 18px">
+        <h2 id="guia" style="margin: 0 0 4px; font-size: 15px">{{ guiaTitulo }}</h2>
+        <p style="margin: 0 0 14px; font-size: 13px; color: #4A5866">Desde Bodega Central VAIPS HSEQ</p>
+        <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px" for="cc">Centro de costo de destino</label>
+        <div class="field" style="margin-bottom: 16px">
+          <input id="cc" type="text" value="3-10-22-012 T0077">
+          <span style="font-size: 12px; color: #17703F; font-weight: 600">válido</span>
+        </div>
+        <sc-if value="{{ vacia }}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0 0 16px; padding: 18px; border: 1px dashed #CBD3DB; border-radius: 10px; color: #4A5866; font-size: 14px; text-align: center">Agrega materiales desde el catálogo</p>
+        </sc-if>
+        <sc-for list="{{ lineas }}" as="l" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #EDF0F3">
+            <span style="flex: 1; min-width: 0; font-size: 14px">{{ l.nombre }}<br><small style="color: #4A5866">{{ l.disponible }}</small></span>
+            <button class="step" type="button" aria-label="{{ l.menosLabel }}" onClick="{{ l.menos }}">−</button>
+            <span class="num" style="min-width: 28px; text-align: center; font-weight: 700">{{ l.cant }}</span>
+            <button class="step" type="button" aria-label="{{ l.masLabel }}" onClick="{{ l.mas }}">+</button>
+          </div>
+        </sc-for>
+        <div style="margin-top: 16px">
+          <button class="btn pri" type="button" disabled="{{ vacia }}">{{ emitir }}</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tipo: 'salida', lineas: { MC_084: 4, MC_359: 2 } };
+  }
+  renderVals() {
+    const TIPOS = [
+      ['hes', 'Ingreso desde HES', 'Llega material de una orden de compra recibida.', 'Ingreso desde HES'],
+      ['manual', 'Ingreso manual', 'Entra material que no viene de una orden.', 'Guía de ingreso'],
+      ['salida', 'Salida de bodega', 'Material o equipos que van a un centro de costo.', 'Guía de salida'],
+      ['entrega', 'Entrega de fungibles', 'Se entrega a una persona o a otra bodega.', 'Entrega de fungibles'],
+    ];
+    const CAT = [
+      ['MC_084', 'Cono PP señalización reflectante 36"', 20],
+      ['MC_491', 'Camisa Oxford con logo M/L mujer', 35],
+      ['MC_359', 'Pantalón Absolute Zero Z200 azul', 14],
+      ['MC_827', 'Camisa Lightwind beige H2200', 12],
+      ['MC_358', 'Pantalón Absolute Zero Z200 azul (otra talla)', 8],
+      ['MC_082', 'Cinturón de seguridad tipo araña', 7],
+      ['MC_828', 'Camisa Lightwind beige (otra talla)', 2],
+    ];
+    const lin = this.state.lineas;
+    const set = (cod, n) => {
+      const next = { ...this.state.lineas };
+      if (n <= 0) delete next[cod]; else next[cod] = n;
+      this.setState({ lineas: next });
+    };
+    const tipos = TIPOS.map(([id, titulo, detalle]) => ({
+      titulo, detalle, on: String(this.state.tipo === id),
+      clase: this.state.tipo === id ? 'tipo on' : 'tipo',
+      pick: () => this.setState({ tipo: id }),
+    }));
+    const catalogo = CAT.map(([cod, nombre, stock]) => ({
+      cod, nombre, stock: stock + ' UNI',
+      agregado: !!lin[cod],
+      boton: lin[cod] ? 'En la guía' : 'Agregar',
+      add: () => set(cod, 1),
+    }));
+    const lineas = CAT.filter(([cod]) => lin[cod]).map(([cod, nombre, stock]) => ({
+      nombre: cod + ' ' + nombre,
+      disponible: 'Disponible: ' + stock + ' UNI',
+      cant: lin[cod],
+      menos: () => set(cod, lin[cod] - 1),
+      mas: () => set(cod, Math.min(stock, lin[cod] + 1)),
+      menosLabel: 'Quitar una unidad de ' + cod,
+      masLabel: 'Sumar una unidad de ' + cod,
+    }));
+    const t = TIPOS.find((x) => x[0] === this.state.tipo);
+    const total = Object.values(lin).reduce((s, n) => s + n, 0);
+    return {
+      tipos, catalogo, lineas,
+      vacia: lineas.length === 0,
+      guiaTitulo: t[3],
+      emitir: lineas.length ? 'Emitir ' + t[3].toLowerCase() + ' · ' + lineas.length + ' ítems, ' + total + ' unidades' : 'Emitir guía',
+    };
+  }
+}
+</script>
+</body>
+</html>

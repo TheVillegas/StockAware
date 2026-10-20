@@ -577,6 +577,10 @@ ion-searchbar .searchbar-input-container .searchbar-input { border: var(--sa-bor
 
 **Orden de implementación:** tokens, puente Ionic y fuentes → armazón (menú y barra) → componentes compartidos → páginas de escritorio una por una → comportamiento móvil variante A.
 
+## 8. Prototipo EP1, opt-in
+
+La paleta del prototipo Figma (`#0054e9` sobre lienzo `#f5f7fa`) vive en tokens `--sa-ep1-*`. No reemplaza el armazón petróleo. Una pantalla entra al prototipo con `data-visual="ep1"` en su raíz. `sa-field` envuelve `ion-input`: la etiqueta queda arriba del recuadro y el ícono adentro, sin el corte de `fill="outline"`. La acción usa `ion-button`. La tarjeta, el aviso y la marca son `.sa-card`, `.sa-hint` y `.sa-brand`. Hoy lo hacen el login y, con la sesión iniciada, el armazón y el inicio. La tipografía sigue siendo IBM Plex hasta que el resto de pantallas migre. El texto de esa pantalla usa trato de tú.
+
 ---
 
 ## 7. Lista de verificación

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Stock StockAware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F7;font-family:'Public Sans',system-ui,sans-serif;color:#14212B}
+a{color:#0B7A6F}a:hover{color:#086257}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.side{flex:1 1 248px;max-width:248px;background:#14212B;color:#E6EBF0;display:flex;flex-direction:column;gap:2px;padding:20px 12px;box-sizing:border-box}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#FFFFFF;font-weight:700;font-size:17px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:#2F5BDB;display:flex;align-items:center;justify-content:center}
+.navh{font-size:12px;color:#9AA8B6;padding:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;color:#D5DDE5;text-decoration:none;font-size:14px}
+.nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.nav.on{background:rgba(255,255,255,.12);color:#FFFFFF;font-weight:600}
+.who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.who small{display:block;color:#9AA8B6;font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2B3A47;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.main{flex:999 1 560px;min-width:0;padding:28px 36px 0;box-sizing:border-box;display:flex;flex-direction:column}
+.panel{background:#FFFFFF;border:1px solid #E1E6EB;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.field{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid #CBD3DB;border-radius:8px;background:#FFFFFF;box-sizing:border-box}
+.field input{border:0;outline:0;font:15px 'Public Sans',sans-serif;color:#14212B;flex:1;min-width:0;background:transparent}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CBD3DB;background:#FFFFFF;font:500 14px 'Public Sans',sans-serif;color:#14212B;cursor:pointer}
+.tab .n{font-weight:700}
+.tab.on{background:#14212B;border-color:#14212B;color:#FFFFFF}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:12px;font-weight:600;color:#4A5866;text-align:left;padding:10px 14px;border-bottom:1px solid #E1E6EB;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #EDF0F3;vertical-align:middle}
+tr.sel td{background:#F2FAF8}
+.r{text-align:right}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:8px;font:600 15px 'Public Sans',sans-serif;border:1px solid transparent;cursor:pointer;text-decoration:none;box-sizing:border-box}
+.btn.pri{background:#0B7A6F;color:#FFFFFF}
+.btn.sec{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}
+.chk{width:20px;height:20px;accent-color:#0B7A6F;cursor:pointer}
+.crear{margin:0 2px 8px}
+.crear summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:8px;background:#2F5BDB;color:#FFFFFF;font-weight:600;font-size:15px;cursor:pointer}
+.crear summary::-webkit-details-marker{display:none}
+.crear summary:hover{background:#2449B8}
+.crear .menu{display:flex;flex-direction:column;margin-top:6px;background:#1E2D39;border-radius:8px;padding:4px}
+.crear .menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;color:#E6EBF0;text-decoration:none;border-radius:6px;font-size:14px}
+.crear .menu a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.acc{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.b.az{background:#2F5BDB;color:#FFFFFF}.b.az:hover{background:#2449B8;color:#FFFFFF}
+.b.ve{background:#0B7A6F;color:#FFFFFF}.b.ve:hover{background:#086257;color:#FFFFFF}
+.b.vi{background:#7A4FC9;color:#FFFFFF}.b.vi:hover{background:#5E37A8;color:#FFFFFF}
+.b.se{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}.b.se:hover{border-color:#14212B;color:#14212B}
+.b.sm{min-height:34px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.side{max-width:none;flex-basis:100%}.main{padding:20px 16px 0}}
+</style>
+</helmet>
+<div class="app">
+  <nav class="side" aria-label="Menú principal">
+    <a class="brand" href="Main.dc.html">
+      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      StockAware
+    </a>
+    <details class="crear">
+      <summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Crear</summary>
+      <div class="menu">
+        <a href="NuevaOC.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Orden de compra</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path></svg>Ingreso a bodega</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Salida de bodega</a>
+        <a href="Distribucion.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Reparto de factura</a>
+      </div>
+    </details>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</a>
+    <div class="navh">Compras</div>
+    <a class="nav" href="Ordenes.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Órdenes de compra</a>
+    <div class="navh">Bodega</div>
+    <a class="nav on" href="Stock.dc.html" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg>Stock</a>
+    <a class="nav" href="Registrar.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Registrar movimiento</a>
+    <div class="navh">Finanzas</div>
+    <a class="nav" href="Distribucion.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Distribuir facturas</a>
+    <a class="nav" href="Balance.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg>Balance</a>
+    <div class="navh">Sistema</div>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B4BEC8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><circle cx="16" cy="6" r="2"></circle><path d="M4 12h4"></path><path d="M12 12h8"></path><circle cx="10" cy="12" r="2"></circle><path d="M4 18h12"></path><circle cx="18" cy="18" r="2"></circle></svg>Configuración</a>
+    <div class="who">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <span style="flex: 1">Administrador<small>Perfil administrador</small></span>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px">
+      <span style="width: 44px; height: 44px; border-radius: 11px; background: #E3F4F1; display: flex; align-items: center; justify-content: center; flex: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0B7A6F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      <div>
+        <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.01em">Stock</h1>
+        <p style="margin: 4px 0 0; color: #4A5866; font-size: 14px">Qué pedir antes de que falte. La cobertura usa el consumo del último año.</p>
+      </div>
+      <div class="acc" style="margin-left: auto">
+        <a class="b se" href="Main.dc.html">Nuevo material</a>
+        <a class="b se" href="Registrar.dc.html">Registrar salida</a>
+        <a class="b ve" href="Registrar.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"></path><path d="m7 11 5 5 5-5"></path><path d="M4 20h16"></path></svg>Registrar ingreso</a>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px">
+      <div class="panel" style="padding: 14px 16px; background: #FDECEA; border-color: #F5C9C3">
+        <div style="font-size: 13px; color: #8F1D14; font-weight: 600">Urgente</div>
+        <div class="num" style="font-size: 30px; font-weight: 700; color: #B42318; line-height: 1.2">66</div>
+        <div style="font-size: 12px; color: #4A5866">Sin stock y con consumo</div>
+      </div>
+      <div class="panel" style="padding: 14px 16px">
+        <div style="font-size: 13px; color: #4A5866; font-weight: 600">Sin stock</div>
+        <div class="num" style="font-size: 30px; font-weight: 700; line-height: 1.2">418</div>
+        <div style="font-size: 12px; color: #4A5866">Muchos sin uso reciente</div>
+      </div>
+      <div class="panel" style="padding: 14px 16px">
+        <div style="font-size: 13px; color: #4A5866; font-weight: 600">Bajo mínimo</div>
+        <div class="num" style="font-size: 30px; font-weight: 700; line-height: 1.2">6</div>
+        <div style="font-size: 12px; color: #4A5866">Quedan unidades, menos del mínimo</div>
+      </div>
+      <div class="panel" style="padding: 14px 16px">
+        <div style="font-size: 13px; color: #4A5866; font-weight: 600">Valorizado</div>
+        <div class="num" style="font-size: 30px; font-weight: 700; line-height: 1.2">$20,3 M</div>
+        <div style="font-size: 12px; color: #4A5866">Stock por tarifa</div>
+      </div>
+    </div>
+
+    <section class="panel" aria-label="Materiales" style="display: flex; flex-direction: column; flex: 1; min-height: 0">
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; padding: 16px; border-bottom: 1px solid #E1E6EB">
+        <label class="field" style="flex: 1 1 320px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path></svg>
+          <span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Bodega</span>
+          <input type="text" value="Todas las bodegas" aria-label="Bodega: escribe para buscar entre 540">
+          <span style="font-size: 12px; color: #4A5866; white-space: nowrap">540 bodegas · escribe para filtrar</span>
+        </label>
+        <label class="field" style="flex: 1 1 280px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4A5866" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input type="search" placeholder="Código o nombre del material" aria-label="Buscar material">
+        </label>
+      </div>
+      <div role="tablist" aria-label="Vista" style="display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #E1E6EB">
+        <button class="tab on" type="button" role="tab" aria-selected="true">Urgente <span class="n num">66</span></button>
+        <button class="tab" type="button" role="tab" aria-selected="false">Se acaba en 30 días <span class="n num">0</span></button>
+        <button class="tab" type="button" role="tab" aria-selected="false">Bajo mínimo <span class="n num">6</span></button>
+        <button class="tab" type="button" role="tab" aria-selected="false">Todo <span class="n num">500</span></button>
+      </div>
+      <div style="overflow-x: auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Elegir</span></th>
+              <th>Material</th>
+              <th>Bodega</th>
+              <th class="r">Stock</th>
+              <th class="r">Consumo</th>
+              <th class="r">Pedido sugerido</th>
+              <th class="r">Tarifa</th>
+              <th><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ filas }}" as="f" hint-placeholder-count="9">
+              <tr class="{{ f.clase }}">
+                <td><input class="chk" type="checkbox" checked="{{ f.sel }}" onChange="{{ f.toggle }}" aria-label="{{ f.etiqueta }}"></td>
+                <td><span style="font-family: ui-monospace, monospace; font-size: 12px; color: #4A5866">{{ f.cod }}</span><br><span style="font-weight: 500">{{ f.nombre }}</span></td>
+                <td style="color: #4A5866">{{ f.bodega }}</td>
+                <td class="r num" style="color: #B42318; font-weight: 700">0</td>
+                <td class="r num">{{ f.consumo }}</td>
+                <td class="r num" style="font-weight: 700; color: #0B7A6F">{{ f.pedir }}</td>
+                <td class="r num" style="color: #4A5866">{{ f.tarifa }}</td>
+                <td style="white-space: nowrap"><button class="b sm se" type="button" aria-label="{{ f.ajustar }}">Ajustar</button></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding: 12px 16px; font-size: 13px; color: #4A5866">Mostrando 9 de 66 urgentes · ordenados por consumo</div>
+    </section>
+
+    <div style="position: sticky; bottom: 0; margin: 16px -36px 0; padding: 14px 36px; background: #FFFFFF; border-top: 1px solid #CBD3DB; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+      <div>
+        <strong class="num" style="font-size: 16px">{{ resumen }}</strong>
+        <div style="font-size: 13px; color: #4A5866">Cantidad para 30 días de consumo o hasta el mínimo. Revisas proveedor y montos antes de emitir.</div>
+      </div>
+      <div style="display: flex; gap: 10px">
+        <button class="btn sec" type="button" onClick="{{ limpiar }}">Limpiar</button>
+        <a class="btn pri" href="NuevaOC.dc.html">Crear orden de compra</a>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: { MC_008: true, MC_007: true, MC_006: true } };
+  }
+  renderVals() {
+    const base = [
+      ['MC_008', 'Anteojo policarbonato Spy Flex Plus in/out', 'Central VAIPS HSEQ', '9,9 UNI/sem', 48, 'UNI', 1890],
+      ['MC_007', 'Anteojo policarbonato Spy Flex Plus gris', 'Central VAIPS HSEQ', '5,8 UNI/sem', 72, 'UNI', 1890],
+      ['MC_006', 'Anteojo policarbonato Spy Flex Plus claro', 'Central VAIPS HSEQ', '5,5 UNI/sem', 48, 'UNI', 1890],
+      ['MC_016', 'Bloqueador solar 120 g FPS 50 Safepro', 'Central VAIPS HSEQ', '4,1 UNI/sem', 20, 'UNI', 1886],
+      ['MC_040', 'Buzo coverall G blanco talla XL', 'Central VAIPS HSEQ', '3,8 UNI/sem', 20, 'UNI', 890],
+      ['MC_017', 'Bloqueador solar labial FPS 50', 'Central VAIPS HSEQ', '3,0 UNI/sem', 20, 'UNI', 971],
+      ['MC_013', 'Barbiquejo 3 puntas MSA con mentonera', 'Central VAIPS HSEQ', '2,1 UNI/sem', 10, 'UNI', 1676],
+      ['MC_041', 'Buzo coverall G blanco talla XXL', 'Central VAIPS HSEQ', '1,9 UNI/sem', 20, 'UNI', 890],
+      ['MC_711', 'Trapo limpieza color por kilo', 'VAIPS Santiago', '1,9 KG/sem', 80, 'KG', 2005],
+    ];
+    const clp = (n) => '$' + Math.round(n).toLocaleString('es-CL');
+    const sel = this.state.sel;
+    const filas = base.map(([cod, nombre, bodega, consumo, pedir, unidad, tarifa]) => ({
+      cod, nombre, bodega, consumo,
+      pedir: 'Pedir ' + pedir + ' ' + unidad,
+      tarifa: clp(tarifa),
+      sel: !!sel[cod],
+      clase: sel[cod] ? 'sel' : '',
+      etiqueta: 'Pedir ' + cod,
+      ajustar: 'Ajustar stock de ' + cod,
+      toggle: () => this.setState({ sel: { ...this.state.sel, [cod]: !this.state.sel[cod] } }),
+    }));
+    const elegidos = base.filter(([cod]) => sel[cod]);
+    const total = elegidos.reduce((s, b) => s + b[4] * b[6], 0);
+    const resumen = elegidos.length
+      ? elegidos.length + (elegidos.length === 1 ? ' material' : ' materiales') + ' para pedir · ' + clp(total) + ' estimado'
+      : 'Marca los materiales que quieres pedir';
+    return { filas, resumen, limpiar: () => this.setState({ sel: {} }) };
+  }
+}
+</script>
+</body>
+</html>

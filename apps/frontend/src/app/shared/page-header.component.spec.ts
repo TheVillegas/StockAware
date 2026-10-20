@@ -11,41 +11,20 @@ describe('PageHeaderComponent structural contracts', () => {
     expect(source).toMatch(/<h1\b[^>]*class="page-title"[^>]*>\s*\{\{\s*title\(\)\s*\}\}\s*<\/h1>/);
   });
 
-  it('keeps a compact mobile title and actions/logout within the toolbar', () => {
+  it('is a phone-only bar with the menu button: hidden from the 768px breakpoint up', () => {
+    expect(source).toMatch(/<ion-menu-button[^>]*aria-label="Abrir menú"/);
+    expect(source).toMatch(/@media\s*\(min-width:\s*768px\)\s*\{\s*:host\s*\{\s*display:\s*none/);
     expect(source).toMatch(/\.page-title\s*\{[^}]*overflow:\s*hidden[^}]*text-overflow:\s*ellipsis[^}]*white-space:\s*nowrap/s);
-    expect(source).toMatch(/\.page-actions/);
-    expect(source).toMatch(/class="logout-icon"[^>]*aria-hidden="true"/);
-    expect(source).toMatch(/class="logout-label"/);
-    expect(source).toMatch(/aria-label="Cerrar sesión"/);
-    expect(source).toMatch(/@media\s*\(max-width:\s*767\.98px\)/);
   });
 
-  it('uses the mobile breakpoint from the spec, not the old 620px one', () => {
-    expect(source).not.toMatch(/620px/);
+  it('keeps logout and page actions out of the bar (sidebar and sa-page-head own them)', () => {
+    expect(source).not.toMatch(/Cerrar sesión/);
+    expect(source).not.toMatch(/header-actions/);
   });
 
-  it('removes the StockAware brand from the bar', () => {
+  it('removes the StockAware brand and the internal ERP function code from the bar', () => {
     expect(source).not.toMatch(/StockAware/);
-  });
-
-  it('shows a function code derived from the router URL', () => {
-    expect(source).toMatch(/Router|NavigationEnd|ActivatedRoute/);
-    expect(source).toMatch(/\/f\//);
-    expect(source).toMatch(/class="codigo"/);
-  });
-
-  it('renders the logout action as an outline secondary button', () => {
-    expect(source).toMatch(/fill="outline"/);
-  });
-
-  it('does not clip projected actions and gives them compact intrinsic sizing', () => {
-    // Source contract only: without a DOM environment this cannot measure layout.
-    expect(source).not.toMatch(/\.page-actions\s*\{[^}]*overflow\s*:\s*hidden/s);
-    expect(source).not.toMatch(/ion-toolbar\s*\{[^}]*--overflow\s*:\s*hidden/s);
-    expect(source).not.toMatch(/ion-button\[header-actions\][^{]*\{[^}]*max-width\s*:\s*30vw/s);
-    expect(source).toMatch(/ion-button\[header-actions\][^{]*\{[^}]*white-space\s*:\s*nowrap/s);
-    expect(source).toMatch(/ion-button\[header-actions\][^{]*\{[^}]*--padding-start\s*:\s*5px/s);
-    expect(source).toMatch(/ion-button\[header-actions\][^{]*\{[^}]*--padding-end\s*:\s*5px/s);
+    expect(source).not.toMatch(/class="codigo"/);
   });
 
   it('uses only --sa-* values in styles (no literal hex nor font-size px)', () => {
@@ -55,7 +34,7 @@ describe('PageHeaderComponent structural contracts', () => {
     expect(styles).not.toMatch(/font-size:\s*\d+px/);
   });
 
-  it('removes the Ionic header shadow (the bar uses a 1px border instead)', () => {
+  it('removes the Ionic header shadow', () => {
     expect(source).toMatch(/ion-header\s*\{[^}]*box-shadow:\s*none/);
   });
 });
