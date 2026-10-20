@@ -30,7 +30,7 @@ describe('Bodega pages UI system migration', () => {
 
     it('uses sa-table-wrap and sa-table when it has a table', () => {
       if (template.includes('<table')) {
-        expect(template).toMatch(/class="[^"]*sa-table-wrap[^"]*"/);
+        expect(template).toMatch(/<sa-table-wrap|class="[^"]*sa-table-wrap[^"]*"/);
         expect(template).toMatch(/class="[^"]*sa-table[^"]*"/);
       }
     });
@@ -74,10 +74,11 @@ describe('Bodega pages UI system migration', () => {
     expect(template).toMatch(/\bOK\b/);
   });
 
-  it('stock.page list loading uses ion-skeleton-text', () => {
+  it('stock.page list loading uses the shared list skeleton', () => {
     const template = source('stock.page.ts').match(/template:\s*`([\s\S]*?)`/)?.[1] ?? '';
-    // Check for skeleton-text when cargando() is true
-    expect(template).toMatch(/cargando\(\)[\s\S]*?ion-skeleton-text/);
+    const list = readFileSync(join(__dirname, '../shared/sa-list.component.ts'), 'utf8');
+    expect(template).toMatch(/\[loading\]="cargando\(\)"/);
+    expect(list).toMatch(/ion-skeleton-text/);
   });
 
   it('guia.page keeps showing stock in material suggestions', () => {
