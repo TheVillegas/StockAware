@@ -10,12 +10,12 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/compiler": "^20.0.0",
-    "@angular/core": "^20.0.0",
-    "@angular/forms": "^20.0.0",
-    "@angular/platform-browser": "^20.0.0",
-    "@angular/router": "^20.0.0",
+    "@angular/common": "^20.3.34",
+    "@angular/compiler": "^20.3.34",
+    "@angular/core": "^20.3.34",
+    "@angular/forms": "^20.3.34",
+    "@angular/platform-browser": "^20.3.34",
+    "@angular/router": "^20.3.34",
     "@capacitor/core": "^7.6.9",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
@@ -28,11 +28,25 @@
   "devDependencies": {
     "@angular/build": "^20.0.0",
     "@angular/cli": "^20.0.0",
-    "@angular/compiler-cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.3.34",
     "@capacitor/cli": "^7.6.9",
     "@typescript-eslint/parser": "^8.70.0",
     "eslint": "^9.17.0",
     "jest": "^29.7.0",
     "typescript": "~5.8.0"
+  },
+  "overrides": {
+    "proxy-addr": "2.0.8",
+    "piscina": "5.3.2",
+    "http-cache-semantics": "4.3.0",
+    "source-map-js": "1.2.2",
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "braces": "npm:@franciscosolis/braces@3.1.1",
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.21"
+    },
+    "minimatch@10.2.6": {
+      "brace-expansion": "5.0.12"
+    }
   }
 }
