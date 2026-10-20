@@ -13,6 +13,7 @@ const pageFiles = [
   '../distribucion/distribucion.page.ts',
   '../balance/balance.page.ts',
   '../mantenedor/mantenedor.page.ts',
+  '../configuracion/configuracion.page.ts',
 ];
 
 const source = (relativePath) =>

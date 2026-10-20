@@ -102,7 +102,7 @@ export const expiracionInterceptor: HttpInterceptorFn = (req, next) => {
       const es401 = e instanceof HttpErrorResponse && e.status === 401;
       // El propio login devuelve 401 con credenciales malas: ese no se toca.
       if (es401 && !req.url.endsWith('/auth/login')) {
-        auth.salir('Tu sesión expiró. Ingresá de nuevo.');
+        auth.salir('Tu sesión expiró. Ingresa de nuevo.');
       }
       return throwError(() => e);
     }),

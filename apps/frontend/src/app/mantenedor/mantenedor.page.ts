@@ -8,18 +8,24 @@
  */
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonButtons, IonContent, IonInput, IonItem, IonLabel,
-  IonNote, IonSearchbar, IonSpinner,
+  IonButton, IonContent, IonInput,
+  IonNote, IonSearchbar, IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { API } from '../core/auth.service';
+import { fechaTabla, rangoLista } from '../shared/format';
+import { columnLabel } from '../shared/consulta';
 import { PageHeaderComponent } from '../shared/page-header.component';
+import { SaIcon } from '../shared/sa-icon.component';
+import { SaPageHead } from '../shared/sa-page-head.component';
+import { SaList } from '../shared/sa-list.component';
+import { SaTableWrap } from '../shared/sa-table-wrap.component';
 
 interface Pagina {
   codigo: string;
@@ -37,115 +43,111 @@ interface Pagina {
 @Component({
   selector: 'app-mantenedor',
   imports: [
-    FormsModule, PageHeaderComponent,
-    IonContent, IonSearchbar, IonSpinner, IonNote, IonButton, IonItem, IonInput, IonLabel,
+    FormsModule, PageHeaderComponent, RouterLink, SaIcon, SaList, SaPageHead, SaTableWrap,
+    IonContent, IonSearchbar, IonSkeletonText, IonNote, IonButton, IonInput,
   ],
   styles: [`
-    .barra { display: flex; align-items: center; gap: 10px; padding: 0 8px; flex-wrap: wrap; }
-    .barra ion-searchbar { flex: 1; }
-    .conteo { font-size: 12px; color: var(--ion-color-medium); white-space: nowrap; padding-right: 12px; }
-    .tabla { overflow-x: auto; padding: 0 12px 20px; }
-    table { border-collapse: collapse; width: 100%; font-size: 13px; }
-    th { text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase;
-         letter-spacing: .05em; color: var(--ion-color-medium); padding: 8px 10px;
-         border-bottom: 1px solid var(--ion-color-light-shade); white-space: nowrap; }
-    td { padding: 7px 10px; border-bottom: 1px solid var(--ion-color-light); white-space: nowrap; }
-    tr.editable:hover { background: var(--ion-color-light); cursor: pointer; }
-    .num { text-align: right; font-variant-numeric: tabular-nums; }
-    .paginas { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 14px; }
-    .vacio { padding: 40px 20px; text-align: center; color: var(--ion-color-medium); }
-    .ficha { padding: 4px 12px 20px; max-width: 620px; }
-    .ficha h3 { font-size: 15px; margin: 14px 0 4px; }
-    .acciones { display: flex; gap: 10px; padding: 14px 12px; }
-    .aviso { color: var(--ion-color-danger); padding: 0 14px; font-size: 13px; }
+    .ficha { padding: var(--sa-space-5); max-inline-size: 56rem; }
+    .ficha h2 { margin: var(--sa-space-6) 0 var(--sa-space-3); font-size: var(--sa-text-body); font-weight: 600; }
+    .campos { display: grid; gap: var(--sa-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+    .derivados { display: grid; gap: var(--sa-space-3) var(--sa-space-5); margin: 0;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+    .derivados dt { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); }
+    .derivados dd { margin: var(--sa-space-1) 0 0; }
+    .acciones { display: flex; gap: var(--sa-space-2); margin-top: var(--sa-space-5); }
+    .pendiente { padding: var(--sa-space-5); }
   `],
   template: `
-    <app-page-header [title]="pag()?.titulo ?? codigo()">
-      @if (editando()) {
-        <ion-button header-actions (click)="cerrarFicha()">Volver</ion-button>
-      }
-    </app-page-header>
+    <app-page-header [title]="pag()?.titulo ?? codigo()"></app-page-header>
 
     <ion-content>
       <div class="page-content page-content--wide">
+      <sa-page-head [title]="pag()?.titulo ?? codigo()" area="sistema" icon="settings" [subtitle]="subtitulo()">
+        <div saActions>
+          @if (editando()) {
+            <ion-button fill="outline" (click)="cerrarFicha()">
+              <sa-icon slot="start" name="arrow-left" />Volver a la lista
+            </ion-button>
+          } @else if (!noEsMantenedor()) {
+            <ion-button fill="outline" routerLink="/configuracion">
+              <sa-icon slot="start" name="arrow-left" />Configuración
+            </ion-button>
+          }
+        </div>
+      </sa-page-head>
       @if (cargando()) {
-        <div class="vacio"><ion-spinner></ion-spinner></div>
+        <div class="sa-skeleton">
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+        </div>
       } @else if (noEsMantenedor()) {
-        <div class="ficha">
+        <div class="sa-panel pendiente">
           <ion-note>Pendiente de construir</ion-note>
           <p>La opción <code>{{ codigo() }}</code> todavía no tiene pantalla.</p>
         </div>
       } @else if (editando(); as fila) {
-        <div class="ficha">
-          @for (c of camposEditables(); track c) {
-            <ion-item>
-              <ion-input [label]="c" labelPlacement="stacked"
-                         [(ngModel)]="fila[c]" [disabled]="!pag()!.puedeEditar"></ion-input>
-            </ion-item>
+        <form class="sa-panel ficha" (ngSubmit)="guardar()">
+          @if (!pag()!.puedeEditar) {
+            <div class="sa-notice sa-notice--warn">Tu perfil puede ver este registro, pero no modificarlo.</div>
           }
-          @if (derivadas().length) {
-            <h3>Derivados de la vista</h3>
-            @for (c of derivadas(); track c) {
-              <ion-item lines="none">
-                <ion-label>
-                  <ion-note>{{ c }}</ion-note>
-                  <div>{{ fila[c] }}</div>
-                </ion-label>
-              </ion-item>
+          <div class="campos">
+            @for (c of camposEditables(); track c) {
+              <ion-input [label]="etiqueta(c)" labelPlacement="stacked" fill="outline"
+                         [name]="c" [value]="mostrar(fila[c])" [disabled]="!pag()!.puedeEditar"
+                         (ionInput)="fila[c] = $any($event).detail.value"></ion-input>
             }
-          }
-        </div>
-        @if (error()) { <div class="aviso">{{ error() }}</div> }
-        <div class="acciones">
-          <ion-button (click)="guardar()" [disabled]="!pag()!.puedeEditar || guardando()">
-            {{ guardando() ? 'Guardando...' : 'Guardar' }}
-          </ion-button>
-          <ion-button fill="clear" (click)="cerrarFicha()">Cancelar</ion-button>
-        </div>
-        @if (!pag()!.puedeEditar) {
-          <div class="aviso">Tu perfil puede ver este maestro, pero no modificarlo.</div>
-        }
-      } @else if (pag(); as p) {
-        @if (error()) { <div class="aviso">{{ error() }}</div> }
-        <div class="barra">
-          <ion-searchbar placeholder="Buscar" [debounce]="350"
-                         (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
-          <span class="conteo">{{ p.total }} registros</span>
-        </div>
-
-        @if (p.datos.length === 0) {
-          <div class="vacio">Sin resultados</div>
-        } @else {
-          <div class="tabla">
-            <table>
-              <thead><tr>@for (c of p.columnas; track c) { <th>{{ c }}</th> }</tr></thead>
-              <tbody>
-                @for (f of p.datos; track $index) {
-                  <tr class="editable" (click)="abrirFicha(f[p.pk])">
-                    @for (c of p.columnas; track c) {
-                      <td [class.num]="esNumero(f[c])">{{ f[c] }}</td>
-                    }
-                  </tr>
-                }
-              </tbody>
-            </table>
           </div>
-
-          @if (p.paginas > 1) {
-            <div class="paginas">
-              <ion-button size="small" fill="clear" [disabled]="p.pagina <= 1"
-                          (click)="pagina.set(p.pagina - 1)">Anterior</ion-button>
-              <span class="conteo">{{ p.pagina }} / {{ p.paginas }}</span>
-              <ion-button size="small" fill="clear" [disabled]="p.pagina >= p.paginas"
-                          (click)="pagina.set(p.pagina + 1)">Siguiente</ion-button>
-            </div>
+          @if (derivadas().length) {
+            <h2>Datos calculados</h2>
+            <dl class="derivados">
+              @for (c of derivadas(); track c) {
+                <div><dt>{{ etiqueta(c) }}</dt><dd>{{ mostrar(fila[c]) || '—' }}</dd></div>
+              }
+            </dl>
           }
-        }
+          @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
+          <div class="acciones">
+            <ion-button type="submit" [disabled]="!pag()!.puedeEditar || guardando()">
+              {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+            </ion-button>
+            <ion-button fill="outline" (click)="cerrarFicha()">Cancelar</ion-button>
+          </div>
+        </form>
+      } @else if (pag(); as p) {
+        @if (error()) { <div class="sa-notice sa-notice--crit">{{ error() }}</div> }
+        <sa-list [empty]="p.datos.length === 0" emptyTitle="Sin resultados"
+                 [range]="rango(p)" [page]="p.pagina" [pages]="p.paginas" (pageChange)="pagina.set($event)">
+          <div saFilters>
+            <ion-searchbar [placeholder]="'Buscar en ' + p.titulo.toLowerCase()" [debounce]="350"
+                           (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+          </div>
+          <sa-table-wrap [label]="p.titulo">
+              <table class="sa-table">
+                <thead><tr>@for (c of p.columnas; track c) { <th [class.num]="esNumero(p.datos[0]?.[c])">{{ etiqueta(c) }}</th> }</tr></thead>
+                <tbody>
+                  @for (f of p.datos; track $index) {
+                    <tr class="is-click" tabindex="0" (click)="abrirFicha(f[p.pk])" (keydown.enter)="abrirFicha(f[p.pk])">
+                      @for (c of p.columnas; track c; let first = $first) {
+                        @if (first) {
+                          <th scope="row" [class.num]="esNumero(f[c])">{{ f[c] }}</th>
+                        } @else {
+                          <td [attr.data-label]="etiqueta(c)" [class.num]="esNumero(f[c])">{{ f[c] }}</td>
+                        }
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+          </sa-table-wrap>
+        </sa-list>
       } @else {
         <!-- Sin datos y sin spinner: algo fallo. Nunca dejar la pantalla muda. -->
-        <div class="vacio">
-          <p>No se pudo cargar <code>{{ codigo() }}</code>.</p>
-          @if (error()) { <p class="aviso">{{ error() }}</p> }
+        <div class="sa-empty">
+          <div class="title">No se pudo cargar {{ codigo() }}</div>
+          @if (error()) { <div class="text">{{ error() }}</div> }
         </div>
       }
       </div>
@@ -252,6 +254,27 @@ export class MantenedorPage {
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  rango(p: Pagina): string {
+    return rangoLista(p.pagina, p.datos.length, p.total, 'registros');
+  }
+
+  readonly etiqueta = columnLabel;
+
+  /** One line under the title: size of the table and what the profile can do with it. */
+  readonly subtitulo = computed(() => {
+    const p = this.pag();
+    if (this.editando()) return p?.puedeEditar ? 'Edita los campos y guarda los cambios.' : 'Tu perfil puede ver este registro, pero no modificarlo.';
+    if (!p) return '';
+    const total = `${p.total.toLocaleString('es-CL')} registros.`;
+    return p.puedeEditar ? `${total} Busca por cualquier dato y toca una fila para editarla.` : `${total} Tu perfil puede consultarla, pero no modificarla.`;
+  });
+
+  /** Shows ISO timestamps as dd-mm-aaaa; untouched fields are saved exactly as loaded. */
+  mostrar(v: unknown): string {
+    const texto = v == null ? '' : String(v);
+    return /^\d{4}-\d{2}-\d{2}T/.test(texto) ? fechaTabla(texto) : texto;
   }
 
   esNumero(v: unknown): boolean {

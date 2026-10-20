@@ -67,6 +67,11 @@ export const rutas: Routes = [
     loadComponent: () => import('./bodega/guia.page').then((m) => m.GuiaPage),
   },
   {
+    path: 'configuracion',
+    canActivate: [exigeSesion],
+    loadComponent: () => import('./configuracion/configuracion.page').then((m) => m.ConfiguracionPage),
+  },
+  {
     path: 'f/DOC_DISTRIBUIR',
     canActivate: [exigeSesion],
     loadComponent: () => import('./distribucion/distribucion.page').then((m) => m.DistribucionPage),
