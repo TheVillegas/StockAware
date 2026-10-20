@@ -1,0 +1,58 @@
+/*
+ * Base color values reference design tokens via var(). The -rgb triples, -shade,
+ * and -tint values stay as literal hex/rgb because Ionic requires raw values there.
+ * apps/frontend/src/app/shared/theme.spec.ts guards these raw values against tokens.css.
+ */
+:root {
+  --ion-font-family: var(--sa-font-sans);
+  --ion-background-color: var(--sa-bg);
+  --ion-text-color: var(--sa-ink);
+  --ion-border-color: var(--sa-line);
+  --ion-item-background: var(--sa-surface);
+  --ion-toolbar-background: var(--sa-surface);
+
+  --ion-color-primary: var(--sa-accent);
+  --ion-color-primary-rgb: 21, 94, 99;
+  --ion-color-primary-contrast: var(--sa-accent-ink);
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: var(--sa-accent-hover);
+  --ion-color-primary-tint: #2c6e73;
+
+  --ion-color-success: var(--sa-ok-fg);
+  --ion-color-success-rgb: 29, 107, 47;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #1a5e29;
+  --ion-color-success-tint: #347a44;
+
+  --ion-color-warning: var(--sa-warn-fg);
+  --ion-color-warning-rgb: 122, 90, 0;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #6b4f00;
+  --ion-color-warning-tint: #876b1a;
+
+  --ion-color-danger: var(--sa-crit);
+  --ion-color-danger-rgb: 176, 40, 31;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #9b231b;
+  --ion-color-danger-tint: #b83e35;
+
+  --ion-color-medium: var(--sa-ink-soft);
+  --ion-color-medium-rgb: 90, 98, 107;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #4f565e;
+  --ion-color-medium-tint: #6b727a;
+
+  --ion-color-light: var(--sa-surface-2);
+  --ion-color-light-rgb: 238, 241, 242;
+  --ion-color-light-contrast: var(--sa-ink);
+  --ion-color-light-contrast-rgb: 18, 22, 26;
+  --ion-color-light-shade: #d1d4d5;
+  --ion-color-light-tint: #f0f2f3;
+}
+
+ion-split-pane { --side-width: var(--sa-menu-w); --side-max-width: var(--sa-menu-w); }
+ion-menu ion-content { --background: var(--sa-shell); }

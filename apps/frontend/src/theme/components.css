@@ -1,0 +1,266 @@
+/* Shared UI components. Every visual value comes from a --sa-* token. */
+
+/* Global typography */
+body {
+  font-family: var(--sa-font-sans);
+}
+
+.num,
+.code {
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Global focus (section 1.3 focus spec) */
+:focus-visible {
+  outline: 2px solid var(--sa-accent);
+  outline-offset: 2px;
+}
+
+/* Table (section 3.3) */
+.sa-table-wrap {
+  background: var(--sa-surface);
+  border: 1px solid var(--sa-line-strong);
+  border-radius: var(--sa-radius);
+  overflow-x: auto;
+}
+
+.sa-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--sa-text-dense);
+  color: var(--sa-ink);
+}
+
+.sa-table th {
+  font-size: var(--sa-text-label);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sa-ink-soft);
+  text-align: left;
+  padding: var(--sa-space-2) var(--sa-space-3);
+  border-bottom: 1px solid var(--sa-line-strong);
+  position: sticky;
+  top: 0;
+  background: var(--sa-surface);
+}
+
+.sa-table td {
+  padding: var(--sa-space-2) var(--sa-space-3);
+  border-bottom: 1px solid var(--sa-line);
+  white-space: nowrap;
+}
+
+.sa-table .num {
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.sa-table th.num {
+  text-align: right;
+}
+
+.sa-table .code {
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sa-text-meta);
+}
+
+.sa-table tbody tr:hover {
+  background: var(--sa-surface-2);
+}
+
+.sa-table tbody tr[aria-selected="true"],
+.sa-table tbody tr.is-selected {
+  background: var(--sa-accent-tint);
+}
+
+.sa-table .is-low {
+  color: var(--sa-crit-fg);
+  font-weight: 600;
+}
+
+/* Status pill (section 3.4) */
+.sa-pill {
+  display: inline-block;
+  font-family: var(--sa-font-mono);
+  font-size: var(--sa-text-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: var(--sa-radius-pill);
+}
+
+.sa-pill--ok {
+  background: var(--sa-ok-bg);
+  color: var(--sa-ok-fg);
+}
+
+.sa-pill--warn {
+  background: var(--sa-warn-bg);
+  color: var(--sa-warn-fg);
+}
+
+.sa-pill--crit {
+  background: var(--sa-crit-bg);
+  color: var(--sa-crit-fg);
+}
+
+.sa-pill--info {
+  background: var(--sa-info-bg);
+  color: var(--sa-info-fg);
+}
+
+/* Notice (section 3.5) */
+.sa-notice {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--sa-radius);
+  padding: var(--sa-space-2) var(--sa-space-3);
+  font-size: var(--sa-text-dense);
+  border: 1px solid transparent;
+}
+
+.sa-notice--ok {
+  background: var(--sa-ok-bg);
+  border-color: var(--sa-ok-line);
+  color: var(--sa-ok-fg);
+}
+
+.sa-notice--warn {
+  background: var(--sa-warn-bg);
+  border-color: var(--sa-warn-line);
+  color: var(--sa-warn-fg);
+}
+
+.sa-notice--crit {
+  background: var(--sa-crit-bg);
+  border-color: var(--sa-crit-line);
+  color: var(--sa-crit-fg);
+}
+
+.sa-notice--info {
+  background: var(--sa-info-bg);
+  border-color: var(--sa-info-line);
+  color: var(--sa-info-fg);
+}
+
+/* Text button / link (section 3.1 "Texto") */
+.sa-link {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--sa-text-dense);
+  font-weight: 600;
+  color: var(--sa-accent);
+  cursor: pointer;
+}
+
+.sa-link:hover {
+  color: var(--sa-accent-hover);
+}
+
+/* KPIs (section 3.6) */
+.sa-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--sa-line-strong);
+  border: 1px solid var(--sa-line-strong);
+  border-radius: var(--sa-radius);
+  overflow: hidden;
+}
+
+.sa-kpi {
+  background: var(--sa-surface);
+  padding: var(--sa-space-3) var(--sa-space-4);
+}
+
+.sa-kpi .label {
+  font-size: var(--sa-text-label);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--sa-ink-soft);
+}
+
+.sa-kpi .value {
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sa-text-kpi);
+  font-weight: 600;
+  color: var(--sa-ink);
+}
+
+.sa-kpi .delta {
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sa-text-meta);
+  color: var(--sa-ink-soft);
+}
+
+.sa-kpi .delta--up {
+  color: var(--sa-ok-fg);
+}
+
+.sa-kpi .delta--down {
+  color: var(--sa-crit-fg);
+}
+
+@media (max-width: 767.98px) {
+  .sa-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Empty state (section 3.7) */
+.sa-empty {
+  text-align: center;
+  padding: var(--sa-space-6);
+}
+
+.sa-empty .title {
+  font-size: var(--sa-text-body);
+  font-weight: 600;
+  color: var(--sa-ink);
+}
+
+.sa-empty .text {
+  font-size: var(--sa-text-dense);
+  color: var(--sa-ink-soft);
+}
+
+.sa-empty .action {
+  margin-top: var(--sa-space-2);
+}
+
+/* Filter toolbar and result count (sections 2.1 and 3.3) */
+.sa-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sa-space-2);
+  flex-wrap: wrap;
+}
+
+.sa-count {
+  margin-left: auto;
+  font-family: var(--sa-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sa-text-meta);
+  color: var(--sa-ink-soft);
+}
+
+/* Mobile control sizing (section 1.4) */
+@media (max-width: 767.98px) {
+  .sa-link {
+    min-height: var(--sa-control-h);
+  }
+
+  .sa-toolbar {
+    align-items: stretch;
+  }
+}

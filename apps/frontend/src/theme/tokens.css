@@ -1,0 +1,67 @@
+:root {
+  /* surfaces and text */
+  --sa-bg: #f6f7f8;
+  --sa-surface: #ffffff;
+  --sa-surface-2: #eef1f2;
+  --sa-ink: #12161a;
+  --sa-ink-soft: #5a626b;
+  --sa-line: #e3e7ea;
+  --sa-line-strong: #d5dade;
+  --sa-border-input: #8b949c;
+
+  /* accent */
+  --sa-accent: #155e63;
+  --sa-accent-hover: #125357;
+  --sa-accent-ink: #ffffff;
+  --sa-accent-tint: #e6f0f0;
+
+  /* shell */
+  --sa-shell: #0e2a2c;
+  --sa-shell-2: #12383a;
+  --sa-shell-line: #1c3d3f;
+  --sa-shell-ink: #cfe0df;
+  --sa-shell-soft: #7fa3a1;
+  --sa-shell-mark: #4fd0bd;
+
+  /* states */
+  --sa-ok-fg: #1d6b2f;   --sa-ok-bg: #d6ecd8;   --sa-ok-line: #b9dcbd;
+  --sa-warn-fg: #7a5a00; --sa-warn-bg: #fbe6c8; --sa-warn-line: #eedcb8;
+  --sa-crit-fg: #8f2019; --sa-crit-bg: #f7dcd9; --sa-crit-line: #efcccc;
+  --sa-info-fg: #14508a; --sa-info-bg: #d9e8f7; --sa-info-line: #c2d7ee;
+  --sa-crit: #b0281f;
+
+  /* typography */
+  --sa-font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sa-font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --sa-text-label: 11px;
+  --sa-text-meta: 12px;
+  --sa-text-dense: 13px;
+  --sa-text-body: 14px;
+  --sa-text-input-mobile: 16px;
+  --sa-text-title: 16px;
+  --sa-text-page: 18px;
+  --sa-text-kpi: 24px;
+
+  /* space and shape */
+  --sa-space-1: 4px;
+  --sa-space-2: 8px;
+  --sa-space-3: 12px;
+  --sa-space-4: 16px;
+  --sa-space-5: 24px;
+  --sa-space-6: 32px;
+  --sa-radius: 6px;
+  --sa-radius-pill: 3px;
+
+  /* controls */
+  --sa-control-h: 36px;
+  --sa-control-h-sm: 28px;
+  --sa-topbar-h: 48px;
+  --sa-menu-w: 240px;
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --sa-control-h: 44px;
+    --sa-topbar-h: 56px;
+  }
+}
