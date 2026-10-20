@@ -24,8 +24,9 @@ describe('AppComponent shell structural contracts', () => {
     expect(source).not.toMatch(/color="light"/);
   });
 
-  it('marks the active item with a shell-mark left stripe', () => {
+  it('marks the active item with the shell-mark color, without a side stripe', () => {
     expect(styles).toMatch(/\.activo[^}]*var\(--sa-shell-mark\)/s);
+    expect(styles).not.toMatch(/border-inline-start:\s*3px/);
   });
 
   it('keeps Inicio as the first menu item', () => {
@@ -38,15 +39,28 @@ describe('AppComponent shell structural contracts', () => {
     expect(styles).not.toMatch(/font-size:\s*\d+px/);
   });
 
-  it('paints accordion areas with the shell color instead of the page background', () => {
+  it('paints the menu with the shell color instead of the page background', () => {
     expect(source).toMatch(/ion-menu\s*\{[^}]*--ion-background-color:\s*var\(--sa-shell\)/);
   });
 
-  it('colors the accordion header and its toggle icon with the shell soft tone', () => {
-    expect(source).toMatch(/ion-item\[slot="header"\]\s*\{[^}]*--color:\s*var\(--sa-shell-soft\)/);
+  it('renders purpose entries from the navigation model, without accordions or greyed options', () => {
+    expect(source).toMatch(/construirNavegacion\(this\.auth\.menu\(\)\)/);
+    expect(source).toMatch(/@for \(e of seccion\.entradas/);
+    expect(source).toMatch(/\[routerLink\]="e\.ruta"/);
+    expect(source).toMatch(/<sa-icon slot="start" \[name\]="iconoEntrada\(e\.key\)"/);
+    expect(source).toMatch(/<sa-icon slot="start" name="home"/);
+    expect(source).not.toMatch(/ion-accordion/);
+    expect(source).not.toMatch(/pendiente/);
   });
 
-  it('reaches the runtime-injected accordion toggle icon through ::ng-deep', () => {
-    expect(source).toMatch(/ion-menu\s+::ng-deep\s+\.ion-accordion-toggle-icon\s*\{[^}]*color:\s*var\(--sa-shell-soft\)/);
+  it('offers a Crear menu built from the profile permissions', () => {
+    expect(source).toMatch(/accionesCrear\(this\.auth\.menu\(\)\)/);
+    expect(source).toMatch(/<details class="crear"/);
+    expect(source).toMatch(/aria-label="Cerrar sesión"/);
+  });
+
+  it('marks the active entry for every code it groups and announces it', () => {
+    expect(source).toMatch(/entradaActiva\(this\.navegacion\(\), this\.url\(\)\)/);
+    expect(source).toMatch(/\[attr\.aria-current\]/);
   });
 });

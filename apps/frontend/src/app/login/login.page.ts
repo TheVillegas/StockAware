@@ -1,49 +1,63 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import {
-  IonButton, IonContent, IonInput, IonItem, IonList, IonNote, IonSpinner,
-} from '@ionic/angular/standalone';
+import { IonButton, IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { AuthService } from '../core/auth.service';
+import { SaField } from '../shared/sa-field.component';
+import { SaIcon } from '../shared/sa-icon.component';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, IonContent, IonList, IonItem, IonInput, IonButton, IonNote, IonSpinner],
-  styles: [`
-    .caja { max-width: 380px; margin: 12vh auto; padding: 0 20px; }
-    .marca { text-align: center; margin-bottom: 26px; }
-    .marca h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -.02em; }
-    .error { color: var(--ion-color-danger); display: block; margin: 14px 2px; }
-    .pie { text-align: center; margin-top: 22px; font-size: 12px; color: var(--ion-color-medium); }
-  `],
+  imports: [IonButton, IonContent, IonSpinner, SaField, SaIcon],
   template: `
-    <ion-content>
-      <div class="caja">
-        <div class="marca">
-          <h1>ERP</h1>
-          <ion-note>Réplica local</ion-note>
+    <ion-content class="sa-login" data-visual="ep1">
+      <div class="sa-login__frame">
+        <section class="sa-login__brand" aria-labelledby="login-brand">
+          <div class="sa-login__logo">
+            <span class="sa-login__logo-mark"><sa-icon name="warehouse" [size]="22" [stroke]="2" /></span>
+            <span id="login-brand">StockAware</span>
+          </div>
+          <div class="sa-login__pitch">
+            <h2>Compras, bodega y finanzas en un solo lugar</h2>
+            <ul class="sa-login__areas">
+              <li data-area="compras"><sa-icon name="orders" /><span><strong>Compras</strong>Emite, aprueba y recibe órdenes.</span></li>
+              <li data-area="bodega"><sa-icon name="warehouse" /><span><strong>Bodega</strong>Sabe qué reponer antes de que falte.</span></li>
+              <li data-area="finanzas"><sa-icon name="chart" /><span><strong>Finanzas</strong>Reparte facturas y sigue el gasto.</span></li>
+            </ul>
+          </div>
+          <p class="sa-login__foot">Ingeniería Web Avanzada · Réplica local del ERP</p>
+        </section>
+
+        <div class="sa-login__panel">
+          <form class="sa-card" (submit)="entrar($event)">
+            <div class="sa-brand">
+              <div class="sa-brand__text">
+                <h1>Ingresa a StockAware</h1>
+                <p>Usa el mismo usuario y clave del ERP.</p>
+              </div>
+            </div>
+
+            <div class="sa-form">
+              <sa-field label="Usuario" name="user" icon="assets/visual/user.svg"
+                        autocomplete="username" enterkeyhint="next"
+                        [(value)]="user" [required]="true" />
+              <sa-field label="Clave" name="clave" type="password" icon="assets/visual/lock.svg"
+                        autocomplete="current-password" enterkeyhint="done"
+                        [(value)]="clave" [required]="true" />
+            </div>
+
+            @if (error()) { <p class="sa-login__error" role="alert">{{ error() }}</p> }
+            @else if (auth.motivoSalida()) { <p class="sa-login__error" role="alert">{{ auth.motivoSalida() }}</p> }
+
+            <ion-button class="sa-btn" expand="block" type="submit" [disabled]="cargando()"
+                        [attr.aria-label]="cargando() ? 'Ingresando' : null">
+              @if (cargando()) { <ion-spinner name="dots" aria-hidden="true"></ion-spinner> } @else { Entrar }
+            </ion-button>
+
+            <p class="sa-hint">
+              <img src="assets/visual/alert.svg" alt="" />
+              El usuario distingue mayúsculas, igual que el ERP.
+            </p>
+          </form>
         </div>
-
-        <form (ngSubmit)="entrar()">
-          <ion-list inset="true">
-            <ion-item>
-              <ion-input label="Usuario" labelPlacement="floating" name="user"
-                         [(ngModel)]="user" autocomplete="username" required></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-input label="Clave" labelPlacement="floating" type="password" name="clave"
-                         [(ngModel)]="clave" autocomplete="current-password" required></ion-input>
-            </ion-item>
-          </ion-list>
-
-          @if (error()) { <ion-note class="error">{{ error() }}</ion-note> }
-          @else if (auth.motivoSalida()) { <ion-note class="error">{{ auth.motivoSalida() }}</ion-note> }
-
-          <ion-button expand="block" type="submit" [disabled]="cargando()">
-            @if (cargando()) { <ion-spinner name="dots"></ion-spinner> } @else { Entrar }
-          </ion-button>
-        </form>
-
-        <div class="pie">El usuario distingue mayúsculas, igual que el ERP.</div>
       </div>
     </ion-content>
   `,
@@ -55,7 +69,8 @@ export class LoginPage {
   readonly error = signal('');
   readonly cargando = signal(false);
 
-  async entrar(): Promise<void> {
+  async entrar(event: Event): Promise<void> {
+    event.preventDefault();
     this.error.set('');
     this.auth.motivoSalida.set('');
     this.cargando.set(true);
