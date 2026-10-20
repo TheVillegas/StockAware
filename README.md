@@ -13,6 +13,19 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 - [Prototipo Figma EP1](https://www.figma.com/design/RIvAtOoqdvHUBkURaxOopG/StockAware---Prototipo-EP1?node-id=7-3&t=0dfW1TifAtPN0y98-1)
 - [Contribuir al proyecto](CONTRIBUTING.md)
 
+## Integrantes
+
+La asignación la definió el equipo. No incluye datos de contacto.
+
+| Integrante | Ámbito |
+| --- | --- |
+| Matias Villegas | DevSecOps y gestión del repositorio |
+| Matias Ignacio Romero Alvarez | Desarrollo fullstack |
+
+## Variables de entorno
+
+Los nombres y los valores ficticios de desarrollo están en `.env.example` y en la [guía de reproducibilidad](docs/ep1/reproducibility.md). `PG_PASSWORD` y `JWT_SECRET` son sensibles: no se documentan con un valor real ni se suben al repositorio. En GitHub Actions, `NODE_VERSION` y `PYTHON_VERSION` son variables no sensibles. La API todavía no publica un contrato OpenAPI.
+
 ## Evidencia visible de la EP1
 
 Estas capturas acompañan los enlaces. No reemplazan el run ni el prototipo.
