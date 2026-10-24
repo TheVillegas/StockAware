@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 
+import { InteligenciaModule } from '../inteligencia/inteligencia.module';
+import { ConsultaPreciosService } from './consulta/consulta.service';
+import { ConsultaRepositorio } from './consulta/consulta.repositorio';
+import { RecuperadorFuentes } from './fuentes/recuperador';
 import { PreciosRepositorio } from './precios.repositorio';
 
-/** Persistencia de precios externos. Sin controladores: los endpoints llegan en PR posteriores. */
+/** Precios externos: persistencia, lectura de fuentes y consulta por material. */
 @Module({
-  providers: [PreciosRepositorio],
+  imports: [InteligenciaModule],
+  providers: [PreciosRepositorio, ConsultaRepositorio, RecuperadorFuentes, ConsultaPreciosService],
   exports: [PreciosRepositorio],
 })
 export class PreciosModule {}
