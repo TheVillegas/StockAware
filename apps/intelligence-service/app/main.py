@@ -1,15 +1,12 @@
-import re
-import unicodedata
-
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from app.precios.router import router as precios_router
+from app.text import normalize_description
+
 SERVICE_NAME = "intelligence-service"
-STOPWORDS = frozenset(
-    {"de", "la", "el", "los", "las", "y", "o", "para", "con", "del", "al", "un", "una"}
-)
 
 
 class HealthResponse(BaseModel):
@@ -36,20 +33,6 @@ class NormalizeResponse(BaseModel):
     servicio: str
 
 
-def normalize_description(descripcion: str) -> tuple[list[str], str]:
-    decomposed = unicodedata.normalize("NFKD", descripcion)
-    without_marks = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
-    spaced = re.sub(r"[^0-9a-z]+", " ", without_marks.lower())
-    seen: set[str] = set()
-    tokens: list[str] = []
-    for token in spaced.split():
-        if len(token) < 2 or token in STOPWORDS or token in seen:
-            continue
-        seen.add(token)
-        tokens.append(token)
-    return tokens, " ".join(tokens)
-
-
 def handle_invalid_request(_request: Request, _exc: Exception) -> JSONResponse:
     return JSONResponse(status_code=422, content={"error": "invalid_request"})
 
@@ -61,6 +44,7 @@ def handle_internal_error(_request: Request, _exc: Exception) -> JSONResponse:
 app = FastAPI(title=SERVICE_NAME)
 app.add_exception_handler(RequestValidationError, handle_invalid_request)
 app.add_exception_handler(Exception, handle_internal_error)
+app.include_router(precios_router)
 
 
 @app.get("/health", response_model=HealthResponse)
