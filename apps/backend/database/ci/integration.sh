@@ -26,3 +26,7 @@ BEGIN
 END
 $$;
 SQL
+
+# Prueba de integracion de precios_externos: lee PGHOST/PGUSER/... del entorno.
+backend_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+(cd "$backend_root" && node node_modules/jest/bin/jest.js --runTestsByPath src/precios/precios.integracion.spec.ts)

@@ -24,3 +24,6 @@ psql --set ON_ERROR_STOP=1 \
 CREATE TABLE ci_migracion (id int PRIMARY KEY);
 INSERT INTO ci_migracion (id) VALUES (1);
 SQL
+
+# Migraciones de TypeORM (esquema precios_externos) sobre la replica ya creada.
+(cd "$backend_root" && npm run migracion:ejecutar)

@@ -6,6 +6,9 @@
 #   03_vistas.sql      las vistas traducidas de MySQL
 #   04_secuencias.sql  sincroniza los contadores de identidad con los datos
 #
+# El esquema precios_externos NO sale de estos scripts: el backend aplica sus migraciones
+# de TypeORM al arrancar (migrationsRun), tambien sobre un volumen que ya tiene datos.
+#
 # Ese orden importa: los datos entran con sus id originales, lo que NO avanza
 # las secuencias. Sin el paso 04, el primer INSERT nuevo pide id=1 y choca.
 #
