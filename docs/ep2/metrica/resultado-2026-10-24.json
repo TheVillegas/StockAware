@@ -1,0 +1,157 @@
+{
+  "fecha": "2026-10-24",
+  "materiales_en_conjunto": 32,
+  "no_cotizables": 0,
+  "errores_preparar": 0,
+  "motivos": {},
+  "duracion_s": 69,
+  "por_fuente": {
+    "dartel": {
+      "materiales_consultados": 32,
+      "sin_url": 0,
+      "errores_lectura": {
+        "timeout": 0,
+        "http_error": 0
+      },
+      "lecturas_parciales": 0,
+      "errores_procesamiento": 0,
+      "invalid_content": 0,
+      "sin_resultados": 21,
+      "devueltos": 35,
+      "validos": 35,
+      "invalidos": {
+        "esquema": 0,
+        "nombre_vacio": 0,
+        "url_fuera_de_fuente": 0,
+        "oferta_mayor_normal": 0
+      },
+      "descartados_fastapi": 41,
+      "materiales_con_precio": 11,
+      "tasa_validos": 1
+    },
+    "dimeiggs": {
+      "materiales_consultados": 32,
+      "sin_url": 0,
+      "errores_lectura": {
+        "timeout": 0,
+        "http_error": 0
+      },
+      "lecturas_parciales": 0,
+      "errores_procesamiento": 0,
+      "invalid_content": 0,
+      "sin_resultados": 20,
+      "devueltos": 47,
+      "validos": 47,
+      "invalidos": {
+        "esquema": 0,
+        "nombre_vacio": 0,
+        "url_fuera_de_fuente": 0,
+        "oferta_mayor_normal": 0
+      },
+      "descartados_fastapi": 103,
+      "materiales_con_precio": 12,
+      "tasa_validos": 1
+    },
+    "solotodo": {
+      "materiales_consultados": 32,
+      "sin_url": 0,
+      "errores_lectura": {
+        "timeout": 0,
+        "http_error": 0
+      },
+      "lecturas_parciales": 0,
+      "errores_procesamiento": 0,
+      "invalid_content": 0,
+      "sin_resultados": 28,
+      "devueltos": 17,
+      "validos": 17,
+      "invalidos": {
+        "esquema": 0,
+        "nombre_vacio": 0,
+        "url_fuera_de_fuente": 0,
+        "oferta_mayor_normal": 0
+      },
+      "descartados_fastapi": 90,
+      "materiales_con_precio": 4,
+      "tasa_validos": 1
+    },
+    "rhona": {
+      "materiales_consultados": 7,
+      "sin_url": 25,
+      "errores_lectura": {
+        "timeout": 0,
+        "http_error": 0
+      },
+      "lecturas_parciales": 0,
+      "errores_procesamiento": 0,
+      "invalid_content": 0,
+      "sin_resultados": 0,
+      "devueltos": 20,
+      "validos": 20,
+      "invalidos": {
+        "esquema": 0,
+        "nombre_vacio": 0,
+        "url_fuera_de_fuente": 0,
+        "oferta_mayor_normal": 0
+      },
+      "descartados_fastapi": 155,
+      "materiales_con_precio": 7,
+      "tasa_validos": 1
+    },
+    "sodimac": {
+      "materiales_consultados": 10,
+      "sin_url": 22,
+      "errores_lectura": {
+        "timeout": 0,
+        "http_error": 0
+      },
+      "lecturas_parciales": 0,
+      "errores_procesamiento": 0,
+      "invalid_content": 0,
+      "sin_resultados": 0,
+      "devueltos": 47,
+      "validos": 47,
+      "invalidos": {
+        "esquema": 0,
+        "nombre_vacio": 0,
+        "url_fuera_de_fuente": 0,
+        "oferta_mayor_normal": 0
+      },
+      "descartados_fastapi": 756,
+      "materiales_con_precio": 10,
+      "tasa_validos": 1
+    }
+  },
+  "cobertura": {
+    "materiales_evaluados": 32,
+    "con_precio": 26,
+    "porcentaje": 81.3,
+    "por_rubro": {
+      "Electricidad y herramientas": {
+        "materiales": 8,
+        "con_precio": 8,
+        "porcentaje": 100
+      },
+      "Herramientas": {
+        "materiales": 5,
+        "con_precio": 5,
+        "porcentaje": 100
+      },
+      "Oficina y papelería": {
+        "materiales": 6,
+        "con_precio": 5,
+        "porcentaje": 83.3
+      },
+      "Tecnología": {
+        "materiales": 6,
+        "con_precio": 4,
+        "porcentaje": 66.7
+      },
+      "EPP": {
+        "materiales": 7,
+        "con_precio": 4,
+        "porcentaje": 57.1
+      }
+    }
+  }
+}
