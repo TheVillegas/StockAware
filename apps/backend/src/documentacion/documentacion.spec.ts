@@ -47,6 +47,7 @@ const controladores = [
   ['bodega/bodega.controller.ts', 'BodegaController'],
   ['distribucion/distribucion.controller.ts', 'DistribucionController'],
   ['inteligencia/inteligencia.controller.ts', 'InteligenciaController'],
+  ['precios/precios.controller.ts', 'PreciosController'],
 ].map(([archivo, nombre]) => cargaTs(path.join(src, archivo))[nombre]);
 
 // Cada controlador recibe servicios vacios: el contrato no ejecuta la logica.
@@ -82,7 +83,7 @@ describe('contrato OpenAPI', () => {
       '/api/auth/login', '/api/auth/sesion', '/api/auth/salir', '/api/health', '/api/menu',
       '/api/balance/resumen', '/api/mantenedores/{codigo}/{id}', '/api/compras/oc',
       '/api/compras/hes', '/api/bodega/stock', '/api/bodega/ajuste', '/api/distribucion/{id}',
-      '/api/inteligencia/eco',
+      '/api/inteligencia/eco', '/api/precios/{codMaterial}',
     ]) {
       expect(rutas).toContain(ruta);
     }
@@ -95,6 +96,14 @@ describe('contrato OpenAPI', () => {
     expect(doc.paths['/api/auth/login'].post.security).toBeUndefined();
     expect(doc.paths['/api/auth/sesion'].get.security).toEqual([{ bearer: [] }]);
     expect(doc.paths['/api/bodega/stock'].get.security).toEqual([{ bearer: [] }]);
+  });
+
+  it('documenta la consulta de precios con bearer, sus errores y su respuesta', () => {
+    const op = doc.paths['/api/precios/{codMaterial}'].get;
+    expect(op.tags).toEqual(['precios']);
+    expect(op.security).toEqual([{ bearer: [] }]);
+    expect(Object.keys(op.responses)).toEqual(expect.arrayContaining(['200', '404', '502']));
+    expect(op.responses['200'].content['application/json'].schema.$ref).toBe('#/components/schemas/RespuestaPreciosDoc');
   });
 
   it('muestra los cuerpos de los DTO como esquemas', () => {
