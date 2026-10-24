@@ -115,11 +115,16 @@ export class CambiosMantenedorDoc {
 
 export class PublicacionPrecioDoc {
   @ApiProperty({ example: 12 }) publicacion_id: number;
+  @ApiProperty({ example: 7, description: 'Id para PATCH /api/precios/vinculos/{id}' }) vinculo_id: number;
   @ApiProperty({ example: 'Amarra plastica 20 cm x 100' }) nombre: string;
+  @ApiProperty({ example: 'Marca de ejemplo', nullable: true }) marca: string | null;
+  @ApiProperty({ example: null, nullable: true }) ean: string | null;
   @ApiProperty({ example: 'https://www.dartel.cl/amarra-plastica/p' }) url: string;
   @ApiProperty({ example: 1990, description: 'CLP entero' }) precio_normal: number;
   @ApiPropertyOptional({ example: 1790, nullable: true }) precio_oferta?: number | null;
   @ApiProperty({ example: true }) disponible: boolean;
+  @ApiProperty({ example: true, nullable: true, description: 'null si no esta verificado para la fuente' }) iva_incluido: boolean | null;
+  @ApiProperty({ description: 'La lectura de esta publicacion quedo incompleta' }) parcial: boolean;
   @ApiProperty({ example: 0.8 }) puntaje: number;
   @ApiProperty({ enum: ['propuesto', 'confirmado'], description: 'propuesto = vinculo sin confirmar por una persona' })
   vinculo: string;
@@ -144,4 +149,26 @@ export class RespuestaPreciosDoc {
   @ApiPropertyOptional({ example: 'personalizado', description: 'Solo con cotizable: false' }) motivo?: string;
   @ApiPropertyOptional() desactualizado?: boolean;
   @ApiProperty({ type: [FuentePrecioDoc] }) fuentes: FuentePrecioDoc[];
+}
+
+export class VinculoRespuestaDoc {
+  @ApiProperty({ example: 7 }) id: number;
+  @ApiProperty({ example: 'MC_001' }) cod_material: string;
+  @ApiProperty({ example: 12 }) publicacion_id: number;
+  @ApiProperty({ enum: ['confirmado', 'rechazado'] }) estado: string;
+  @ApiProperty({ example: 'usuario' }) definido_por: string;
+}
+
+export class FuenteUrlRespuestaDoc {
+  @ApiProperty({ example: 'MC_001' }) cod_material: string;
+  @ApiProperty({ enum: ['rhona', 'sodimac'] }) fuente: string;
+  @ApiProperty({ example: 'https://rhona.cl/catalogo/4/materiales-electricos/35/herramientas.html' }) url: string;
+  @ApiProperty({ nullable: true, description: 'URL que tenia antes; null si no habia' }) url_anterior: string | null;
+}
+
+export class CotizableRespuestaDoc {
+  @ApiProperty({ example: 'MC_001' }) cod_material: string;
+  @ApiProperty() cotizable: boolean;
+  @ApiProperty({ nullable: true, example: 'servicio' }) motivo: string | null;
+  @ApiProperty({ example: 'usuario' }) definido_por: string;
 }

@@ -86,6 +86,23 @@ describe('ConsultaPreciosService', () => {
     expect(inteligencia.preparar).not.toHaveBeenCalled();
   });
 
+  it('expone los campos previos y los nuevos de cada publicacion para el panel', async () => {
+    const extra = { vinculo_id: 7, marca: 'Marca', ean: '7800000000001', iva_incluido: true, parcial: false };
+    const { svc } = armar({ filas: JSON_.map((f) => fila(f, extra)) });
+    const [p] = fuenteDe(await svc.consulta('M1'), 'dartel').publicaciones;
+    expect(p).toEqual({
+      publicacion_id: 1, nombre: 'Amarra dartel', url: 'https://dartel.cl/p', precio_normal: 1990, precio_oferta: null, disponible: true,
+      puntaje: 0.8, vinculo: 'propuesto', obtenido_en: dias(1), verificado_en: dias(1), ...extra,
+    });
+  });
+
+  it('una URL nueva de Rhona se lee aunque las otras fuentes sigan vigentes', async () => {
+    const marca = { definido_por: 'regla', cotizable: true, url_rhona: 'https://rhona.cl/catalogo/1/x.html' };
+    const { svc, recuperador } = armar({ filas: JSON_.map((f) => fila(f)), marca });
+    await svc.consulta('M1');
+    expect(recuperador.lee.mock.calls.map((c) => c[0])).toEqual(['rhona']);
+  });
+
   it('vencido: consulta, procesa, persiste con IVA y proponer vinculo, y responde ok', async () => {
     const { svc, precios, recuperador, inteligencia } = armar({ filas: JSON_.map((f) => fila(f, { verificado_en: dias(8) })) });
     const r = await svc.consulta('M1');

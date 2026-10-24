@@ -84,6 +84,7 @@ describe('contrato OpenAPI', () => {
       '/api/balance/resumen', '/api/mantenedores/{codigo}/{id}', '/api/compras/oc',
       '/api/compras/hes', '/api/bodega/stock', '/api/bodega/ajuste', '/api/distribucion/{id}',
       '/api/inteligencia/eco', '/api/precios/{codMaterial}',
+      '/api/precios/vinculos/{id}', '/api/precios/{codMaterial}/fuente-url', '/api/precios/{codMaterial}/cotizable',
     ]) {
       expect(rutas).toContain(ruta);
     }
@@ -104,6 +105,17 @@ describe('contrato OpenAPI', () => {
     expect(op.security).toEqual([{ bearer: [] }]);
     expect(Object.keys(op.responses)).toEqual(expect.arrayContaining(['200', '404', '502']));
     expect(op.responses['200'].content['application/json'].schema.$ref).toBe('#/components/schemas/RespuestaPreciosDoc');
+  });
+
+  it('documenta las escrituras de precios con sus cuerpos y errores', () => {
+    const p = doc.paths;
+    const vinculo = p['/api/precios/vinculos/{id}'].patch;
+    expect(vinculo.security).toEqual([{ bearer: [] }]);
+    expect(vinculo.requestBody.content['application/json'].schema.$ref).toBe('#/components/schemas/CambiaVinculoDto');
+    expect(Object.keys(vinculo.responses)).toEqual(expect.arrayContaining(['200', '400', '404']));
+    expect(Object.keys(p['/api/precios/{codMaterial}/fuente-url'].put.responses)).toEqual(expect.arrayContaining(['200', '404', '422']));
+    expect(p['/api/precios/{codMaterial}/cotizable'].put.requestBody.content['application/json'].schema.$ref).toBe('#/components/schemas/CotizableDto');
+    expect(doc.components.schemas.PublicacionPrecioDoc.required).toEqual(expect.arrayContaining(['vinculo_id', 'marca', 'ean', 'iva_incluido', 'parcial']));
   });
 
   it('muestra los cuerpos de los DTO como esquemas', () => {

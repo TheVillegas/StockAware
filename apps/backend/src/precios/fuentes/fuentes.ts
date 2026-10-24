@@ -66,3 +66,17 @@ export function urlPagina(url: string, pagina: number): string {
   u.searchParams.set('page', String(pagina));
   return u.toString();
 }
+
+/**
+ * EP2 solo lee listados de categoria (el parser de FastAPI no interpreta fichas de producto).
+ * Se acepta por lista blanca de ruta: Rhona `/catalogo/...`, Sodimac `/sodimac-cl/category|lista/...`.
+ */
+const RUTA_LISTADO: Partial<Record<Fuente, RegExp>> = {
+  rhona: /^\/catalogo\//,
+  sodimac: /^\/sodimac-cl\/(category|lista)\//,
+};
+
+export function urlEsListado(fuente: Fuente, url: string): boolean {
+  const ruta = RUTA_LISTADO[fuente];
+  return !!ruta && ruta.test(new URL(url).pathname);
+}

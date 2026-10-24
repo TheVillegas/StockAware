@@ -4,15 +4,16 @@ import { AuthModule } from '../auth/auth.module';
 import { InteligenciaModule } from '../inteligencia/inteligencia.module';
 import { ConsultaPreciosService } from './consulta/consulta.service';
 import { ConsultaRepositorio } from './consulta/consulta.repositorio';
+import { EscrituraPreciosService } from './escritura/escritura.service';
 import { RecuperadorFuentes } from './fuentes/recuperador';
 import { PreciosController } from './precios.controller';
 import { PreciosRepositorio } from './precios.repositorio';
 
-/** Precios externos: persistencia, lectura de fuentes y consulta por material. */
+/** Precios externos: persistencia, lectura de fuentes y consulta por material y escrituras de una persona. */
 @Module({
   imports: [AuthModule, InteligenciaModule],
   controllers: [PreciosController],
-  providers: [PreciosRepositorio, ConsultaRepositorio, RecuperadorFuentes, ConsultaPreciosService],
+  providers: [PreciosRepositorio, ConsultaRepositorio, RecuperadorFuentes, ConsultaPreciosService, EscrituraPreciosService],
   exports: [PreciosRepositorio],
 })
 export class PreciosModule {}

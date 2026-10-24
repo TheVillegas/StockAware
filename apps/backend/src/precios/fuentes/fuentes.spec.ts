@@ -3,7 +3,7 @@ const path = require('path');
 const { Logger } = require('@nestjs/common');
 const { cargaTs } = require('./carga-ts');
 
-const { urlDeFuente, urlInicial, urlPagina, USER_AGENT } = cargaTs(path.join(__dirname, 'fuentes.ts'));
+const { urlDeFuente, urlEsListado, urlInicial, urlPagina, USER_AGENT } = cargaTs(path.join(__dirname, 'fuentes.ts'));
 const { CacheRobots, parseaRobots, permiteRuta } = cargaTs(path.join(__dirname, 'robots.ts'));
 const { RecuperadorFuentes } = cargaTs(path.join(__dirname, 'recuperador.ts'));
 
@@ -45,6 +45,15 @@ describe('URL de las fuentes', () => {
     expect(urlInicial('sodimac', 'cable', 'https://www.rhona.cl/x')).toBeNull();
     expect(urlInicial('sodimac', 'cable', 'http://www.sodimac.cl/x')).toBeNull();
     expect(urlInicial('sodimac', 'cable', 'https://www.sodimac.cl/sodimac-cl/category/scat1/x')).toBe('https://www.sodimac.cl/sodimac-cl/category/scat1/x');
+  });
+
+  it('solo acepta listados de categoria, no productos ni buscadores', () => {
+    expect(urlEsListado('rhona', 'https://rhona.cl/catalogo/4/x/35/herramientas.html')).toBe(true);
+    expect(urlEsListado('rhona', 'https://rhona.cl/producto/10408/dobla-conduit-20mm.html')).toBe(false);
+    expect(urlEsListado('sodimac', 'https://www.sodimac.cl/sodimac-cl/category/scat1/x')).toBe(true);
+    expect(urlEsListado('sodimac', 'https://www.sodimac.cl/sodimac-cl/lista/C1/x')).toBe(true);
+    expect(urlEsListado('sodimac', 'https://www.sodimac.cl/sodimac-cl/articulo/1/x')).toBe(false);
+    expect(urlEsListado('dartel', 'https://www.dartel.cl/x')).toBe(false);
   });
 
   it('valida el dominio de la url: subdominio si, parecido no, SoloTodo cualquier https', () => {
