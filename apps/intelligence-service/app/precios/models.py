@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-Source = Literal["dartel", "dimeiggs", "solotodo"]
+Source = Literal["dartel", "dimeiggs", "solotodo", "rhona", "sodimac"]
 SourceStatus = Literal["ok", "sin_resultados", "invalid_content"]
 
 
@@ -28,17 +28,17 @@ class Material(BaseModel):
 
 
 class SourceContent(BaseModel):
-    """Raw JSON body NestJS fetched for one source."""
+    """Raw content NestJS fetched for one source (up to 3 pages for Sodimac)."""
 
     fuente: Source
-    tipo: Literal["json"]
-    contenido: list[str] = Field(min_length=1, max_length=1)
+    tipo: Literal["json", "html"]
+    contenido: list[str] = Field(min_length=1, max_length=3)
 
 
 class ProcessRequest(BaseModel):
     material: Material
     referencia: AwareDatetime = Field(description="Reference instant for freshness")
-    fuentes: list[SourceContent] = Field(min_length=1, max_length=3)
+    fuentes: list[SourceContent] = Field(min_length=1, max_length=5)
 
     @model_validator(mode="after")
     def sources_are_unique(self) -> "ProcessRequest":
