@@ -7,5 +7,6 @@ import { IntelligenceService } from './inteligencia.service';
   imports: [AuthModule],
   controllers: [InteligenciaController],
   providers: [IntelligenceService],
+  exports: [IntelligenceService],
 })
 export class InteligenciaModule {}
