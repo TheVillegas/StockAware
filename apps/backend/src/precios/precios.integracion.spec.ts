@@ -36,6 +36,7 @@ suite('precios_externos (PostgreSQL real, fixture ficticio)', () => {
     await ds.query(`DELETE FROM precios_externos.vinculo_material WHERE cod_material LIKE '${PREFIJO}%'`);
     await ds.query(`DELETE FROM precios_externos.observacion_precio WHERE publicacion_id IN (SELECT id FROM precios_externos.publicacion WHERE id_externo LIKE '${PREFIJO}%')`);
     await ds.query(`DELETE FROM precios_externos.publicacion WHERE id_externo LIKE '${PREFIJO}%'`);
+    await ds.query(`DELETE FROM precios_externos.material_cotizable WHERE cod_material LIKE '${PREFIJO}%'`);
     await ds.query(`DELETE FROM precios_externos.falla_consulta WHERE url LIKE '%ficticio%'`);
   };
   // Tablas base de public que puede haber: las de 01_schema.sql, la de control de
@@ -99,6 +100,58 @@ suite('precios_externos (PostgreSQL real, fixture ficticio)', () => {
     await expect(repo.guardaObservacion(otra, { ...obs, precio_normal: 0 })).rejects.toThrow(/precio_normal/);
     await ds.query(`UPDATE precios_externos.vinculo_material SET estado = 'rechazado' WHERE cod_material = $1`, [`${PREFIJO}mat`]);
     expect(await repo.ultimasObservaciones(`${PREFIJO}mat`)).toHaveLength(0);
+  });
+
+  it('ultimasObservaciones devuelve el vinculo, la marca, el ean, el IVA y si fue parcial', async () => {
+    const p = { ...pub, id_externo: `${PREFIJO}campos`, ean: '7800000000001' };
+    const { publicacionId } = await repo.guardaObservacion(p, { ...obs, parcial: true });
+    await repo.proponeVinculo(`${PREFIJO}campos`, publicacionId, 0.7);
+    const [fila] = await repo.ultimasObservaciones(`${PREFIJO}campos`);
+    const [{ id }] = await ds.query(`SELECT id FROM precios_externos.vinculo_material WHERE cod_material = $1`, [`${PREFIJO}campos`]);
+    expect(fila).toMatchObject({ vinculo_id: id, publicacion_id: publicacionId, marca: 'Marca Ficticia', ean: '7800000000001', iva_incluido: true, parcial: true, estado: 'propuesto', precio_normal: 1990 });
+  });
+
+  it('confirma y rechaza un vinculo de forma idempotente; un rechazado no se vuelve a proponer', async () => {
+    const cod = `${PREFIJO}vinc`;
+    const { publicacionId } = await repo.guardaObservacion({ ...pub, id_externo: `${PREFIJO}vinc` }, obs);
+    await repo.proponeVinculo(cod, publicacionId, 0.6);
+    const [{ id }] = await ds.query(`SELECT id FROM precios_externos.vinculo_material WHERE cod_material = $1`, [cod]);
+    expect(await repo.cambiaEstadoVinculo(id, 'confirmado')).toMatchObject({ id, cod_material: cod, estado: 'confirmado', definido_por: 'usuario' });
+    expect(await repo.cambiaEstadoVinculo(id, 'confirmado')).toMatchObject({ estado: 'confirmado' });
+    expect(await repo.ultimasObservaciones(cod)).toHaveLength(1);
+    expect(await repo.cambiaEstadoVinculo(id, 'rechazado')).toMatchObject({ estado: 'rechazado' });
+    await repo.proponeVinculo(cod, publicacionId, 0.9); // la proxima consulta lo vuelve a proponer
+    const [v] = await ds.query(`SELECT estado, puntaje::float AS puntaje FROM precios_externos.vinculo_material WHERE id = $1`, [id]);
+    expect(v).toEqual({ estado: 'rechazado', puntaje: 0.6 });
+    expect(await repo.ultimasObservaciones(cod)).toHaveLength(0);
+    expect(await repo.cambiaEstadoVinculo(2147483647, 'confirmado')).toBeNull();
+  });
+
+  it('guarda la URL de la fuente y la corrige sin tocar la marca; una URL nueva desactiva solo lo exclusivo', async () => {
+    const cod = `${PREFIJO}url`;
+    const propia = await repo.guardaObservacion({ ...pub, fuente: 'rhona', id_externo: `${PREFIJO}r1`, url: 'https://rhona.cl/ficticio-1' }, obs);
+    const comun = await repo.guardaObservacion({ ...pub, fuente: 'rhona', id_externo: `${PREFIJO}r2`, url: 'https://rhona.cl/ficticio-2' }, obs);
+    const sodi = await repo.guardaObservacion({ ...pub, fuente: 'sodimac', id_externo: `${PREFIJO}s1`, url: 'https://www.sodimac.cl/ficticio-1' }, obs);
+    for (const p of [propia, comun, sodi]) await repo.proponeVinculo(cod, p.publicacionId, 0.5);
+    await repo.proponeVinculo(`${PREFIJO}otro`, comun.publicacionId, 0.5);
+
+    expect(await repo.guardaUrlFuente(cod, 'rhona', 'https://rhona.cl/catalogo/1/a.html')).toEqual({ url_anterior: null });
+    const [creada] = await ds.query(`SELECT * FROM precios_externos.material_cotizable WHERE cod_material = $1`, [cod]);
+    expect(creada).toMatchObject({ cotizable: true, definido_por: 'regla', url_rhona: 'https://rhona.cl/catalogo/1/a.html', url_sodimac: null });
+    expect(await repo.ultimasObservaciones(cod)).toHaveLength(3); // la primera URL no invalida nada
+
+    expect(await repo.guardaUrlFuente(cod, 'rhona', 'https://rhona.cl/catalogo/1/a.html')).toEqual({ url_anterior: 'https://rhona.cl/catalogo/1/a.html' });
+    expect(await repo.ultimasObservaciones(cod)).toHaveLength(3); // la misma URL tampoco
+
+    expect(await repo.guardaUrlFuente(cod, 'rhona', 'https://rhona.cl/catalogo/2/b.html')).toEqual({ url_anterior: 'https://rhona.cl/catalogo/1/a.html' });
+    const quedan = (await repo.ultimasObservaciones(cod)).map((f) => f.publicacion_id).sort();
+    expect(quedan).toEqual([comun.publicacionId, sodi.publicacionId].sort()); // r1 inactiva; r2 es de otro material; Sodimac intacta
+
+    const marca = await repo.defineCotizable(cod, false, 'servicio');
+    expect(marca).toEqual({ cod_material: cod, cotizable: false, motivo: 'servicio', definido_por: 'usuario' });
+    const [fila] = await ds.query(`SELECT url_rhona FROM precios_externos.material_cotizable WHERE cod_material = $1`, [cod]);
+    expect(fila.url_rhona).toBe('https://rhona.cl/catalogo/2/b.html');
+    expect(await repo.defineCotizable(`${PREFIJO}nuevo`, true, null)).toMatchObject({ cotizable: true, motivo: null, definido_por: 'usuario' });
   });
 
   it('deriva la pausa de 30 minutos de la ultima falla', async () => {

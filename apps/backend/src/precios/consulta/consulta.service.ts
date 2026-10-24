@@ -20,9 +20,9 @@ const IVA_INCLUIDO: Partial<Record<Fuente, boolean>> = { dartel: true, dimeiggs:
 export type MotivoFalla = 'timeout' | 'http_error' | 'invalid_content' | 'cooldown';
 
 interface Fila {
-  publicacion_id: number; fuente: Fuente; nombre: string; url: string; estado: string; puntaje: number;
-  precio_normal: number; precio_oferta: number | null; disponible: boolean;
-  obtenido_en: Date; verificado_en: Date; parcial?: boolean;
+  publicacion_id: number; vinculo_id: number; fuente: Fuente; nombre: string; marca: string | null; ean: string | null;
+  url: string; estado: string; puntaje: number; precio_normal: number; precio_oferta: number | null; disponible: boolean;
+  iva_incluido: boolean | null; obtenido_en: Date; verificado_en: Date; parcial?: boolean;
 }
 
 export interface FuenteRespuesta {
@@ -32,7 +32,7 @@ export interface FuenteRespuesta {
   parcial?: boolean;
   desactualizado?: boolean;
   obtenido_en?: Date;
-  publicaciones: Array<Omit<Fila, 'fuente' | 'parcial' | 'estado'> & { vinculo: string }>;
+  publicaciones: Array<Omit<Fila, 'fuente' | 'estado'> & { vinculo: string }>;
 }
 
 export interface RespuestaPrecios {
@@ -189,7 +189,7 @@ export class ConsultaPreciosService {
       return { fuente, estado: this.vigente(fuente, cod, url, filas, ahora) ? 'sin_resultados' : 'sin_datos', publicaciones: [] };
     }
     const publicaciones = propias
-      .map(({ fuente: _f, parcial: _p, estado, ...resto }) => ({ ...resto, vinculo: estado }))
+      .map(({ fuente: _f, estado, ...resto }) => ({ ...resto, vinculo: estado }))
       .sort((a, b) => b.puntaje - a.puntaje);
     const obtenido_en = new Date(Math.max(...propias.map((r) => new Date(r.obtenido_en).getTime())));
     const parcial = act.parciales.has(fuente) || propias.some((r) => r.parcial) || undefined;

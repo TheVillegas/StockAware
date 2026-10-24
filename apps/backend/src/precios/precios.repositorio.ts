@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 
-import { CausaFalla, FallaConsulta, Fuente, ObservacionPrecio, Publicacion, VinculoMaterial } from './precios.entity';
+import { CausaFalla, EstadoVinculo, FallaConsulta, Fuente, MaterialCotizable, ObservacionPrecio, Publicacion, VinculoMaterial } from './precios.entity';
 
 /** Pausa de una fuente tras una falla (ADR 0002, "Indisponibilidad"). */
 export const PAUSA_FALLA_MS = 30 * 60 * 1000;
@@ -49,8 +49,9 @@ export class PreciosRepositorio {
   /** Ultima observacion de cada publicacion activa vinculada al material, sin vinculos rechazados. */
   ultimasObservaciones(codMaterial: string): Promise<Array<Record<string, unknown>>> {
     return this.ds.query(
-      `SELECT DISTINCT ON (p.id) p.id AS publicacion_id, p.fuente, p.nombre, p.url, v.estado, v.puntaje,
-              o.precio_normal, o.precio_oferta, o.disponible, o.obtenido_en, o.verificado_en
+      `SELECT DISTINCT ON (p.id) p.id AS publicacion_id, v.id AS vinculo_id, p.fuente, p.nombre, p.marca, p.ean, p.url,
+              v.estado, v.puntaje, o.precio_normal, o.precio_oferta, o.disponible, o.iva_incluido, o.parcial,
+              o.obtenido_en, o.verificado_en
          FROM precios_externos.vinculo_material v
          JOIN precios_externos.publicacion p ON p.id = v.publicacion_id AND p.activa
          JOIN precios_externos.observacion_precio o ON o.publicacion_id = p.id
@@ -58,6 +59,58 @@ export class PreciosRepositorio {
         ORDER BY p.id, o.obtenido_en DESC, o.id DESC`,
       [codMaterial],
     );
+  }
+
+  /**
+   * Una persona confirma o rechaza el vinculo. Es idempotente; `proponeVinculo` no pisa un
+   * rechazo porque ignora el conflicto, asi que un vinculo rechazado no se vuelve a proponer.
+   */
+  async cambiaEstadoVinculo(id: number, estado: Exclude<EstadoVinculo, 'propuesto'>) {
+    const [filas] = await this.ds.query(
+      `UPDATE precios_externos.vinculo_material SET estado = $2, definido_por = 'usuario', definido_en = now()
+        WHERE id = $1 RETURNING id, cod_material, publicacion_id, estado, definido_por`,
+      [id, estado],
+    );
+    return (filas[0] as Pick<VinculoMaterial, 'id' | 'cod_material' | 'publicacion_id' | 'estado' | 'definido_por'>) ?? null;
+  }
+
+  /**
+   * Asocia la URL de la fuente al material (la fila se crea `cotizable` por regla si no existia).
+   * Si la URL cambia, las publicaciones de esa fuente que son solo de este material pasan a
+   * inactivas: sin filas vigentes, la proxima consulta vuelve a leer la fuente.
+   */
+  guardaUrlFuente(codMaterial: string, fuente: 'rhona' | 'sodimac', url: string): Promise<{ url_anterior: string | null }> {
+    const col = `url_${fuente}`;
+    return this.ds.transaction(async (m) => {
+      const previa = await m.findOne(MaterialCotizable, { where: { cod_material: codMaterial }, lock: { mode: 'pessimistic_write' } });
+      const anterior = (previa?.[col as 'url_rhona'] as string | null | undefined) ?? null;
+      await m.query(
+        `INSERT INTO precios_externos.material_cotizable (cod_material, cotizable, definido_por, ${col}) VALUES ($1, true, 'regla', $2)
+          ON CONFLICT (cod_material) DO UPDATE SET ${col} = EXCLUDED.${col}`,
+        [codMaterial, url],
+      );
+      if (anterior && anterior !== url) {
+        await m.query(
+          `UPDATE precios_externos.publicacion p SET activa = false
+            WHERE p.fuente = $1 AND p.activa
+              AND EXISTS (SELECT 1 FROM precios_externos.vinculo_material v WHERE v.publicacion_id = p.id AND v.cod_material = $2)
+              AND NOT EXISTS (SELECT 1 FROM precios_externos.vinculo_material v WHERE v.publicacion_id = p.id AND v.cod_material <> $2)`,
+          [fuente, codMaterial],
+        );
+      }
+      return { url_anterior: anterior };
+    });
+  }
+
+  /** Corrige la marca; queda `definido_por: usuario` y conserva las URL asociadas. */
+  async defineCotizable(codMaterial: string, cotizable: boolean, motivo: string | null) {
+    const [fila] = await this.ds.query(
+      `INSERT INTO precios_externos.material_cotizable (cod_material, cotizable, motivo, definido_por) VALUES ($1, $2, $3, 'usuario')
+        ON CONFLICT (cod_material) DO UPDATE SET cotizable = EXCLUDED.cotizable, motivo = EXCLUDED.motivo, definido_por = 'usuario'
+        RETURNING cod_material, cotizable, motivo, definido_por`,
+      [codMaterial, cotizable, motivo],
+    );
+    return fila as Pick<MaterialCotizable, 'cod_material' | 'cotizable' | 'motivo' | 'definido_por'>;
   }
 
   registraFalla(fuente: Fuente, url: string, causa: CausaFalla, ocurridaEn = new Date()) {
