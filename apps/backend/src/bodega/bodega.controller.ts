@@ -1,9 +1,13 @@
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { AjusteDoc, CargarHesDoc, GrDoc } from '../documentacion/esquemas';
 import {
   Body, Controller, Delete, Get, Ip, Param, ParseIntPipe, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { AjusteDto, BodegaService, CargarHesDto, GrDto } from './bodega.service';
 import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
+@ApiTags('bodega')
+@ApiBearerAuth('bearer')
 @Controller('bodega')
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class BodegaController {
@@ -68,18 +72,21 @@ export class BodegaController {
   }
 
   @Post('cargar-hes')
+  @ApiBody({ type: CargarHesDoc })
   @Requiere('ING_MATERIAL')
   cargar(@Body() dto: CargarHesDto, @Req() req: any, @Ip() ip: string) {
     return this.svc.cargarDesdeHes(dto, this.ctx(req, ip));
   }
 
   @Post('gr')
+  @ApiBody({ type: GrDoc })
   @Requiere('ENTREGA_MAT')
   gr(@Body() dto: GrDto, @Req() req: any, @Ip() ip: string) {
     return this.svc.emitirGr(dto, this.ctx(req, ip));
   }
 
   @Post('ajuste')
+  @ApiBody({ type: AjusteDoc })
   // AJUSTE_STK_MAT no existe en acceso_funciones: es un caso del despachador
   // que se abre desde la pantalla de stock, asi que hereda su permiso.
   @Requiere('MATERIAL_X_BODEGA')
