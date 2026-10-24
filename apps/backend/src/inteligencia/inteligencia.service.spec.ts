@@ -1,30 +1,11 @@
 // @ts-nocheck — file is JS-shaped so Jest's default babel-jest can parse it.
-const fs = require('fs');
 const path = require('path');
-const ts = require('typescript');
 const { HttpException } = require('@nestjs/common');
+const { cargaTs } = require('../precios/fuentes/carga-ts');
 
-// Jest 29 default-transforms *.ts with babel-jest, which cannot strip types.
-// Load the service through TypeScript's transpileModule instead.
-function compileTs(filename) {
-  return ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      experimentalDecorators: true,
-      esModuleInterop: true,
-      target: ts.ScriptTarget.ES2023,
-    },
-    fileName: filename,
-  }).outputText;
-}
-
-// Evaluate in this Jest realm so global.fetch and @nestjs/common match the spec.
-const servicePath = path.join(__dirname, 'inteligencia.service.ts');
-const compiled = compileTs(servicePath);
-const loaded = { exports: {} };
-const run = new Function('exports', 'require', 'module', '__filename', '__dirname', compiled);
-run(loaded.exports, require, loaded, servicePath, path.dirname(servicePath));
-const { IntelligenceService } = loaded.exports;
+// Jest 29 default-transforms *.ts with babel-jest, which cannot strip types: el servicio
+// y sus imports relativos se cargan transpilados con TypeScript.
+const { IntelligenceService } = cargaTs(path.join(__dirname, 'inteligencia.service.ts'));
 
 function configCon(url) {
   return { get: (clave) => (clave === 'INTELLIGENCE_SERVICE_URL' ? url : undefined) };
