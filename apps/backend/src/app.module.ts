@@ -13,7 +13,8 @@ import { MantenedoresModule } from './mantenedores/mantenedores.module';
 import { MenuModule } from './menu/menu.module';
 import { InteligenciaModule } from './inteligencia/inteligencia.module';
 import { SaludController } from './salud/salud.controller';
-import * as entidades from './entidades/acceso.entity';
+import { opcionesBase } from './data-source';
+import { PreciosModule } from './precios/precios.module';
 
 @Module({
   imports: [
@@ -21,15 +22,15 @@ import * as entidades from './entidades/acceso.entity';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (c: ConfigService) => ({
-        type: 'postgres' as const,
+        ...opcionesBase,
         host: c.get<string>('PG_HOST'),
         port: Number(c.get<string>('PG_PORT')),
         username: c.get<string>('PG_USER'),
         password: c.get<string>('PG_PASSWORD'),
         database: c.get<string>('PG_DATABASE'),
-        entities: Object.values(entidades).filter((e) => typeof e === 'function'),
-        // Jamas: el esquema lo manda 01_schema.sql, que es la replica exacta.
-        synchronize: false,
+        // La migracion de precios_externos corre sola al arrancar: los scripts de init
+        // solo corren con el volumen vacio y la base de Compose ya tiene datos.
+        migrationsRun: true,
       }),
     }),
     ComunModule,
@@ -41,6 +42,7 @@ import * as entidades from './entidades/acceso.entity';
     ComprasModule,
     BodegaModule,
     DistribucionModule,
+    PreciosModule,
   ],
   controllers: [SaludController],
 })
