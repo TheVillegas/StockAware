@@ -24,7 +24,18 @@ La asignación la definió el equipo. No incluye datos de contacto.
 
 ## Variables de entorno
 
-Los nombres y los valores ficticios de desarrollo están en `.env.example` y en la [guía de reproducibilidad](docs/ep1/reproducibility.md). `PG_PASSWORD` y `JWT_SECRET` son sensibles: no se documentan con un valor real ni se suben al repositorio. En GitHub Actions, `NODE_VERSION` y `PYTHON_VERSION` son variables no sensibles. La API todavía no publica un contrato OpenAPI.
+Los nombres y los valores ficticios de desarrollo están en `.env.example` y en la [guía de reproducibilidad](docs/ep1/reproducibility.md). `PG_PASSWORD` y `JWT_SECRET` son sensibles: no se documentan con un valor real ni se suben al repositorio. En GitHub Actions, `NODE_VERSION` y `PYTHON_VERSION` son variables no sensibles.
+
+## Documentación de la API (OpenAPI)
+
+El backend publica su contrato OpenAPI con Swagger. Los ejemplos son ficticios.
+
+1. Levantar el stack con `docker compose up -d --build` (necesita un `.env` copiado de `.env.example`, con `PG_PASSWORD` y `JWT_SECRET`).
+2. Abrir <http://localhost:3000/api/docs> (Swagger UI). El puerto es `BACKEND_PORT`.
+3. El contrato en JSON está en <http://localhost:3000/api/docs-json>.
+4. Para probar rutas protegidas: llamar a `POST /api/auth/login` y pegar el `access_token` en **Authorize**.
+
+Sin Docker: `npm install` y `npm run dev` dentro de `apps/backend`, con PostgreSQL disponible. La prueba `npm test` (`src/documentacion/documentacion.spec.ts`) verifica el contrato sin base de datos.
 
 ## Evidencia visible de la EP1
 

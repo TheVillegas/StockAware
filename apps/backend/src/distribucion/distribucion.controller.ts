@@ -1,9 +1,13 @@
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { DistribuirDoc } from '../documentacion/esquemas';
 import {
   Body, Controller, Delete, Get, Ip, Param, ParseIntPipe, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { DistribucionService, DistribuirDto } from './distribucion.service';
 import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
+@ApiTags('distribucion')
+@ApiBearerAuth('bearer')
 @Controller('distribucion')
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class DistribucionController {
@@ -31,6 +35,7 @@ export class DistribucionController {
   }
 
   @Post(':id')
+  @ApiBody({ type: DistribuirDoc })
   @Requiere('DOC_DISTRIBUIR')
   distribuir(
     @Param('id', ParseIntPipe) id: number,

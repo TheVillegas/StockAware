@@ -1,9 +1,13 @@
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { CambiosMantenedorDoc } from '../documentacion/esquemas';
 import {
   Body, Controller, Get, Ip, Param, Put, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { MantenedoresService } from './mantenedores.service';
 import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
+@ApiTags('mantenedores')
+@ApiBearerAuth('bearer')
 @Controller('mantenedores')
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class MantenedoresController {
@@ -37,6 +41,7 @@ export class MantenedoresController {
   }
 
   @Put(':codigo/:id')
+  @ApiBody({ type: CambiosMantenedorDoc })
   @Requiere('@escritura')
   actualizar(
     @Param('codigo') codigo: string,

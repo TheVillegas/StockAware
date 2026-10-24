@@ -1,9 +1,13 @@
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { AnularOcDoc, CrearOcDoc, EmitirHesDoc } from '../documentacion/esquemas';
 import {
   Body, Controller, Delete, Get, Ip, Param, ParseIntPipe, Post, Put, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { ComprasService, CrearOcDto, EmitirHesDto } from './compras.service';
 import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
+@ApiTags('compras')
+@ApiBearerAuth('bearer')
 @Controller('compras')
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class ComprasController {
@@ -37,6 +41,7 @@ export class ComprasController {
   }
 
   @Post('oc')
+  @ApiBody({ type: CrearOcDoc })
   @Requiere('EMITE_OC')
   crear(@Body() dto: CrearOcDto, @Req() req: any, @Ip() ip: string) {
     return this.svc.crearOc(dto, { usuario: req.user.login, ip });
@@ -49,6 +54,7 @@ export class ComprasController {
   }
 
   @Post('oc/:numdoc/anular')
+  @ApiBody({ type: AnularOcDoc })
   @Requiere('ANULAR_ORDEN_COMPRA')
   anular(
     @Param('numdoc', ParseIntPipe) numdoc: number,
@@ -59,6 +65,7 @@ export class ComprasController {
   }
 
   @Post('hes')
+  @ApiBody({ type: EmitirHesDoc })
   @Requiere('EMITE_HES')
   emitirHes(@Body() dto: EmitirHesDto, @Req() req: any, @Ip() ip: string) {
     return this.svc.emitirHes(dto, { usuario: req.user.login, ip });

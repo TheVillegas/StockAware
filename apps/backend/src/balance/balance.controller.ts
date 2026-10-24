@@ -1,7 +1,10 @@
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { BalanceService } from './balance.service';
 import { JwtAuthGuard, PermisosGuard, Requiere } from '../comun/permisos.guard';
 
+@ApiTags('balance')
+@ApiBearerAuth('bearer')
 @Controller('balance')
 @UseGuards(JwtAuthGuard, PermisosGuard)
 export class BalanceController {
