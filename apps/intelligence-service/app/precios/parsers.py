@@ -1,8 +1,10 @@
 import json
 import re
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation
+from html.parser import HTMLParser
 from typing import Any, Literal
 
 from pydantic import ValidationError
@@ -10,7 +12,12 @@ from pydantic import ValidationError
 from app.precios.models import Candidate, Source
 
 SOLOTODO_MAX_AGE = timedelta(days=14)
+SODIMAC_ARTICLE_URL = "https://www.sodimac.cl/sodimac-cl/articulo/"
+VOID_TAGS = frozenset(
+    {"img", "br", "hr", "input", "meta", "link", "source", "area", "base", "col", "wbr"}
+)
 
+Attrs = dict[str, str | None]
 # Valid candidates (score still 0) and the count of invalid records.
 ParseResult = tuple[list[Candidate], int]
 Parser = Callable[[str, datetime], ParseResult]
@@ -127,8 +134,160 @@ def parse_solotodo(page: str, reference: datetime) -> ParseResult:
     return collect(raws)
 
 
-PARSERS: dict[Source, tuple[Literal["json"], Parser]] = {
+@dataclass
+class Node:
+    attrs: Attrs
+    text: list[str] = field(default_factory=list)
+
+    def value(self) -> str:
+        return " ".join("".join(self.text).split())
+
+
+@dataclass
+class Entry:
+    tag: str
+    name: str | None
+    is_card: bool
+    classes: frozenset[str]
+
+
+class CardParser(HTMLParser):
+    """Collect product cards with the stdlib parser (no tree kept in memory)."""
+
+    def __init__(
+        self,
+        is_card: Callable[[str, Attrs, frozenset[str]], bool],
+        field_of: Callable[[str, Attrs, frozenset[str], set[str]], str | None],
+    ) -> None:
+        super().__init__()
+        self.is_card = is_card
+        self.field_of = field_of
+        self.stack: list[Entry] = []
+        self.current: dict[str, Node] | None = None
+        self.cards: list[dict[str, Node]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in VOID_TAGS:
+            return
+        attributes = dict(attrs)
+        classes = frozenset((attributes.get("class") or "").split())
+        card = self.current is None and self.is_card(tag, attributes, classes)
+        if card:
+            self.current = {"card": Node(attributes)}
+        name = None
+        if self.current is not None:
+            inside = set().union(*(entry.classes for entry in self.stack), classes)
+            name = self.field_of(tag, attributes, classes, inside)
+            if name in self.current:
+                name = None  # only the first element of each field counts
+            elif name:
+                self.current[name] = Node(attributes)
+        self.stack.append(Entry(tag, name, card, classes))
+
+    def handle_endtag(self, tag: str) -> None:
+        open_tags = [i for i, entry in enumerate(self.stack) if entry.tag == tag]
+        if not open_tags:
+            return
+        for entry in self.stack[open_tags[-1] :]:
+            if entry.is_card and self.current is not None:
+                self.cards.append(self.current)
+                self.current = None
+        del self.stack[open_tags[-1] :]
+
+    def handle_data(self, data: str) -> None:
+        if self.current is not None:
+            for entry in self.stack:
+                if entry.name:
+                    self.current[entry.name].text.append(data)
+
+
+def collect_cards(page: str, parser: CardParser) -> list[dict[str, Node]]:
+    parser.feed(page)
+    parser.close()
+    if not parser.cards:
+        raise ParseError("no product cards found")
+    return parser.cards
+
+
+def rhona_field(
+    tag: str, _attrs: Attrs, classes: frozenset[str], inside: set[str]
+) -> str | None:
+    if tag == "div" and "precio_antes" in classes:
+        return "antes"
+    if tag == "a":
+        fields = (("titulo", "nombre"), ("valor", "precio"), ("marca", "marca"))
+        return next((name for css, name in fields if css in inside), None)
+    return None
+
+
+def rhona_record(card: dict[str, Node]) -> dict[str, Any] | None:
+    name, price, before = card.get("nombre"), card.get("precio"), card.get("antes")
+    url = (name.attrs.get("href") if name else None) or ""
+    product_id = re.search(r"/producto/(\d+)/", url)
+    shown = clp_from_text(price.value()) if price else None
+    if not (name and product_id and shown):
+        return None
+    old = clp_from_text(before.value()) if before else None
+    return {
+        "id_externo": product_id.group(1),
+        "nombre": name.value(),
+        "marca": card["marca"].value() if "marca" in card else None,
+        "categoria_fuente": None,
+        "precio_normal": old or shown,
+        "precio_oferta": shown if old else None,
+        "disponible": True,  # listings show price and an add-to-cart button
+        "url": url,
+    }
+
+
+def parse_rhona(page: str, _reference: datetime) -> ParseResult:
+    parser = CardParser(
+        lambda tag, _a, classes: tag == "div" and "blockProducto" in classes,
+        rhona_field,
+    )
+    return collect([rhona_record(card) for card in collect_cards(page, parser)])
+
+
+def sodimac_field(
+    tag: str, attrs: Attrs, classes: frozenset[str], _inside: set[str]
+) -> str | None:
+    if tag == "b" and "pod-title" in classes:
+        return "marca"
+    if tag == "b" and "pod-subTitle" in classes:
+        return "nombre"
+    return "precio" if tag == "li" and "data-internet-price" in attrs else None
+
+
+def sodimac_record(card: dict[str, Node]) -> dict[str, Any] | None:
+    key = card["card"].attrs.get("data-key")
+    name, price = card.get("nombre"), card.get("precio")
+    shown = clp_from_text(price.attrs["data-internet-price"] or "") if price else None
+    if not (key and name and shown):
+        return None
+    return {
+        "id_externo": key,
+        "nombre": name.value(),
+        "marca": card["marca"].value() if "marca" in card else None,
+        "categoria_fuente": None,
+        "precio_normal": shown,
+        "precio_oferta": None,
+        "disponible": True,  # the listing offers the item for sale
+        "url": SODIMAC_ARTICLE_URL + key,
+    }
+
+
+def parse_sodimac(page: str, _reference: datetime) -> ParseResult:
+    parser = CardParser(
+        lambda tag, attrs, _c: tag == "a" and attrs.get("data-pod") == "catalyst-pod",
+        sodimac_field,
+    )
+    return collect([sodimac_record(card) for card in collect_cards(page, parser)])
+
+
+PARSERS: dict[Source, tuple[Literal["json", "html"], Parser]] = {
     "dartel": ("json", parse_vtex),
     "dimeiggs": ("json", parse_vtex),
     "solotodo": ("json", parse_solotodo),
+    "rhona": ("html", parse_rhona),
+    "sodimac": ("html", parse_sodimac),
 }

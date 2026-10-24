@@ -44,6 +44,27 @@ def entity(eid: int, updated: str, registry: bool = True) -> dict[str, Any]:
     }
 
 
+def rhona_card(pid: int, name: str, price: str, before: str = "") -> str:
+    url = f"https://tienda.example/producto/{pid}/x.html"
+    return (
+        '<div class="blockProducto "><div class="marca">'
+        f'<a href="{url}">ACME</a></div><div class="titulo">'
+        f'<a href="{url}">{name}</a><span class="descripcion"><a href="{url}">'
+        'texto</a></span></div><div class="valor">'
+        f'<a href="{url}">$  {price}</a> C/U'
+        f'<div class="precio_antes">{before}</div></div></div>'
+    )
+
+
+def sodimac_card(key: str, brand: str, name: str, price: str) -> str:
+    return (
+        f'<a href="" data-pod="catalyst-pod" data-key="{key}"><img src="x.jpg"/>'
+        f'<b class="pod-title">{brand}</b><b class="pod-subTitle">{name}</b>'
+        f'<ol><li data-internet-price="{price}"><span>$ {price}</span></li></ol>'
+        '<li class="wholesale">$ 1</li></a>'
+    )
+
+
 def call(client: TestClient, source: str, kind: str, *pages: str) -> dict[str, Any]:
     body = {
         "material": MATERIAL,
@@ -169,6 +190,28 @@ def test_solotodo_all_stale_is_no_results_not_a_failure(client: TestClient) -> N
     assert result["estado"] == "sin_resultados"
 
 
+def test_rhona_html_cards(client: TestClient) -> None:
+    page = rhona_card(7, "Cable ficticio 3m", "20.445", "$ 25.000") + rhona_card(
+        8, "Cable ficticio", "1.500"
+    )
+    result = call(client, "rhona", "html", f"<html><body>{page}</body></html>")
+    first, second = result["candidatos"]
+    assert (first["id_externo"], first["nombre"]) == ("7", "Cable ficticio 3m")
+    assert (first["precio_normal"], first["precio_oferta"]) == (25000, 20445)
+    assert (second["precio_normal"], second["precio_oferta"]) == (1500, None)
+    assert first["url"] == "https://tienda.example/producto/7/x.html"
+
+
+def test_sodimac_html_cards_across_pages(client: TestClient) -> None:
+    page_1 = sodimac_card("111", "ACME", "Cable ficticio 5m", "19.990")
+    page_2 = sodimac_card("222", "ACME", "Cable ficticio 9m", "2.290")
+    result = call(client, "sodimac", "html", page_1, page_2)
+    assert [c["id_externo"] for c in result["candidatos"]] == ["111", "222"]
+    assert result["candidatos"][0]["precio_normal"] == 19990
+    assert result["candidatos"][0]["marca"] == "ACME"
+    assert result["candidatos"][0]["url"].endswith("/articulo/111")
+
+
 @pytest.mark.parametrize(
     ("source", "kind", "page"),
     [
@@ -176,6 +219,9 @@ def test_solotodo_all_stale_is_no_results_not_a_failure(client: TestClient) -> N
         ("dartel", "json", '{"unexpected": true}'),
         ("dartel", "json", json.dumps([{"productId": 1}])),
         ("solotodo", "json", json.dumps([1, 2])),
+        ("rhona", "html", "<html><body><p>layout changed</p></body></html>"),
+        ("sodimac", "html", "<div data-pod='catalyst-pod'></div>"),
+        ("sodimac", "json", "[]"),
     ],
 )
 def test_unparseable_content_is_reported_per_source(
@@ -197,12 +243,12 @@ def test_one_bad_source_does_not_affect_the_others(client: TestClient) -> None:
         "referencia": REFERENCE,
         "fuentes": [
             {"fuente": "dartel", "tipo": "json", "contenido": [good]},
-            {"fuente": "dimeiggs", "tipo": "json", "contenido": ["<p>broken</p>"]},
+            {"fuente": "rhona", "tipo": "html", "contenido": ["<p>broken</p>"]},
         ],
     }
     response = client.post("/v1/precios/procesar", json=body)
     states = {r["fuente"]: r["estado"] for r in response.json()["resultados"]}
-    assert states == {"dartel": "ok", "dimeiggs": "invalid_content"}
+    assert states == {"dartel": "ok", "rhona": "invalid_content"}
 
 
 @pytest.mark.parametrize(
@@ -234,5 +280,3 @@ def test_openapi_documents_price_endpoints(client: TestClient) -> None:
     for path in ("/v1/precios/preparar", "/v1/precios/procesar"):
         responses = schema["paths"][path]["post"]["responses"]
         assert {"200", "422", "500"} <= set(responses)
-    content = schema["components"]["schemas"]["SourceContent"]["properties"]
-    assert content["tipo"]["const"] == "json"
