@@ -8,6 +8,7 @@
     "build": "nest build",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0 --no-error-on-unmatched-pattern",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "metrica:precios": "nest build && node dist/precios/metrica/medir.js",
     "test": "jest --passWithNoTests",
     "migracion:ejecutar": "nest build && typeorm migration:run -d dist/data-source.js",
     "migracion:revertir": "nest build && typeorm migration:revert -d dist/data-source.js",
