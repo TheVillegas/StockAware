@@ -22,6 +22,7 @@ import { SaList } from '../shared/sa-list.component';
 import { SaPageHead } from '../shared/sa-page-head.component';
 import { SaTableWrap } from '../shared/sa-table-wrap.component';
 import { accionesCrear } from '../shared/workspace-navigation';
+import { PreciosPanel } from '../precios/precios-panel.component';
 import { BodegaCombobox } from './bodega-combobox.component';
 import { stockState } from './stock-state';
 import {
@@ -46,7 +47,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
   imports: [
     FormsModule, RouterLink, PageHeaderComponent, IonContent, IonFooter,
     IonSearchbar, IonButton, IonInput,
-    SaIcon, SaList, SaPageHead, SaTableWrap, BodegaCombobox,
+    SaIcon, SaList, SaPageHead, SaTableWrap, BodegaCombobox, PreciosPanel,
   ],
   styles: [`
     .vistas .sa-chip { min-block-size: 2.75rem; display: inline-flex; align-items: center; gap: var(--sa-space-2); }
@@ -98,7 +99,9 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
       @if (error()) { <div class="sa-notice sa-notice--crit" role="alert">{{ error() }}</div> }
       @if (mensaje()) { <div class="sa-notice sa-notice--ok" role="status">{{ mensaje() }}</div> }
 
-      @if (ajustando(); as f) {
+      @if (precios(); as p) {
+        <app-precios-panel [codMaterial]="p.cod_material" [nombre]="p.nombre" (cerrar)="precios.set(null)" />
+      } @else if (ajustando(); as f) {
         <section class="sa-panel ajuste" aria-labelledby="ajuste-titulo">
           <h2 id="ajuste-titulo">Ajustar stock de <span class="code">{{ f.cod_material }}</span></h2>
           <p>{{ f.nombre }} en {{ f.bodega }}</p>
@@ -225,6 +228,8 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
                       <td class="num" data-label="Tarifa">{{ moneda(f.tarifa) }}</td>
                       <td data-label="Acciones">
                         @if (puedeAjustar()) {
+                          <button type="button" class="fila-accion" (click)="precios.set(f)"
+                                  [attr.aria-label]="'Precios de mercado de ' + f.cod_material">Precios</button>
                           <button type="button" class="fila-accion" (click)="abrirAjuste(f)"
                                   [attr.aria-label]="'Ajustar stock de ' + f.cod_material">Ajustar</button>
                         }
@@ -238,7 +243,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
       }
       </div>
     </ion-content>
-    @if (seleccion().size && !ajustando()) {
+    @if (seleccion().size && !ajustando() && !precios()) {
       <ion-footer>
         <div class="sa-actionbar pedido" role="region" aria-label="Pedido de reposición">
           <p>
@@ -275,6 +280,8 @@ export class StockPage {
   readonly mensaje = signal('');
   readonly trabajando = signal(false);
   readonly ajustando = signal<FilaStock | null>(null);
+  /** Material whose "Precios de mercado" panel is open. */
+  readonly precios = signal<FilaStock | null>(null);
   /** Viene del Inicio: lista lo que esta bajo el minimo sin pedir bodega. */
   readonly soloReponer = signal(false);
   private readonly router = inject(Router);
