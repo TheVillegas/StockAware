@@ -112,3 +112,36 @@ export class CambiosMantenedorDoc {
   })
   cambios: Record<string, unknown>;
 }
+
+export class PublicacionPrecioDoc {
+  @ApiProperty({ example: 12 }) publicacion_id: number;
+  @ApiProperty({ example: 'Amarra plastica 20 cm x 100' }) nombre: string;
+  @ApiProperty({ example: 'https://www.dartel.cl/amarra-plastica/p' }) url: string;
+  @ApiProperty({ example: 1990, description: 'CLP entero' }) precio_normal: number;
+  @ApiPropertyOptional({ example: 1790, nullable: true }) precio_oferta?: number | null;
+  @ApiProperty({ example: true }) disponible: boolean;
+  @ApiProperty({ example: 0.8 }) puntaje: number;
+  @ApiProperty({ enum: ['propuesto', 'confirmado'], description: 'propuesto = vinculo sin confirmar por una persona' })
+  vinculo: string;
+  @ApiProperty() obtenido_en: string;
+  @ApiProperty() verificado_en: string;
+}
+
+export class FuentePrecioDoc {
+  @ApiProperty({ enum: ['dartel', 'dimeiggs', 'solotodo', 'rhona', 'sodimac'] }) fuente: string;
+  @ApiProperty({ enum: ['ok', 'sin_resultados', 'desactualizada', 'sin_datos'] }) estado: string;
+  @ApiPropertyOptional({ enum: ['timeout', 'http_error', 'invalid_content', 'cooldown'] }) motivo?: string;
+  @ApiPropertyOptional({ description: 'Sodimac no alcanzo a leer todo' }) parcial?: boolean;
+  @ApiPropertyOptional({ description: 'Precio guardado cuya actualizacion fallo' }) desactualizado?: boolean;
+  @ApiPropertyOptional() obtenido_en?: string;
+  @ApiProperty({ type: [PublicacionPrecioDoc] }) publicaciones: PublicacionPrecioDoc[];
+}
+
+export class RespuestaPreciosDoc {
+  @ApiProperty({ example: 'MC_001' }) cod_material: string;
+  @ApiProperty({ example: 'Amarra plastica' }) nombre: string;
+  @ApiProperty() cotizable: boolean;
+  @ApiPropertyOptional({ example: 'personalizado', description: 'Solo con cotizable: false' }) motivo?: string;
+  @ApiPropertyOptional() desactualizado?: boolean;
+  @ApiProperty({ type: [FuentePrecioDoc] }) fuentes: FuentePrecioDoc[];
+}
