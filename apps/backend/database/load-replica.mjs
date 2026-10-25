@@ -1,8 +1,8 @@
 import { createReadStream } from 'node:fs';
 import { createGunzip } from 'node:zlib';
 import { readFile } from 'node:fs/promises';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
+import { once } from 'node:events';
+import readline from 'node:readline';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +10,7 @@ import pg from 'pg';
 
 const require = createRequire(import.meta.url);
 const { from: copyFrom } = require('pg-copy-streams');
-const { planDump } = require('./load-replica-plan.js');
+const { createDumpFeeder } = require('./load-replica-plan.js');
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'init');
 
@@ -41,31 +41,52 @@ BEGIN
 END $$;
 `;
 
-async function sqlFile(name) {
-  const full = path.join(root, name);
-  if (name.endsWith('.gz')) {
-    const chunks = [];
-    for await (const chunk of createReadStream(full).pipe(createGunzip())) chunks.push(chunk);
-    return Buffer.concat(chunks).toString('utf8');
-  }
-  return readFile(full, 'utf8');
+function dumpStream(name) {
+  return createReadStream(path.join(root, name)).pipe(createGunzip());
 }
 
-async function runDump(sql) {
-  for (const step of planDump(sql)) {
-    if (step.kind === 'sql') {
-      await client.query(step.text);
-      continue;
+async function runDump(name) {
+  const feeder = createDumpFeeder();
+  const lines = readline.createInterface({ input: dumpStream(name), crlfDelay: Infinity });
+  let copyStream = null;
+  let copyError = null;
+
+  async function apply(action) {
+    if (action.kind === 'sql') {
+      await client.query(action.text);
+      return;
     }
-    await pipeline(Readable.from([step.payload]), client.query(copyFrom(step.command)));
+    if (action.kind === 'copy-start') {
+      console.log(action.command);
+      copyError = null;
+      copyStream = client.query(copyFrom(action.command));
+      copyStream.on('error', (error) => {
+        copyError = error;
+      });
+      return;
+    }
+    if (action.kind === 'copy-row') {
+      if (copyError) throw copyError;
+      if (!copyStream.write(`${action.line}\n`)) await once(copyStream, 'drain');
+      return;
+    }
+    if (copyError) throw copyError;
+    copyStream.end();
+    await once(copyStream, 'finish');
+    if (copyError) throw copyError;
+    copyStream = null;
   }
+
+  for await (const line of lines) {
+    for (const action of feeder.push(line)) await apply(action);
+  }
+  for (const action of feeder.finish()) await apply(action);
 }
 
 async function runFile(name) {
   console.log(`loading ${name}`);
-  const sql = await sqlFile(name);
-  if (name.endsWith('.gz')) await runDump(sql);
-  else await client.query(sql);
+  if (name.endsWith('.gz')) await runDump(name);
+  else await client.query(await readFile(path.join(root, name), 'utf8'));
   await client.query('SET search_path TO public');
 }
 
