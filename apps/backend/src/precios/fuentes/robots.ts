@@ -3,7 +3,7 @@
  * (decisiones de implementacion, seccion 5). Sigue RFC 9309 en lo que importa aqui:
  * grupo propio o `*`, regla mas larga gana, `Allow` gana el empate, `*` y `$`.
  */
-import { USER_AGENT } from './fuentes';
+import { ORIGENES_ROBOTS, USER_AGENT } from './fuentes';
 
 const VIGENCIA_MS = 24 * 60 * 60 * 1000;
 const TIMEOUT_ROBOTS_MS = 3_000;
@@ -65,10 +65,22 @@ export class CacheRobots {
 
   constructor(private readonly ahora: () => number = Date.now) {}
 
-  /** true si robots.txt del origen permite la URL. Sin robots.txt legible por red o 5xx, no. */
+  /**
+   * true si robots.txt del origen permite la URL. Sin robots.txt legible por red o 5xx, no.
+   * Un origen fuera de ORIGENES_ROBOTS no se consulta y se trata como prohibido.
+   */
   async permite(url: string, signal?: AbortSignal): Promise<boolean> {
-    const u = new URL(url);
-    const reglas = await this.reglasDe(u.origin, signal);
+    let u: URL;
+    try {
+      u = new URL(url);
+    } catch {
+      return false;
+    }
+    // Se usa la constante de la lista, no el texto de la URL: el host pedido nunca
+    // sale de lo que envia el usuario.
+    const origen = u.username || u.password ? undefined : ORIGENES_ROBOTS.find((o) => o === u.origin);
+    if (!origen) return false;
+    const reglas = await this.reglasDe(origen, signal);
     return reglas !== null && permiteRuta(reglas, u.pathname + u.search);
   }
 

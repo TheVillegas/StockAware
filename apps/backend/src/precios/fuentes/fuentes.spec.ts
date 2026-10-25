@@ -91,22 +91,65 @@ describe('robots.txt', () => {
     const fetch = fetchFalso({});
     global.fetch = fetch;
     const cache = new CacheRobots(() => ahora);
-    expect(await cache.permite('https://a.cl/ok')).toBe(true);
-    expect(await cache.permite('https://a.cl/busca/x')).toBe(false);
+    expect(await cache.permite('https://www.dartel.cl/ok')).toBe(true);
+    expect(await cache.permite('https://www.dartel.cl/busca/x')).toBe(false);
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch.mock.calls[0][1].headers['User-Agent']).toBe(USER_AGENT);
     ahora += 24 * 3600 * 1000 + 1;
-    await cache.permite('https://a.cl/ok');
+    await cache.permite('https://www.dartel.cl/ok');
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
   it('sin robots.txt (404) permite; con 5xx o sin red prohibe', async () => {
     global.fetch = fetchFalso({}, { status: 404 });
-    expect(await new CacheRobots().permite('https://a.cl/x')).toBe(true);
+    expect(await new CacheRobots().permite('https://www.dartel.cl/x')).toBe(true);
     global.fetch = fetchFalso({}, { status: 503 });
-    expect(await new CacheRobots().permite('https://a.cl/x')).toBe(false);
+    expect(await new CacheRobots().permite('https://www.dartel.cl/x')).toBe(false);
     global.fetch = jest.fn().mockRejectedValue(new Error('red'));
-    expect(await new CacheRobots().permite('https://a.cl/x')).toBe(false);
+    expect(await new CacheRobots().permite('https://www.dartel.cl/x')).toBe(false);
+  });
+
+  it('solo descarga robots.txt de los origenes de las fuentes conocidas', async () => {
+    const fetch = fetchFalso({});
+    global.fetch = fetch;
+    const cache = new CacheRobots();
+    for (const url of [
+      'https://169.254.169.254/latest/meta-data',
+      'https://localhost/x',
+      'https://dartel.cl.evil.com/x',
+      'https://evil.com/?https://www.dartel.cl',
+      'http://www.dartel.cl/x',
+      'https://www.dartel.cl:8443/x',
+      'https://user@www.dartel.cl/x',
+      'no es url',
+    ]) {
+      expect(await cache.permite(url)).toBe(false);
+    }
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('una URL de una fuente conocida sigue consultando su robots.txt', async () => {
+    const fetch = fetchFalso({});
+    global.fetch = fetch;
+    const cache = new CacheRobots();
+    for (const url of [
+      'https://www.dartel.cl/ok',
+      'https://www.dimeiggs.cl/ok',
+      'https://publicapi.solotodo.com/entities/',
+      'https://rhona.cl/catalogo/4/x.html',
+      'https://www.rhona.cl/catalogo/4/x.html',
+      'https://www.sodimac.cl/sodimac-cl/lista/x',
+    ]) {
+      expect(await cache.permite(url)).toBe(true);
+    }
+    expect(fetch.mock.calls.map((c) => c[0])).toEqual([
+      'https://www.dartel.cl/robots.txt',
+      'https://www.dimeiggs.cl/robots.txt',
+      'https://publicapi.solotodo.com/robots.txt',
+      'https://rhona.cl/robots.txt',
+      'https://www.rhona.cl/robots.txt',
+      'https://www.sodimac.cl/robots.txt',
+    ]);
   });
 });
 
