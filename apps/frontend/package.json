@@ -37,6 +37,7 @@
     "typescript": "~5.8.0"
   },
   "overrides": {
+    "body-parser": "2.4.0",
     "proxy-addr": "2.0.8",
     "piscina": "5.3.2",
     "http-cache-semantics": "4.3.0",
