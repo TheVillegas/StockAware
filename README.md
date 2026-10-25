@@ -2,12 +2,24 @@
 
 StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universidad Católica de Valparaíso, orientado a mejorar decisiones de inventario MRO —como equipos de protección personal, ropa técnica, insumos y herramientas— mediante información consolidada y recomendaciones explicables de reposición.
 
-**Estado actual:** lo que hoy se puede ejecutar es una réplica funcional del ERP VAIPS con datos anonimizados; no es todavía un producto completo de reposición adaptativa. La visión y el alcance comprobable están diferenciados en el [contexto del proyecto](docs/project-overview.md).
+**Estado actual (EP2):** réplica funcional del ERP VAIPS con datos anonimizados, consulta de precios desde cinco fuentes web, procesamiento en FastAPI y persistencia con procedencia en NestJS. El panel de Stock permite revisar candidatos de precios. Esto no es todavía un motor de reposición adaptativa: su alcance futuro está separado en el [contexto del proyecto](docs/project-overview.md).
+
+## Entrega parcial 2
+
+- [Recorrido de demostración y evidencias pendientes](docs/ep2/entrega.md)
+- [Fuentes, contratos y persistencia: ADR 0002](docs/architecture/adr/0002-precios-de-mercado-externos.md)
+- [Decisiones de implementación](docs/ep2/decisiones-implementacion.md)
+- [Métrica de calidad y sus límites](docs/ep2/metrica/README.md)
+- [Especificación adaptativa preliminar](docs/ep2/especificacion-adaptativa.md)
+- [Staging EP2 y despliegue verificado](docs/ep2/staging.md#evidencia-verificada-2026-10-25)
+
+El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/40223109497), intento 2 del 2026-10-25, verificó el despliegue del commit `238669b` y sus health checks. Es evidencia de ese corte, no de cambios posteriores ni del cierre de toda la entrega. El enlace de Figma conservado abajo corresponde a EP1; falta verificar el prototipo actualizado.
+
+## Base y referencias EP1
 
 - [Reproducir la demo EP1](docs/ep1/reproducibility.md)
 - [Diagramas de arquitectura EP1](docs/architecture/ep1-diagrams.md)
 - [Staging preliminar EP1](docs/ep1/staging.md)
-- [Staging EP2 en Render](docs/ep2/staging.md)
 - [Configuración inicial de Capacitor EP1](docs/ep1/capacitor.md)
 - [Fallo controlado del gate EP1](docs/ep1/controlled-failure.md)
 - [Modelo de datos de la réplica](docs/architecture/data-model.md)
