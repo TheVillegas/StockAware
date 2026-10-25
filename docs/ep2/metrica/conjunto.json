@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "descripcion": "Conjunto fijo de materiales cotizables de la réplica del ERP para medir la calidad de datos de precios (#49). Los nombres son datos de catálogo, no datos personales. url_rhona y url_sodimac son listados de categoría que Rhona y Sodimac exigen (no se buscan por término).",
+  "materiales": [
+    {
+      "cod_material": "MC_202",
+      "nombre": "CINTA AISLANTE ROJA",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Insumo eléctrico de consumo habitual; las fuentes eléctricas lo venden."
+    },
+    {
+      "cod_material": "MC_466",
+      "nombre": "CINTA AISLANTE ELECTRICA AZUL 18MM X 10M",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Mismo producto con especificación técnica completa."
+    },
+    {
+      "cod_material": "MC_669",
+      "nombre": "CABLE DESNUDO BLANDO #2/0 AWG 19 HEBRAS",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Conductor eléctrico; cubierto por Rhona y Sodimac con URL de listado.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/31/conductores/50/cables.html",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10797/Cables-y-alambres-Electricos"
+    },
+    {
+      "cod_material": "MC_772",
+      "nombre": "CORTA CABLES 10\" T/CHICHARRA (9531250) - KNIPEX",
+      "rubro": "Herramientas",
+      "motivo": "Herramienta eléctrica de marca conocida; listados de herramientas en Rhona y Sodimac.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/35/herramientas.html",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10882/Alicates"
+    },
+    {
+      "cod_material": "MC_729",
+      "nombre": "MAKITA LLAVE DE IMPACTO 1/2",
+      "rubro": "Herramientas",
+      "motivo": "Herramienta de marca; Sodimac la lista por categoría.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/35/herramientas.html",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10881/Llaves-de-impacto"
+    },
+    {
+      "cod_material": "MC_727",
+      "nombre": "LLAVE DE TORQUE []1/2",
+      "rubro": "Herramientas",
+      "motivo": "Herramienta sin marca en el nombre: prueba de puntaje.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/35/herramientas.html"
+    },
+    {
+      "cod_material": "MC_717",
+      "nombre": "PACK 2 FOCO LED 50W SEC 5000LM CON TRÍPODE 150CM",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Iluminación con especificación técnica.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10094/Focos-y-paneles-led"
+    },
+    {
+      "cod_material": "MC_259",
+      "nombre": "PILAS DURACELL AAA",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Producto genérico de marca, común en todas las fuentes.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10795/Baterias-y-Pilas"
+    },
+    {
+      "cod_material": "MC_568",
+      "nombre": "PILA ALCALINA BLISTER AA 4 UN",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Producto genérico sin marca."
+    },
+    {
+      "cod_material": "MC_684",
+      "nombre": "BATERIA ALCALINA BLISTER 9V 1 UN",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Pila de 9V; variante de nombre \"bateria\".",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10795/Baterias-y-Pilas"
+    },
+    {
+      "cod_material": "MC_373",
+      "nombre": "DISCO CORTE 1MM 4.1/2",
+      "rubro": "Herramientas",
+      "motivo": "Consumible de herramienta eléctrica.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10507/Discos--planchas-y-speidos"
+    },
+    {
+      "cod_material": "MC_754",
+      "nombre": "BAHCO HOJA DE SIERRA 1/2 X 12 X 24 UN",
+      "rubro": "Herramientas",
+      "motivo": "Consumible de marca."
+    },
+    {
+      "cod_material": "MC_112",
+      "nombre": "LINTERNA LEDMANOS LIBRES - USO CASCO KL-400",
+      "rubro": "Electricidad y herramientas",
+      "motivo": "Producto de iluminación portátil.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10794/Linternas-y-Lamparas-Portatiles"
+    },
+    {
+      "cod_material": "MC_252",
+      "nombre": "RESMA TAMAÑO CARTA",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina de alta rotación."
+    },
+    {
+      "cod_material": "MC_253",
+      "nombre": "CUADERNO UNIVERSITARIO",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina genérico."
+    },
+    {
+      "cod_material": "MC_254",
+      "nombre": "LAPIZ PASTA",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina genérico."
+    },
+    {
+      "cod_material": "MC_266",
+      "nombre": "CORCHETERA",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina genérico."
+    },
+    {
+      "cod_material": "MC_276",
+      "nombre": "CINTA DE EMBALAJE",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina y bodega.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10174/Cintas-de-embalaje"
+    },
+    {
+      "cod_material": "MC_257",
+      "nombre": "TIJERAS",
+      "rubro": "Oficina y papelería",
+      "motivo": "Insumo de oficina genérico."
+    },
+    {
+      "cod_material": "MC_272",
+      "nombre": "MOUSE ERGONOMICO",
+      "rubro": "Tecnología",
+      "motivo": "Periférico; SoloTodo cubre tecnología."
+    },
+    {
+      "cod_material": "MC_475",
+      "nombre": "MOUSE INALAMBRICO RECARGABLE MY430 NEGRO K75507W",
+      "rubro": "Tecnología",
+      "motivo": "Periférico con modelo exacto."
+    },
+    {
+      "cod_material": "MC_398",
+      "nombre": "PENDRIVE",
+      "rubro": "Tecnología",
+      "motivo": "Almacenamiento genérico."
+    },
+    {
+      "cod_material": "MC_021",
+      "nombre": "Monitor Samsung 24 VA Full HD, 75Hz, HDMI, Flicker Free, C",
+      "rubro": "Tecnología",
+      "motivo": "Equipo con marca y modelo."
+    },
+    {
+      "cod_material": "MC_712",
+      "nombre": "IMPRESORA EPSON MULTIFUNCIONAL ECOTANK L3210",
+      "rubro": "Tecnología",
+      "motivo": "Equipo con marca y modelo."
+    },
+    {
+      "cod_material": "MC_713",
+      "nombre": "TINTA NEGRA EPSON ECOTANKK L3110/3150",
+      "rubro": "Tecnología",
+      "motivo": "Consumible de impresora con marca."
+    },
+    {
+      "cod_material": "MC_074",
+      "nombre": "CASCO MSA V-GARD - (AZUL)",
+      "rubro": "EPP",
+      "motivo": "EPP de marca; expone la brecha de cobertura.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/32/seguridad/53/seguridad-personal.html"
+    },
+    {
+      "cod_material": "MC_343",
+      "nombre": "CASCO DE SEGURIDAD AMARILLO",
+      "rubro": "EPP",
+      "motivo": "EPP genérico.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/32/seguridad/53/seguridad-personal.html"
+    },
+    {
+      "cod_material": "MC_1015",
+      "nombre": "GUANTE DIELECTRICO CLASE 3 CATU TALLA 10",
+      "rubro": "EPP",
+      "motivo": "EPP eléctrico; el rubro eléctrico podría cubrirlo.",
+      "url_rhona": "https://rhona.cl/catalogo/4/materiales-electricos/32/seguridad/53/seguridad-personal.html"
+    },
+    {
+      "cod_material": "MC_097",
+      "nombre": "GUANTE ACTIVEX MECANICO X9 GRIS- NEGRO T- L",
+      "rubro": "EPP",
+      "motivo": "EPP de marca.",
+      "url_sodimac": "https://www.sodimac.cl/sodimac-cl/lista/CATG10606/Guantes"
+    },
+    {
+      "cod_material": "MC_022",
+      "nombre": "BOTA MINERA M100 N°44",
+      "rubro": "EPP",
+      "motivo": "EPP de uso minero; esperable sin cobertura."
+    },
+    {
+      "cod_material": "MC_458",
+      "nombre": "LENTE STEELPRO SPY-FLEX PLUS ANTIFOG CLARO",
+      "rubro": "EPP",
+      "motivo": "EPP de marca; esperable sin cobertura."
+    },
+    {
+      "cod_material": "MC_678",
+      "nombre": "MASCARILLA DESCARTABLE AIR D802 FFP2 NR (CAJA 10 UND)",
+      "rubro": "EPP",
+      "motivo": "EPP respiratorio; esperable sin cobertura."
+    }
+  ]
+}

@@ -1,186 +1,67 @@
 # StockAware
 
-Aplicación web multiplataforma para consolidar un inventario MRO con descripciones heterogéneas y generar recomendaciones explicables de reposición. El proyecto se desarrolla para la asignatura **Ingeniería Web Avanzada** de la Pontificia Universidad Católica de Valparaíso.
+StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universidad Católica de Valparaíso, orientado a mejorar decisiones de inventario MRO —como equipos de protección personal, ropa técnica, insumos y herramientas— mediante información consolidada y recomendaciones explicables de reposición.
 
-> **Estado actual:** estructura inicial del repositorio. Los componentes todavía no han sido generados ni configurados.
+**Estado actual (EP2):** réplica funcional del ERP VAIPS con datos anonimizados, consulta de precios desde cinco fuentes web, procesamiento en FastAPI y persistencia con procedencia en NestJS. El panel de Stock permite revisar candidatos de precios. Esto no es todavía un motor de reposición adaptativa: su alcance futuro está separado en el [contexto del proyecto](docs/project-overview.md).
 
-## Contribución y flujo Git
+## Entrega parcial 2
 
-La guía completa para contribuir está en [CONTRIBUTING.md](CONTRIBUTING.md). En resumen, `develop` es la rama de integración y `main` contiene el estado estable. El trabajo diario se realiza en ramas cortas `feat/*`, `fix/*`, `docs/*`, `chore/*`, `refactor/*`, `test/*` o `ci/*`, que abren pull requests hacia `develop`. Las releases pasan de `develop` a `main`; los hotfixes parten de `main`, se integran allí y luego se sincronizan con `develop`.
+- [Recorrido de demostración y evidencias pendientes](docs/ep2/entrega.md)
+- [Fuentes, contratos y persistencia: ADR 0002](docs/architecture/adr/0002-precios-de-mercado-externos.md)
+- [Decisiones de implementación](docs/ep2/decisiones-implementacion.md)
+- [Métrica de calidad y sus límites](docs/ep2/metrica/README.md)
+- [Especificación adaptativa preliminar](docs/ep2/especificacion-adaptativa.md)
+- [Staging EP2 y despliegue verificado](docs/ep2/staging.md#evidencia-verificada-2026-10-25)
 
-## Problema abordado
+El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/40223109497), intento 2 del 2026-10-25, verificó el despliegue del commit `238669b` y sus health checks. Es evidencia de ese corte, no de cambios posteriores ni del cierre de toda la entrega. El enlace de Figma conservado abajo corresponde a EP1; falta verificar el prototipo actualizado.
 
-Las compras de productos MRO —equipos de protección personal, ropa técnica, insumos y herramientas— suelen registrarse con nombres distintos para un mismo producto. Esto impide conocer correctamente el consumo, comparar precios y decidir qué artículos deben reponerse primero.
+## Base y referencias EP1
 
-StockAware busca:
+- [Reproducir la demo EP1](docs/ep1/reproducibility.md)
+- [Diagramas de arquitectura EP1](docs/architecture/ep1-diagrams.md)
+- [Staging preliminar EP1](docs/ep1/staging.md)
+- [Configuración inicial de Capacitor EP1](docs/ep1/capacitor.md)
+- [Fallo controlado del gate EP1](docs/ep1/controlled-failure.md)
+- [Modelo de datos de la réplica](docs/architecture/data-model.md)
+- [Prototipo Figma EP1](https://www.figma.com/design/RIvAtOoqdvHUBkURaxOopG/StockAware---Prototipo-EP1?node-id=7-3&t=0dfW1TifAtPN0y98-1)
+- [Contribuir al proyecto](CONTRIBUTING.md)
 
-- normalizar y consolidar descripciones equivalentes;
-- registrar movimientos y conteos de inventario;
-- obtener precios de referencia desde fuentes web públicas;
-- priorizar la reposición según consumo, cobertura, criticidad y contexto;
-- explicar las recomendaciones y permitir que el usuario las confirme o ajuste.
+## Integrantes
 
-## Usuarios objetivo
+La asignación la definió el equipo. No incluye datos de contacto.
 
-- personal de bodega;
-- personal de adquisiciones;
-- supervisores de terreno y prevención de riesgos;
-- administradores del sistema.
+| Integrante | Ámbito |
+| --- | --- |
+| Matias Villegas | DevSecOps y gestión del repositorio |
+| Matias Ignacio Romero Alvarez | Desarrollo fullstack |
 
-## Arquitectura prevista
+## Variables de entorno
 
-```text
-Angular + Ionic + Capacitor
-            |
-            v
-     NestJS REST API
-       /          \
-      v            v
-PostgreSQL   Python + FastAPI
-                    |
-                    v
-       Mercado Público + INE
-```
+Los nombres y los valores ficticios de desarrollo están en `.env.example` y en la [guía de reproducibilidad](docs/ep1/reproducibility.md). `PG_PASSWORD` y `JWT_SECRET` son sensibles: no se documentan con un valor real ni se suben al repositorio. En GitHub Actions, `NODE_VERSION` y `PYTHON_VERSION` son variables no sensibles.
 
-El frontend se comunicará exclusivamente con la API principal de NestJS. NestJS administrará la lógica de negocio, autenticación, autorización y persistencia, además de coordinar el procesamiento especializado proporcionado por FastAPI.
+## Documentación de la API (OpenAPI)
 
-## Tecnologías requeridas
+El backend publica su contrato OpenAPI con Swagger. Los ejemplos son ficticios.
 
-| Área | Tecnología | Propósito |
-|---|---|---|
-| Frontend | Angular y TypeScript | Aplicación web principal |
-| Interfaz | Ionic Framework | Componentes adaptados a web y dispositivos móviles |
-| Integración móvil | Capacitor | Compilación Android y acceso a capacidades del dispositivo |
-| Aplicación web | PWA | Instalación y funcionamiento parcial sin conexión |
-| Backend principal | NestJS y Node.js | API REST, autenticación y lógica de negocio |
-| Servicio especializado | Python y FastAPI | Normalización, clasificación y priorización |
-| Base de datos | PostgreSQL | Persistencia relacional principal |
-| Contenedores | Docker y Docker Compose | Ejecución reproducible de los servicios |
-| Integración continua | GitHub Actions | Pruebas, seguridad, construcción y despliegue |
-| Infraestructura | Terraform | Definición reproducible del ambiente de staging |
-| Documentación de API | OpenAPI y Swagger | Contratos y exploración de endpoints |
+1. Levantar el stack con `docker compose up -d --build` (necesita un `.env` copiado de `.env.example`, con `PG_PASSWORD` y `JWT_SECRET`).
+2. Abrir <http://localhost:3000/api/docs> (Swagger UI). El puerto es `BACKEND_PORT`.
+3. El contrato en JSON está en <http://localhost:3000/api/docs-json>.
+4. Para probar rutas protegidas: llamar a `POST /api/auth/login` y pegar el `access_token` en **Authorize**.
 
-La selección entre **Prisma** y **TypeORM** todavía está pendiente y deberá registrarse mediante una decisión arquitectónica.
+Sin Docker: `npm install` y `npm run dev` dentro de `apps/backend`, con PostgreSQL disponible. La prueba `npm test` (`src/documentacion/documentacion.spec.ts`) verifica el contrato sin base de datos.
 
-## Estructura inicial
+## Evidencia visible de la EP1
 
-```text
-StockAware/
-├── .github/
-│   └── workflows/              # Pipeline DevSecOps con GitHub Actions
-├── apps/
-│   ├── frontend/               # Angular, Ionic, Capacitor y PWA
-│   ├── backend/                # API principal NestJS
-│   └── intelligence-service/   # Servicio Python y FastAPI
-├── infrastructure/
-│   └── terraform/              # Infraestructura como código
-├── docs/
-│   ├── architecture/           # Diagramas y documentación arquitectónica
-│   │   └── adr/                # Registros de decisiones arquitectónicas
-│   └── database/               # Modelos y diagramas de datos
-├── tests/
-│   └── integration/            # Pruebas de integración entre componentes
-└── README.md
-```
+Estas capturas acompañan los enlaces. No reemplazan el run ni el prototipo.
 
-Las carpetas incluyen archivos `.gitkeep` temporales para que Git pueda versionarlas mientras permanezcan vacías. Estos archivos deberán eliminarse cuando se agregue contenido real.
+Pipeline verde del corte, incluido PostgreSQL, contenedores y el gate crítico. Run: https://github.com/TheVillegas/StockAware/actions/runs/36375148731
 
-## Fuente de información web
+![Pipeline verde de la EP1](docs/ep1/images/ep1-pipeline-verde.png)
 
-La fuente principal propuesta es la API pública de **Mercado Público (ChileCompra)**, complementada con información del IPC publicada por el **Instituto Nacional de Estadísticas**. Se deberán validar previamente sus contratos, condiciones de uso, límites de solicitudes y disponibilidad.
+Fallo controlado disparado a propósito. Fallan el policy probe y el gate crítico. El job de seguridad también aparece en rojo porque el rango de escaneo quedó vacío, no porque se haya encontrado un secreto. Run: https://github.com/TheVillegas/StockAware/actions/runs/36371534531
 
-## Capacidad adaptativa
+![Fallo controlado del gate](docs/ep1/images/ep1-fallo-controlado.png)
 
-El sistema clasificará los productos en familias de reposición y generará un ranking semanal mediante variables como:
+Archivo de diseño de Figma, abierto sin contraseña. Muestra login, inicio, stock por bodega, órdenes de compra y el detalle de una OC.
 
-- cobertura y consumo histórico;
-- tiempo de reposición;
-- criticidad de seguridad;
-- estacionalidad;
-- presupuesto disponible;
-- precio histórico y precio externo de referencia.
-
-Cada recomendación deberá ser explicable y permitir intervención humana. La disponibilidad de EPP crítico será una restricción de seguridad, no un criterio sacrificable por ahorro.
-
-## Plan inicial de trabajo
-
-### 1. Fundaciones del repositorio
-
-- [x] Crear la estructura inicial.
-- [x] Documentar la arquitectura y tecnologías previstas.
-- [x] Inicializar Git local con las ramas base `main` y `develop`.
-- [ ] Publicar el repositorio en GitHub.
-- [x] Incorporar `.gitignore`, `.editorconfig` y archivos de contribución.
-- [x] Definir estrategia de ramas, commits, issues y pull requests.
-
-### 2. Componentes base
-
-- [ ] Generar el frontend con Ionic y Angular.
-- [ ] Configurar Capacitor y PWA.
-- [ ] Generar el backend NestJS.
-- [ ] Crear el servicio Python con FastAPI.
-- [ ] Configurar PostgreSQL y las migraciones iniciales.
-
-### 3. Integración local
-
-- [ ] Crear un Dockerfile para cada componente.
-- [ ] Incorporar PostgreSQL a Docker Compose.
-- [ ] Verificar el flujo Angular → NestJS → FastAPI.
-- [ ] Verificar la conexión NestJS → PostgreSQL.
-- [ ] Implementar endpoints de salud.
-
-### 4. Calidad y DevSecOps
-
-- [ ] Configurar linting y pruebas para cada componente.
-- [ ] Incorporar análisis estático y de dependencias.
-- [ ] Configurar detección de secretos.
-- [ ] Construir y analizar las imágenes Docker.
-- [ ] Configurar quality gates en GitHub Actions.
-
-### 5. Infraestructura y staging
-
-- [ ] Definir proveedor y recursos mediante Terraform.
-- [ ] Validar `terraform fmt`, `terraform validate` y `terraform plan`.
-- [ ] Configurar el ambiente de staging.
-- [ ] Automatizar despliegue, health checks y rollback básico.
-
-## Equipo y responsabilidades
-
-| Integrante | Responsabilidades principales |
-|---|---|
-| Matías Romero | Backend NestJS, PostgreSQL, seguridad y control de acceso |
-| Matías Villegas | Angular/Ionic, FastAPI, capacidad adaptativa y DevSecOps |
-
-Las pruebas de integración, la documentación y las decisiones arquitectónicas serán responsabilidad compartida.
-
-## Variables y secretos
-
-El repositorio deberá incluir archivos `.env.example` con valores ficticios. Los archivos `.env`, credenciales, certificados, claves privadas y datos comerciales reales **no deben versionarse**.
-
-- Las configuraciones no sensibles se almacenarán como **GitHub Actions Variables**.
-- Las contraseñas, tokens y claves se almacenarán como **GitHub Actions Secrets**.
-- Los datos históricos utilizados para pruebas deberán estar anonimizados.
-
-## Documentación prevista
-
-- diagramas de contexto, contenedores y despliegue;
-- modelo conceptual y lógico de la base de datos;
-- decisiones arquitectónicas en formato ADR;
-- documentación OpenAPI de NestJS y FastAPI;
-- instrucciones de instalación, pruebas y despliegue;
-- estrategia de seguridad, privacidad y observabilidad;
-- enlaces al prototipo Figma, tablero de trabajo y ambiente de staging.
-
-## Enlaces
-
-| Recurso | Estado |
-|---|---|
-| Repositorio GitHub | Pendiente |
-| Tablero de gestión | Pendiente |
-| Prototipo Figma | Pendiente |
-| Ambiente de staging | Pendiente |
-| Documentación de API | Pendiente |
-
-## Licencia
-
-Pendiente de definición por el equipo.
+![Prototipo Figma de la EP1](docs/ep1/images/ep1-figma-prototipo.png)

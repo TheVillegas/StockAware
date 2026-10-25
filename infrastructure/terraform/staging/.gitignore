@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# The provider lock is commit-ready evidence. Do not ignore it.
+!.terraform.lock.hcl

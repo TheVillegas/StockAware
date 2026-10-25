@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Balance StockAware</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F5F7;font-family:'Public Sans',system-ui,sans-serif;color:#14212B}
+a{color:#7A4FC9}a:hover{color:#5E37A8}
+.app{display:flex;flex-wrap:wrap;min-height:100vh}
+.side{flex:1 1 248px;max-width:248px;background:#14212B;color:#E6EBF0;display:flex;flex-direction:column;gap:2px;padding:20px 12px;box-sizing:border-box}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;color:#FFFFFF;font-weight:700;font-size:17px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:#2F5BDB;display:flex;align-items:center;justify-content:center}
+.navh{font-size:12px;color:#9AA8B6;padding:14px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;border-radius:8px;color:#D5DDE5;text-decoration:none;font-size:14px}
+.nav:hover{background:rgba(255,255,255,.07);color:#FFFFFF}
+.nav.on{background:rgba(255,255,255,.12);color:#FFFFFF;font-weight:600}
+.who{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.who small{display:block;color:#9AA8B6;font-size:12px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#2B3A47;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.main{flex:999 1 560px;min-width:0;padding:28px 36px 48px;box-sizing:border-box}
+.panel{background:#FFFFFF;border:1px solid #E1E6EB;border-radius:12px}
+.num{font-variant-numeric:tabular-nums}
+.chip{display:inline-flex;align-items:center;min-height:38px;padding:0 14px;border-radius:999px;border:1px solid #CBD3DB;background:#FFFFFF;font:500 14px 'Public Sans',sans-serif;color:#14212B;cursor:pointer}
+.chip.on{background:#14212B;border-color:#14212B;color:#FFFFFF}
+.cc{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 92px 56px;align-items:center;gap:12px;width:100%;padding:9px 16px;border:0;border-top:1px solid #EDF0F3;background:transparent;font:14px 'Public Sans',sans-serif;color:#14212B;text-align:left;cursor:pointer}
+.cc:hover{background:#F8F6FC}
+.cc.on{background:#F1EBFB}
+.track{height:10px;border-radius:5px;background:#EEE8F8;overflow:hidden}
+.fill{height:100%;border-radius:5px;background:#7A4FC9}
+.crear{margin:0 2px 8px}
+.crear summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border-radius:8px;background:#2F5BDB;color:#FFFFFF;font-weight:600;font-size:15px;cursor:pointer}
+.crear summary::-webkit-details-marker{display:none}
+.crear summary:hover{background:#2449B8}
+.crear .menu{display:flex;flex-direction:column;margin-top:6px;background:#1E2D39;border-radius:8px;padding:4px}
+.crear .menu a{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 10px;color:#E6EBF0;text-decoration:none;border-radius:6px;font-size:14px}
+.crear .menu a:hover{background:rgba(255,255,255,.08);color:#FFFFFF}
+.acc{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 14px 'Public Sans',sans-serif;text-decoration:none;border:1px solid transparent;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.b.az{background:#2F5BDB;color:#FFFFFF}.b.az:hover{background:#2449B8;color:#FFFFFF}
+.b.ve{background:#0B7A6F;color:#FFFFFF}.b.ve:hover{background:#086257;color:#FFFFFF}
+.b.vi{background:#7A4FC9;color:#FFFFFF}.b.vi:hover{background:#5E37A8;color:#FFFFFF}
+.b.se{background:#FFFFFF;border-color:#CBD3DB;color:#14212B}.b.se:hover{border-color:#14212B;color:#14212B}
+.b.sm{min-height:34px;padding:0 12px;font-size:13px}
+@media (max-width:760px){.side{max-width:none;flex-basis:100%}.main{padding:20px 16px 40px}.cc{grid-template-columns:minmax(0,1fr) 92px}.cc .track,.cc .pct{display:none}}
+</style>
+</helmet>
+<div class="app">
+  <nav class="side" aria-label="Menú principal">
+    <a class="brand" href="Main.dc.html">
+      <span class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg></span>
+      StockAware
+    </a>
+    <details class="crear">
+      <summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Crear</summary>
+      <div class="menu">
+        <a href="NuevaOC.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Orden de compra</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path></svg>Ingreso a bodega</a>
+        <a href="Registrar.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Salida de bodega</a>
+        <a href="Distribucion.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Reparto de factura</a>
+      </div>
+    </details>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</a>
+    <div class="navh">Compras</div>
+    <a class="nav" href="Ordenes.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8FB0FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 3v3h6V3"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>Órdenes de compra</a>
+    <div class="navh">Bodega</div>
+    <a class="nav" href="Stock.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V9l9-5 9 5v12"></path><path d="M7 21v-8h10v8"></path><path d="M7 17h10"></path></svg>Stock</a>
+    <a class="nav" href="Registrar.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FD3C4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14"></path><path d="m3 14 4 4 4-4"></path><path d="M17 20V6"></path><path d="m13 10 4-4 4 4"></path></svg>Registrar movimiento</a>
+    <div class="navh">Finanzas</div>
+    <a class="nav" href="Distribucion.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v6"></path><path d="M12 9 5 16v5"></path><path d="m12 9 7 7v5"></path></svg>Distribuir facturas</a>
+    <a class="nav on" href="Balance.dc.html" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C3A6FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg>Balance</a>
+    <div class="navh">Sistema</div>
+    <a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B4BEC8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10"></path><path d="M18 6h2"></path><circle cx="16" cy="6" r="2"></circle><path d="M4 12h4"></path><path d="M12 12h8"></path><circle cx="10" cy="12" r="2"></circle><path d="M4 18h12"></path><circle cx="18" cy="18" r="2"></circle></svg>Configuración</a>
+    <div class="who">
+      <span class="avatar" aria-hidden="true">AD</span>
+      <span style="flex: 1">Administrador<small>Perfil administrador</small></span>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span style="width: 44px; height: 44px; border-radius: 11px; background: #F1EBFB; display: flex; align-items: center; justify-content: center; flex: none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4FC9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"></path><path d="M7 16v-5"></path><path d="M12 16V6"></path><path d="M17 16v-8"></path></svg></span>
+        <div>
+          <h1 style="margin: 0; font-size: 26px; letter-spacing: -0.01em">Balance</h1>
+          <p style="margin: 4px 0 0; color: #4A5866; font-size: 14px">Dónde se va la plata, por centro de costo y por origen.</p>
+        </div>
+      </div>
+      <div role="group" aria-label="Período" style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button class="chip on" type="button">Ene–oct 2026</button>
+        <button class="chip" type="button">Últimos 12 meses</button>
+        <button class="chip" type="button">Elegir fechas</button>
+      </div>
+      <div class="acc" style="width: 100%; justify-content: flex-end">
+        <button class="b se" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12"></path><path d="m7 11 5 5 5-5"></path><path d="M4 20h16"></path></svg>Exportar a Excel</button>
+        <a class="b vi" href="Distribucion.dc.html">Distribuir 6.016 facturas pendientes</a>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; margin-bottom: 16px">
+      <section class="panel" aria-label="Gasto del período" style="padding: 20px 22px">
+        <div style="font-size: 14px; color: #4A5866; font-weight: 600">Gasto del período</div>
+        <div class="num" style="font-size: 46px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-top: 6px">$4.758 M</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px">
+          <span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; background: #E4F4EA; color: #17703F; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="m19 12-7 7-7-7"></path></svg>31 %</span>
+          <span style="color: #4A5866">vs. $6.899 M en ene–oct 2025</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #EDF0F3; font-size: 14px">
+          <div><div class="num" style="font-size: 20px; font-weight: 700">130</div><div style="color: #4A5866">centros con gasto, de 132</div></div>
+          <div><div class="num" style="font-size: 20px; font-weight: 700">49.037</div><div style="color: #4A5866">documentos que suman gasto</div></div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="origen" style="padding: 20px 22px">
+        <h2 id="origen" style="margin: 0; font-size: 15px">De dónde sale el gasto</h2>
+        <div role="img" aria-label="Facturas 59,8 %, vehículos y equipos 35,0 %, rendiciones 5,0 %, consumo de bodega 0,2 %" style="display: flex; height: 22px; border-radius: 6px; overflow: hidden; gap: 2px; margin: 16px 0 14px">
+          <div style="flex: 59.8; background: #4B2A91"></div>
+          <div style="flex: 35.0; background: #8F6AD8"></div>
+          <div style="flex: 5.0; background: #C9B6EE"></div>
+          <div style="flex: 0.6; background: #E6DDF7"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; font-size: 14px">
+          <div style="display: flex; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #4B2A91; margin-top: 4px; flex: none"></span><span>Facturas de proveedor<br><strong class="num">59,8 %</strong> <span class="num" style="color: #4A5866">$3.215 M</span></span></div>
+          <div style="display: flex; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #8F6AD8; margin-top: 4px; flex: none"></span><span>Vehículos y equipos<br><strong class="num">35,0 %</strong> <span class="num" style="color: #4A5866">$1.883 M</span></span></div>
+          <div style="display: flex; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #C9B6EE; margin-top: 4px; flex: none"></span><span>Rendiciones de gastos<br><strong class="num">5,0 %</strong> <span class="num" style="color: #4A5866">$270 M</span></span></div>
+          <div style="display: flex; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E6DDF7; border: 1px solid #C9B6EE; margin-top: 4px; flex: none; box-sizing: border-box"></span><span>Consumo de bodega<br><strong class="num">0,2 %</strong> <span class="num" style="color: #4A5866">$8 M</span></span></div>
+        </div>
+        <p style="margin: 14px 0 0; font-size: 13px; color: #4A5866">Costos de personal no aparecen: ese módulo no está en la réplica.</p>
+      </section>
+    </div>
+
+    <section class="panel" aria-labelledby="meses" style="padding: 20px 22px; margin-bottom: 16px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+        <h2 id="meses" style="margin: 0; font-size: 15px">Gasto por mes</h2>
+        <span style="font-size: 13px; color: #4A5866">Millones de pesos · la réplica no tiene registros desde septiembre</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px; align-items: end; height: 190px; margin-top: 18px; border-bottom: 1px solid #CBD3DB">
+        <sc-for list="{{ meses }}" as="m" hint-placeholder-count="12">
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%" title="{{ m.titulo }}">
+            <span class="num" style="font-size: 12px; color: #4A5866">{{ m.valor }}</span>
+            <div style="width: 100%; max-width: 44px; border-radius: 4px 4px 0 0; background: {{ m.color }}; height: {{ m.alto }}"></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px; margin-top: 8px">
+        <sc-for list="{{ meses }}" as="m" hint-placeholder-count="12">
+          <span style="text-align: center; font-size: 12px; color: #4A5866">{{ m.mes }}</span>
+        </sc-for>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start">
+      <section class="panel" aria-labelledby="centros" style="flex: 2">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 18px 16px 12px">
+          <h2 id="centros" style="margin: 0; font-size: 15px">Los 10 centros que más gastan</h2>
+          <span style="font-size: 13px; color: #4A5866">Toca uno para ver su detalle</span>
+        </div>
+        <sc-for list="{{ centros }}" as="c" hint-placeholder-count="10">
+          <button class="{{ c.clase }}" type="button" onClick="{{ c.pick }}">
+            <span style="min-width: 0"><strong style="display: block; font-size: 13px">{{ c.cc }}</strong><span style="display: block; font-size: 12px; color: #4A5866; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ c.proyecto }}</span></span>
+            <span class="track"><span class="fill" style="display: block; width: {{ c.ancho }}"></span></span>
+            <span class="num" style="text-align: right; font-weight: 600">{{ c.monto }}</span>
+            <span class="num pct" style="text-align: right; color: #4A5866">{{ c.pct }}</span>
+          </button>
+        </sc-for>
+      </section>
+
+      <aside class="panel" aria-label="Detalle del centro" style="padding: 20px 22px">
+        <div style="font-size: 13px; color: #7A4FC9; font-weight: 600">Centro de costo</div>
+        <h2 style="margin: 4px 0 2px; font-size: 20px">{{ sel.cc }}</h2>
+        <p style="margin: 0; color: #4A5866; font-size: 14px">{{ sel.proyecto }}</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; padding: 16px 0; border-top: 1px solid #EDF0F3; border-bottom: 1px solid #EDF0F3">
+          <div><div class="num" style="font-size: 24px; font-weight: 700">{{ sel.monto }}</div><div style="font-size: 13px; color: #4A5866">gastado en el período</div></div>
+          <div><div class="num" style="font-size: 24px; font-weight: 700">{{ sel.pct }}</div><div style="font-size: 13px; color: #4A5866">del gasto total</div></div>
+          <div><div class="num" style="font-size: 24px; font-weight: 700">{{ sel.movs }}</div><div style="font-size: 13px; color: #4A5866">documentos</div></div>
+          <div><div class="num" style="font-size: 24px; font-weight: 700">{{ sel.prom }}</div><div style="font-size: 13px; color: #4A5866">promedio por documento</div></div>
+        </div>
+        <h3 style="margin: 0 0 10px; font-size: 14px">Cuentas que más pesan en la empresa</h3>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px">
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Instrumentos (interno)</span><strong class="num">$1.097 M</strong></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Gastos 13</span><strong class="num">$597 M</strong></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Cargos bancarios</span><strong class="num">$522 M</strong></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Vehículos livianos (interno)</span><strong class="num">$502 M</strong></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Combustible</span><strong class="num">$196 M</strong></div>
+        </div>
+        <p style="margin: 16px 0 0; font-size: 13px; color: #4A5866">El presupuesto viene anonimizado en la réplica: cuando exista, aquí se compara gasto contra presupuesto.</p>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { sel: 0 };
+  }
+  renderVals() {
+    const m = (n) => '$' + (n / 1e6).toLocaleString('es-CL', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + ' M';
+    const total = 4757595042;
+    const top = [
+      ['1-00-12-013', 'Reparaciones y mantención de sedes', 613218720, 235],
+      ['3-10-22-012 T0003', 'Contrato mantenimiento Zona Sur equipos', 557687905, 4879],
+      ['1-00-12-004', 'Finanzas', 546021640, 332],
+      ['1-00-12-007', 'Bodega', 454443431, 2717],
+      ['3-10-22-012 T0004', 'Contrato mantenimiento Zona Sur líneas', 293382103, 12658],
+      ['1-00-12-010 T0013', 'Operaciones: mantención Centro y Norte', 243665529, 1235],
+      ['1-00-12-006', 'Transporte', 225781370, 1188],
+      ['13-10-25-131', 'Reemplazo cable OPGW línea 2x500 kV Los Changos', 214450056, 1603],
+      ['3-10-22-012 T0002', 'Contrato mantenimiento ZCS equipos', 171101614, 5412],
+      ['3-10-23-169', 'Reemplazo UR y U2 Bco. ATR1 SE Charrúa', 135958356, 1074],
+    ];
+    const max = top[0][2];
+    const pct = (n) => (n / total * 100).toLocaleString('es-CL', { maximumFractionDigits: 1, minimumFractionDigits: 1 }) + ' %';
+    const centros = top.map(([cc, proyecto, gasto], i) => ({
+      cc, proyecto, monto: m(gasto), pct: pct(gasto),
+      ancho: (gasto / max * 100).toFixed(1) + '%',
+      clase: i === this.state.sel ? 'cc on' : 'cc',
+      pick: () => this.setState({ sel: i }),
+    }));
+    const s = top[this.state.sel];
+    const sel = {
+      cc: s[0], proyecto: s[1], monto: m(s[2]), pct: pct(s[2]),
+      movs: s[3].toLocaleString('es-CL'),
+      prom: '$' + Math.round(s[2] / s[3]).toLocaleString('es-CL'),
+    };
+    const serie = [
+      ['nov', 901410058, false], ['dic', 1271301794, false], ['ene', 904724176, true], ['feb', 606336953, true],
+      ['mar', 704971315, true], ['abr', 886377051, true], ['may', 700636790, true], ['jun', 538106384, true],
+      ['jul', 381365006, true], ['ago', 34955168, true], ['sep', 122199, true], ['oct', 0, true],
+    ];
+    const tope = 1271301794;
+    const meses = serie.map(([mes, v, actual]) => ({
+      mes,
+      valor: v >= 1e6 ? Math.round(v / 1e6).toLocaleString('es-CL') : (v > 0 ? '<1' : '0'),
+      alto: Math.max(v / tope * 150, v > 0 ? 3 : 1).toFixed(0) + 'px',
+      color: actual ? '#7A4FC9' : '#C9CFD6',
+      titulo: mes + ': ' + '$' + Math.round(v).toLocaleString('es-CL'),
+    }));
+    return { centros, sel, meses };
+  }
+}
+</script>
+</body>
+</html>

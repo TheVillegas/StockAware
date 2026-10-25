@@ -1,0 +1,55 @@
+{
+  "name": "erp-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "lint": "eslint \"src/**/*.{ts,html}\" --max-warnings=0 --no-error-on-unmatched-pattern",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@angular/common": "^20.3.34",
+    "@angular/compiler": "^20.3.34",
+    "@angular/core": "^20.3.34",
+    "@angular/forms": "^20.3.34",
+    "@angular/platform-browser": "^20.3.34",
+    "@angular/router": "^20.3.34",
+    "@capacitor/core": "^7.6.9",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/public-sans": "^5.3.0",
+    "@ionic/angular": "^8.4.0",
+    "ionicons": "^7.4.0",
+    "rxjs": "^7.8.1",
+    "tslib": "^2.8.1",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.0.0",
+    "@angular/cli": "^20.0.0",
+    "@angular/compiler-cli": "^20.3.34",
+    "@capacitor/cli": "^7.6.9",
+    "@typescript-eslint/parser": "^8.70.0",
+    "eslint": "^9.17.0",
+    "jest": "^29.7.0",
+    "typescript": "~5.8.0"
+  },
+  "overrides": {
+    "body-parser": "2.4.0",
+    "proxy-addr": "2.0.8",
+    "piscina": "5.3.2",
+    "http-cache-semantics": "4.3.0",
+    "source-map-js": "1.2.2",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "braces": "npm:@franciscosolis/braces@3.1.1",
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.21"
+    },
+    "minimatch@10.2.6": {
+      "brace-expansion": "5.0.12"
+    },
+    "vite": "7.3.7"
+  }
+}

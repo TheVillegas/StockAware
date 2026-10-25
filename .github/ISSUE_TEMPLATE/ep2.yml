@@ -1,0 +1,72 @@
+name: "EP2 — Desarrollo e integración"
+description: "Proponé trabajo para la segunda entrega parcial de StockAware."
+title: "[EP2]: "
+labels:
+  - "phase:ep2"
+  - "status:planned"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Registrá una necesidad implementable para EP2 y dejá claros sus límites y forma de validación.
+  - type: textarea
+    id: objective_context
+    attributes:
+      label: Objetivo y contexto
+      description: ¿Qué necesidad cubre y cuál es el contexto funcional o técnico?
+      placeholder: Describí el problema, el objetivo y las personas o componentes involucrados.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Criterios de aceptación
+      description: Enumerá condiciones observables para aceptar el resultado.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+  - type: textarea
+    id: scope_exclusions
+    attributes:
+      label: Alcance y exclusiones
+      description: Delimitá el trabajo incluido y aquello que no se resolverá en este issue.
+      placeholder: Incluye... / No incluye...
+    validations:
+      required: true
+  - type: dropdown
+    id: affected_area
+    attributes:
+      label: Área afectada
+      description: Seleccioná el área principal impactada.
+      options:
+        - Frontend
+        - Backend o API
+        - Base de datos
+        - Autenticación y seguridad
+        - Integración entre componentes
+        - Documentación
+        - Otra
+    validations:
+      required: true
+  - type: checkboxes
+    id: verification
+    attributes:
+      label: Evidencia y verificación
+      description: Confirmá los mínimos de verificación para esta propuesta.
+      options:
+        - label: Definí una forma concreta de verificar los criterios de aceptación.
+          required: true
+        - label: Adjuntaré resultados, capturas, logs o enlaces como evidencia.
+          required: true
+        - label: Revisé que no se expongan secretos ni datos sensibles.
+          required: true
+  - type: textarea
+    id: evidence_details
+    attributes:
+      label: Detalle de evidencia esperada
+      description: Especificá pruebas, comandos, casos manuales o evidencias previstas.
+      placeholder: Verificación prevista y resultado esperado.
+    validations:
+      required: true
