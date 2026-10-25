@@ -34,7 +34,8 @@ DECLARE r record;
 BEGIN
   FOR r IN
     SELECT tablename FROM pg_tables
-    WHERE schemaname = 'public' AND tablename <> 'replica_carga'
+    WHERE schemaname = 'public'
+      AND tablename NOT IN ('replica_carga', 'migraciones_typeorm')
   LOOP
     EXECUTE format('TRUNCATE TABLE public.%I RESTART IDENTITY CASCADE', r.tablename);
   END LOOP;
