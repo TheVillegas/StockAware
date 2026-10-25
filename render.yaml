@@ -19,7 +19,7 @@ services:
     dockerfilePath: ./apps/intelligence-service/Dockerfile
     dockerContext: ./apps/intelligence-service
     healthCheckPath: /health
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
 
   - type: web
     name: stockaware-api
@@ -30,7 +30,7 @@ services:
     dockerfilePath: ./apps/backend/Dockerfile
     dockerContext: ./apps/backend
     healthCheckPath: /api/health
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     # Free web services reject preDeployCommand. A single executable path:
     # Render runs a quoted shell string as a filename and exits 127.
     dockerCommand: /app/database/render-start.sh
@@ -75,7 +75,7 @@ services:
     branch: develop
     buildCommand: cd apps/frontend && npm ci && node scripts/set-api-url.mjs && npx ng build
     staticPublishPath: ./apps/frontend/dist/browser
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     routes:
       - type: rewrite
         source: "/*"
