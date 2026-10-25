@@ -13,6 +13,8 @@ import { MantenedoresModule } from './mantenedores/mantenedores.module';
 import { MenuModule } from './menu/menu.module';
 import { InteligenciaModule } from './inteligencia/inteligencia.module';
 import { SaludController } from './salud/salud.controller';
+import { SondaPostgres } from './salud/sonda';
+import { SondaPostgresReal } from './salud/sonda.postgres';
 import { opcionesBase } from './data-source';
 import { PreciosModule } from './precios/precios.module';
 
@@ -46,6 +48,7 @@ import { PreciosModule } from './precios/precios.module';
     PreciosModule,
   ],
   controllers: [SaludController],
+  providers: [{ provide: SondaPostgres, useClass: SondaPostgresReal }],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

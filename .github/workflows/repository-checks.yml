@@ -446,6 +446,23 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-containers", path: ci-evidence/containers-summary.env, if-no-files-found: error, retention-days: 30 }
 
+  ci-terraform:
+    name: CI Terraform staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.9.8
+      - name: Validate the EP1 staging root
+        working-directory: infrastructure/terraform/staging
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
   ci-critical-gate:
     name: CI critical gate
     if: ${{ always() }}
@@ -460,6 +477,7 @@ jobs:
       - ci-intelligence-quality
       - ci-postgres-integration
       - ci-containers
+      - ci-terraform
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -477,7 +495,8 @@ jobs:
             backend:${{ needs.manifest-discovery.outputs.backend }}:${{ needs.ci-backend-quality.result }};
             intelligence:${{ needs.manifest-discovery.outputs.intelligence }}:${{ needs.ci-intelligence-quality.result }};
             postgres:${{ needs.manifest-discovery.outputs.postgres }}:${{ needs.ci-postgres-integration.result }};
-            containers:${{ needs.manifest-discovery.outputs.compose }}:${{ needs.ci-containers.result }}
+            containers:${{ needs.manifest-discovery.outputs.compose }}:${{ needs.ci-containers.result }};
+            terraform:applicable:${{ needs.ci-terraform.result }}
         shell: bash
         run: |
           set -euo pipefail
@@ -495,3 +514,21 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with: { name: "ci-evidence-${{ github.sha }}-${{ github.run_id }}-critical-gate", path: ci-evidence/critical-gate-summary.env, if-no-files-found: error, retention-days: 30 }
+
+  staging-deploy:
+    name: Staging deploy
+    needs: ci-critical-gate
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' && needs.ci-critical-gate.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Deploy this commit and check health
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_API: ${{ secrets.RENDER_SERVICE_ID_API }}
+          RENDER_SERVICE_ID_INTELLIGENCE: ${{ secrets.RENDER_SERVICE_ID_INTELLIGENCE }}
+          RENDER_SERVICE_ID_WEB: ${{ secrets.RENDER_SERVICE_ID_WEB }}
+          STAGING_SHA: ${{ github.sha }}
+        run: bash .github/scripts/desplegar-staging.sh

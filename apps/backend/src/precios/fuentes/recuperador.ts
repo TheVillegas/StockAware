@@ -3,8 +3,9 @@
  * se identifica con su User-Agent y lleva el ritmo acordado (una peticion a la vez por
  * fuente, 2 s entre paginas, 10 s en total por fuente, sin reintento).
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
+import { registrarFallaFuente } from '../../comun/registro';
 import { CacheRobots } from './robots';
 import {
   CONFIG_FUENTES, Fuente, MAX_PAGINAS_SODIMAC, PAUSA_PAGINAS_MS, PRESUPUESTO_FUENTE_MS,
@@ -22,7 +23,6 @@ type Pagina = { estado: 'ok'; texto: string; url: string; http: number } | { est
 
 @Injectable()
 export class RecuperadorFuentes {
-  private readonly log = new Logger(RecuperadorFuentes.name);
   // Campos y no parametros del constructor para que Nest lo cree sin configuracion y las pruebas los reemplacen.
   robots = new CacheRobots();
   dormir = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -73,7 +73,7 @@ export class RecuperadorFuentes {
       for (let salto = 0; salto <= MAX_REDIRECCIONES; salto++) {
         if (!(await this.robots.permite(url, senal))) {
           if (senal.aborted) return { estado: 'falla', causa: 'timeout' };
-          this.log.warn(`${fuente}: robots.txt no permite ${new URL(url).pathname} o no se pudo leer`);
+          registrarFallaFuente({ fuente, causa: 'http_error', url });
           return { estado: 'falla', causa: 'http_error' };
         }
         const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT }, redirect: 'manual', signal: senal });
@@ -84,7 +84,7 @@ export class RecuperadorFuentes {
           continue;
         }
         if (!res.ok) {
-          this.log.warn(`${fuente}: HTTP ${res.status}`);
+          registrarFallaFuente({ fuente, causa: 'http_error', url, http: res.status });
           return { estado: 'falla', causa: 'http_error', http: res.status };
         }
         if (Number(res.headers.get('content-length') ?? 0) > MAX_BYTES) return { estado: 'falla', causa: 'http_error', http: res.status };
@@ -93,7 +93,7 @@ export class RecuperadorFuentes {
       return { estado: 'falla', causa: 'http_error' };
     } catch {
       const causa = senal.aborted ? 'timeout' : 'http_error';
-      this.log.warn(`${fuente}: ${causa} al consultar ${new URL(inicial).hostname}`);
+      registrarFallaFuente({ fuente, causa, url: inicial });
       return { estado: 'falla', causa };
     }
   }
