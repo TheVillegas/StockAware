@@ -31,4 +31,4 @@ El frontend de Render llama a `https://<api>/api`. En local, Compose sigue usand
 4. Completa `JWT_SECRET` sin pegarlo en el repositorio.
 5. Pulsa Apply.
 
-El despliegue automático espera a que pasen los checks de GitHub (`autoDeployTrigger: checksPass`).
+El despliegue automático sale con cada push a `develop` (`autoDeployTrigger: commit`). Con `checksPass` los pushes no llegaban a desplegarse solos.
