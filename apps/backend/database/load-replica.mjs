@@ -1,9 +1,16 @@
 import { createReadStream } from 'node:fs';
 import { createGunzip } from 'node:zlib';
 import { readFile } from 'node:fs/promises';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+
+const require = createRequire(import.meta.url);
+const { from: copyFrom } = require('pg-copy-streams');
+const { planDump } = require('./load-replica-plan.js');
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'init');
 
@@ -21,6 +28,19 @@ const client = new pg.Client({
   ssl: process.env.PG_SSL === 'require' ? { rejectUnauthorized: false } : undefined,
 });
 
+const truncatePublicTables = `
+DO $$
+DECLARE r record;
+BEGIN
+  FOR r IN
+    SELECT tablename FROM pg_tables
+    WHERE schemaname = 'public' AND tablename <> 'replica_carga'
+  LOOP
+    EXECUTE format('TRUNCATE TABLE public.%I RESTART IDENTITY CASCADE', r.tablename);
+  END LOOP;
+END $$;
+`;
+
 async function sqlFile(name) {
   const full = path.join(root, name);
   if (name.endsWith('.gz')) {
@@ -31,16 +51,41 @@ async function sqlFile(name) {
   return readFile(full, 'utf8');
 }
 
+async function runDump(sql) {
+  for (const step of planDump(sql)) {
+    if (step.kind === 'sql') {
+      await client.query(step.text);
+      continue;
+    }
+    await pipeline(Readable.from([step.payload]), client.query(copyFrom(step.command)));
+  }
+}
+
+async function runFile(name) {
+  console.log(`loading ${name}`);
+  const sql = await sqlFile(name);
+  if (name.endsWith('.gz')) await runDump(sql);
+  else await client.query(sql);
+  await client.query('SET search_path TO public');
+}
+
 await client.connect();
 try {
-  const existing = await client.query("SELECT to_regclass('public.data_clientes') AS table_name");
-  if (existing.rows[0]?.table_name) {
+  const marker = await client.query("SELECT to_regclass('public.replica_carga') AS table_name");
+  if (marker.rows[0]?.table_name) {
     console.log('replica already loaded');
   } else {
-    for (const name of ['01_schema.sql', '02_datos.sql.gz', '03_vistas.sql', '04_secuencias.sql']) {
-      console.log(`loading ${name}`);
-      await client.query(await sqlFile(name));
+    const existing = await client.query("SELECT to_regclass('public.data_clientes') AS table_name");
+    const files = existing.rows[0]?.table_name
+      ? ['02_datos.sql.gz', '03_vistas.sql', '04_secuencias.sql']
+      : ['01_schema.sql', '02_datos.sql.gz', '03_vistas.sql', '04_secuencias.sql'];
+    if (existing.rows[0]?.table_name) {
+      console.log('schema exists without data; truncating public tables');
+      await client.query(truncatePublicTables);
     }
+    for (const name of files) await runFile(name);
+    await client.query('CREATE TABLE IF NOT EXISTS public.replica_carga (id int primary key)');
+    await client.query('INSERT INTO public.replica_carga (id) VALUES (1) ON CONFLICT DO NOTHING');
     console.log('replica loaded');
   }
 } finally {
