@@ -1,0 +1,86 @@
+# Staging EP2 on Render. Free web services sleep after 15 idle minutes.
+# The free Postgres instance expires 30 days after creation.
+# Apply this file from the Render Dashboard after it is on the remote branch.
+
+databases:
+  - name: stockaware-db
+    databaseName: erp_replica
+    plan: free
+    region: oregon
+    ipAllowList: []
+
+services:
+  - type: web
+    name: stockaware-intelligence
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: develop
+    dockerfilePath: ./apps/intelligence-service/Dockerfile
+    dockerContext: ./apps/intelligence-service
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+
+  - type: web
+    name: stockaware-api
+    runtime: docker
+    plan: free
+    region: oregon
+    branch: develop
+    dockerfilePath: ./apps/backend/Dockerfile
+    dockerContext: ./apps/backend
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
+    preDeployCommand: node database/load-replica.mjs
+    envVars:
+      - key: PG_HOST
+        fromDatabase:
+          name: stockaware-db
+          property: host
+      - key: PG_PORT
+        fromDatabase:
+          name: stockaware-db
+          property: port
+      - key: PG_USER
+        fromDatabase:
+          name: stockaware-db
+          property: user
+      - key: PG_PASSWORD
+        fromDatabase:
+          name: stockaware-db
+          property: password
+      - key: PG_DATABASE
+        fromDatabase:
+          name: stockaware-db
+          property: database
+      - key: PG_SSL
+        value: require
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRA
+        value: 3600s
+      - key: PEPPER
+        value: ""
+      - key: INTELLIGENCE_SERVICE_URL
+        fromService:
+          name: stockaware-intelligence
+          type: web
+          property: hostport
+
+  - type: web
+    name: stockaware-web
+    runtime: static
+    branch: develop
+    buildCommand: cd apps/frontend && npm ci && node scripts/set-api-url.mjs && npx ng build
+    staticPublishPath: ./apps/frontend/dist/browser
+    autoDeployTrigger: checksPass
+    routes:
+      - type: rewrite
+        source: "/*"
+        destination: /index.html
+    envVars:
+      - key: BACKEND_HOST
+        fromService:
+          name: stockaware-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME

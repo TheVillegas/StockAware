@@ -28,6 +28,7 @@ import { PreciosModule } from './precios/precios.module';
         username: c.get<string>('PG_USER'),
         password: c.get<string>('PG_PASSWORD'),
         database: c.get<string>('PG_DATABASE'),
+        ...(c.get<string>('PG_SSL') === 'require' ? { ssl: { rejectUnauthorized: false } } : {}),
         // La migracion de precios_externos corre sola al arrancar: los scripts de init
         // solo corren con el volumen vacio y la base de Compose ya tiene datos.
         migrationsRun: true,
