@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "metrica:precios": "nest build && node dist/precios/metrica/medir.js",
     "test": "jest --passWithNoTests",
+    "test:http:ci": "node ../../tests/integration/nest-fastapi.cjs",
     "migracion:ejecutar": "nest build && typeorm migration:run -d dist/data-source.js",
     "migracion:revertir": "nest build && typeorm migration:revert -d dist/data-source.js",
     "db:migrate:ci": "bash database/ci/migrate.sh",

@@ -131,6 +131,19 @@ for excluded in .env scanner-report.json image.tar node_modules/package.json; do
 done
 
 workflow="$root/.github/workflows/repository-checks.yml"
+ruby -ryaml -rjson -e '
+  jobs = YAML.load_file(ARGV[0])["jobs"]
+  quality = jobs.fetch("ci-intelligence-quality")
+  steps = quality.fetch("steps")
+  live = steps.find { |s| s["name"] == "Exercise Nest to FastAPI over HTTP" }
+  abort "Missing required live HTTP integration step" unless live && !live["continue-on-error"]
+  abort "Live integration must use the locked Python environment" unless live.fetch("run").include?("uv run --frozen python")
+  abort "Live integration command missing" unless live.fetch("run").include?("run test:http:ci")
+  gate = jobs.fetch("ci-critical-gate")
+  abort "Intelligence integration is not required by the gate" unless gate.fetch("needs").include?("ci-intelligence-quality")
+  package = JSON.parse(File.read(ARGV[1]))
+  abort "Live integration runner missing" unless package.fetch("scripts")["test:http:ci"] == "node ../../tests/integration/nest-fastapi.cjs"
+' "$workflow" "$root/apps/backend/package.json"
 ruby "$root/tests/ci/test-workflow-security.rb" "$workflow"
 full_history_workflow="$root/.github/workflows/full-history-secret-audit.yml"
 secret_range="$root/.github/scripts/secret-scan-range.sh"
