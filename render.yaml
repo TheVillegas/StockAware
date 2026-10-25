@@ -31,8 +31,9 @@ services:
     dockerContext: ./apps/backend
     healthCheckPath: /api/health
     autoDeployTrigger: checksPass
-    # Free web services reject preDeployCommand. Load before the server listens.
-    dockerCommand: /bin/sh -c "set -e; node database/load-replica.mjs && exec node dist/main.js"
+    # Free web services reject preDeployCommand. A single executable path:
+    # Render runs a quoted shell string as a filename and exits 127.
+    dockerCommand: /app/database/render-start.sh
     envVars:
       - key: PG_HOST
         fromDatabase:
