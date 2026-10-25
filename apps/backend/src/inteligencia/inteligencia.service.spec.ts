@@ -29,6 +29,22 @@ describe('IntelligenceService', () => {
     global.fetch = originalFetch;
   });
 
+  it('prefixes a private host:port with http', async () => {
+    svc = new IntelligenceService(configCon('stockaware-intelligence:10000'));
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ status: 'ok' }),
+    });
+
+    await svc.salud();
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://stockaware-intelligence:10000/health',
+      expect.any(Object),
+    );
+  });
+
   it('proxies health JSON on success', async () => {
     const payload = { status: 'ok', service: 'intelligence-service' };
     global.fetch = jest.fn().mockResolvedValue({

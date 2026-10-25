@@ -76,7 +76,9 @@ export class IntelligenceService {
   }
 
   private base(): string {
-    return (this.config.get<string>('INTELLIGENCE_SERVICE_URL') ?? '').replace(/\/$/, '');
+    const valor = (this.config.get<string>('INTELLIGENCE_SERVICE_URL') ?? '').replace(/\/$/, '');
+    if (!valor || valor.includes('://')) return valor;
+    return `http://${valor}`;
   }
 
   /** `internoEs502`: un 422 del hop no es culpa del usuario del ERP, asi que sale como intelligence_error. */
