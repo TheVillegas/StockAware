@@ -40,3 +40,18 @@ Los secretos del repositorio, una sola vez y sin pegarlos en el código, son `RE
 - `https://stockaware-web.onrender.com/`
 
 Postgres no se abre a internet. La conexión la prueba Nest con `SELECT 1`. Cada petición escribe una línea JSON con `correlation_id` y `duration_ms`. Un fallo de fuente externa escribe `evento: fuente_externa` con el host, sin la URL ni credenciales.
+
+## Verificar el cierre de #51
+
+Un CI verde de un pull request no demuestra el despliegue: `staging-deploy` solo se ejecuta después de un push a `develop` con el gate aprobado. Antes de cerrar el issue, adjuntar:
+
+- El enlace al run con `Staging deploy` aprobado, la URL de staging y el SHA desplegado.
+- El resultado de los health checks de NestJS y FastAPI con ese mismo SHA, incluido `postgres: ok` en NestJS.
+- Una muestra sanitizada de los registros de petición y de error de fuente externa, con `correlation_id` y `duration_ms`, sin credenciales.
+
+El check `Validate Trivy severity contracts` analiza el YAML y comprueba las severidades y el código de salida de cada paso de Trivy. Las listas dentro de mapas YAML en línea deben llevar comillas (`severity: 'HIGH,CRITICAL'`); sin ellas, la coma separa entradas del mapa y se pierde `CRITICAL`. La comprobación local es:
+
+```bash
+ruby tests/ci/test-workflow-security.rb .github/workflows/repository-checks.yml
+bash tests/ci/test-ci-contracts.sh
+```

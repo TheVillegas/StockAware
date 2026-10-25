@@ -61,6 +61,9 @@ jobs:
           fi
           ruby -rpsych -e 'ARGV.each { |path| Psych.parse_file(path); puts "Valid YAML: #{path}" }' "${yaml_files[@]}"
 
+      - name: Validate Trivy severity contracts
+        run: ruby tests/ci/test-workflow-security.rb .github/workflows/repository-checks.yml
+
       - name: Reject tracked sensitive filenames
         shell: bash
         run: |
@@ -342,10 +345,10 @@ jobs:
       - run: uv sync --frozen
       - name: Warn on LOW and MEDIUM Python dependency findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: 'LOW,MEDIUM', exit-code: '0', cache: false }
       - name: Block HIGH and CRITICAL Python dependency findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+        with: { scan-type: fs, scan-ref: apps/intelligence-service, scanners: vuln, severity: 'HIGH,CRITICAL', exit-code: '1', cache: false }
       - run: uv run --frozen ruff check .
       - run: uv run --frozen ruff format --check .
       - run: uv run --frozen mypy .
@@ -417,19 +420,19 @@ jobs:
       - run: docker build --tag stockaware-intelligence-ci:local apps/intelligence-service
       - name: Warn on MEDIUM and LOW backend image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-backend-ci:local, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+        with: { image-ref: stockaware-backend-ci:local, severity: 'LOW,MEDIUM', exit-code: '0', cache: false }
       - name: Warn on MEDIUM and LOW frontend image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-frontend-ci:local, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+        with: { image-ref: stockaware-frontend-ci:local, severity: 'LOW,MEDIUM', exit-code: '0', cache: false }
       - name: Warn on MEDIUM and LOW intelligence image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-intelligence-ci:local, severity: LOW,MEDIUM, exit-code: '0', cache: false }
+        with: { image-ref: stockaware-intelligence-ci:local, severity: 'LOW,MEDIUM', exit-code: '0', cache: false }
       - name: Block HIGH and CRITICAL backend image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-backend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+        with: { image-ref: stockaware-backend-ci:local, severity: 'HIGH,CRITICAL', exit-code: '1', cache: false }
       - name: Block HIGH and CRITICAL frontend image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with: { image-ref: stockaware-frontend-ci:local, severity: HIGH,CRITICAL, exit-code: '1', cache: false }
+        with: { image-ref: stockaware-frontend-ci:local, severity: 'HIGH,CRITICAL', exit-code: '1', cache: false }
       - name: Block HIGH and CRITICAL intelligence image findings
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:

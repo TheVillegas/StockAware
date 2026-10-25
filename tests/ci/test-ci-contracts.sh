@@ -131,6 +131,7 @@ for excluded in .env scanner-report.json image.tar node_modules/package.json; do
 done
 
 workflow="$root/.github/workflows/repository-checks.yml"
+ruby "$root/tests/ci/test-workflow-security.rb" "$workflow"
 full_history_workflow="$root/.github/workflows/full-history-secret-audit.yml"
 secret_range="$root/.github/scripts/secret-scan-range.sh"
 range_repo="$workspace/range-repo"

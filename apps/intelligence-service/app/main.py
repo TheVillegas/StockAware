@@ -93,7 +93,9 @@ async def registrar_peticion(
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", service=SERVICE_NAME, version=version_desplegada())
+    return HealthResponse(
+        status="ok", service=SERVICE_NAME, version=version_desplegada()
+    )
 
 
 @app.post("/v1/echo", response_model=EchoResponse)

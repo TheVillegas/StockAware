@@ -14,9 +14,16 @@ from app.main import (
 )
 
 
-def test_health_returns_ok(client: TestClient, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch) -> None:
+def test_health_returns_ok(
+    client: TestClient,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
-    response = client.get("/health", headers={"Authorization": "Bearer secreto", "x-request-id": "corr-1234"})
+    response = client.get(
+        "/health",
+        headers={"Authorization": "Bearer secreto", "x-request-id": "corr-1234"},
+    )
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["service"] == "intelligence-service"
