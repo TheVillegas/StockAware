@@ -31,6 +31,19 @@ export const CONFIG_FUENTES: Record<Fuente, ConfigFuente> = {
   sodimac: { tipo: 'html', dominios: ['sodimac.cl'], requiereUrl: true },
 };
 
+/**
+ * Unicos origenes cuyo robots.txt se descarga. Lista cerrada a proposito: el origen
+ * puede venir de una URL que envia el usuario, y una lista evita pedir robots.txt a
+ * cualquier otro host (SSRF, #77). Una fuente nueva o un subdominio nuevo se agregan aqui.
+ */
+export const ORIGENES_ROBOTS = [
+  'https://dartel.cl', 'https://www.dartel.cl',
+  'https://dimeiggs.cl', 'https://www.dimeiggs.cl',
+  'https://publicapi.solotodo.com',
+  'https://rhona.cl', 'https://www.rhona.cl',
+  'https://sodimac.cl', 'https://www.sodimac.cl',
+] as const;
+
 /** true si la URL es https y su host es el dominio de la fuente o un subdominio. */
 export function urlDeFuente(fuente: Fuente, url: string): boolean {
   let u: URL;
