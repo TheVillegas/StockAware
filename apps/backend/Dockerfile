@@ -28,6 +28,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/package.json ./package.json
 COPY database/init ./database/init
 COPY database/load-replica.mjs ./database/load-replica.mjs
+COPY database/load-replica-plan.js ./database/load-replica-plan.js
 COPY database/render-start.sh ./database/render-start.sh
 RUN chmod +x ./database/render-start.sh
 EXPOSE 3000
