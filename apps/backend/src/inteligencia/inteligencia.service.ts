@@ -7,6 +7,8 @@
  */
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+import { idCorrelacion } from '../comun/correlacion';
 import { Fuente } from '../precios/fuentes/fuentes';
 import {
   ErrorFormato, PreparacionDto, ResultadoFuente, validaPreparacion, validaProcesamiento,
@@ -84,9 +86,14 @@ export class IntelligenceService {
   /** `internoEs502`: un 422 del hop no es culpa del usuario del ERP, asi que sale como intelligence_error. */
   private async pedir(ruta: string, init: RequestInit, timeoutMs = TIMEOUT_MS, internoEs502 = false) {
     let respuesta: Response;
+    const correlacion = idCorrelacion();
+    const headers = correlacion === 'sin-correlacion'
+      ? init.headers
+      : { ...(init.headers as Record<string, string> | undefined), 'x-request-id': correlacion };
     try {
       respuesta = await fetch(`${this.base()}${ruta}`, {
         ...init,
+        headers,
         signal: AbortSignal.timeout(timeoutMs),
       });
     } catch {

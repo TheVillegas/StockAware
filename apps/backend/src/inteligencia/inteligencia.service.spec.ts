@@ -6,6 +6,7 @@ const { cargaTs } = require('../precios/fuentes/carga-ts');
 // Jest 29 default-transforms *.ts with babel-jest, which cannot strip types: el servicio
 // y sus imports relativos se cargan transpilados con TypeScript.
 const { IntelligenceService } = cargaTs(path.join(__dirname, 'inteligencia.service.ts'));
+const { entrarCorrelacion } = cargaTs(path.join(__dirname, '../comun/correlacion.ts'));
 
 function configCon(url) {
   return { get: (clave) => (clave === 'INTELLIGENCE_SERVICE_URL' ? url : undefined) };
@@ -79,6 +80,23 @@ describe('IntelligenceService', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mensaje: 'hola' }),
         signal: expect.any(AbortSignal),
+      }),
+    );
+  });
+
+  it('forwards the request correlation id to FastAPI', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ eco: 'hola', servicio: 'intelligence-service' }),
+    });
+
+    await entrarCorrelacion('corr-1234', () => svc.eco('hola'));
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://intelligence:8000/v1/echo',
+      expect.objectContaining({
+        headers: { 'Content-Type': 'application/json', 'x-request-id': 'corr-1234' },
       }),
     );
   });

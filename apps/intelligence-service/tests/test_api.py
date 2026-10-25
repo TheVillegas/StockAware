@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from fastapi import Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.testclient import TestClient
@@ -13,10 +14,27 @@ from app.main import (
 )
 
 
-def test_health_returns_ok(client: TestClient) -> None:
-    response = client.get("/health")
+def test_health_returns_ok(
+    client: TestClient,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("RENDER_GIT_COMMIT", raising=False)
+    response = client.get(
+        "/health",
+        headers={"Authorization": "Bearer secreto", "x-request-id": "corr-1234"},
+    )
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "intelligence-service"}
+    assert response.json()["status"] == "ok"
+    assert response.json()["service"] == "intelligence-service"
+    assert response.json()["version"] == "local"
+    assert response.headers["x-request-id"] == "corr-1234"
+    linea = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert linea["evento"] == "peticion"
+    assert linea["correlation_id"] == "corr-1234"
+    assert linea["path"] == "/health"
+    assert linea["duration_ms"] >= 0
+    assert "secreto" not in json.dumps(linea)
 
 
 def test_echo_returns_message(client: TestClient) -> None:

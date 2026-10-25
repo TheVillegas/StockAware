@@ -1,6 +1,12 @@
+import json
+import os
+import time
+from collections.abc import Awaitable, Callable
+from uuid import uuid4
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from app.precios.router import router as precios_router
@@ -9,9 +15,21 @@ from app.text import normalize_description
 SERVICE_NAME = "intelligence-service"
 
 
+def version_desplegada() -> str:
+    return os.getenv("RENDER_GIT_COMMIT", "local")
+
+
+def id_entrante(valor: str | None) -> str:
+    limpio = (valor or "").strip()
+    if 8 <= len(limpio) <= 64 and all(c.isalnum() or c in "._-" for c in limpio):
+        return limpio
+    return str(uuid4())
+
+
 class HealthResponse(BaseModel):
     status: str
     service: str
+    version: str
 
 
 class EchoRequest(BaseModel):
@@ -47,9 +65,37 @@ app.add_exception_handler(Exception, handle_internal_error)
 app.include_router(precios_router)
 
 
+@app.middleware("http")
+async def registrar_peticion(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
+    inicio = time.perf_counter()
+    correlation_id = id_entrante(request.headers.get("x-request-id"))
+    response = await call_next(request)
+    response.headers["x-request-id"] = correlation_id
+    duracion_ms = int((time.perf_counter() - inicio) * 1000)
+    print(
+        json.dumps(
+            {
+                "evento": "peticion",
+                "correlation_id": correlation_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status": response.status_code,
+                "duration_ms": duracion_ms,
+            }
+        ),
+        flush=True,
+    )
+    return response
+
+
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", service=SERVICE_NAME)
+    return HealthResponse(
+        status="ok", service=SERVICE_NAME, version=version_desplegada()
+    )
 
 
 @app.post("/v1/echo", response_model=EchoResponse)

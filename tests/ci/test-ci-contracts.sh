@@ -131,6 +131,7 @@ for excluded in .env scanner-report.json image.tar node_modules/package.json; do
 done
 
 workflow="$root/.github/workflows/repository-checks.yml"
+ruby "$root/tests/ci/test-workflow-security.rb" "$workflow"
 full_history_workflow="$root/.github/workflows/full-history-secret-audit.yml"
 secret_range="$root/.github/scripts/secret-scan-range.sh"
 range_repo="$workspace/range-repo"
@@ -176,6 +177,20 @@ grep -q 'EVENT_BEFORE: ${{ github.event.before }}' "$workflow"
 grep -q 'feature-range "$EVENT_BEFORE" "$GITHUB_SHA"' "$workflow"
 grep -q '/tmp/gitleaks git --redact --no-banner --log-opts="$range" .' "$workflow"
 grep -q '/tmp/gitleaks dir --redact --no-banner .' "$workflow"
+grep -q '^  ci-terraform:' "$workflow"
+grep -q 'terraform init -backend=false -input=false' "$workflow"
+grep -q 'terraform validate' "$workflow"
+grep -q 'terraform:applicable:${{ needs.ci-terraform.result }}' "$workflow"
+grep -q '^  staging-deploy:' "$workflow"
+grep -q 'github.ref == '\''refs/heads/develop'\''' "$workflow"
+grep -q 'bash .github/scripts/desplegar-staging.sh' "$workflow"
+tmp_salud="$(mktemp)"
+printf '%s\n' '{"estado":"ok","servicio":"erp-backend","postgres":"ok","version":"abc"}' > "$tmp_salud"
+python3 "$root/.github/scripts/comprobar-salud-staging.py" api "$tmp_salud" abc
+if python3 "$root/.github/scripts/comprobar-salud-staging.py" api "$tmp_salud" otro; then exit 1; fi
+printf '%s\n' '{"status":"ok","service":"intelligence-service","version":"abc"}' > "$tmp_salud"
+python3 "$root/.github/scripts/comprobar-salud-staging.py" intelligence "$tmp_salud" abc
+rm -f "$tmp_salud"
 grep -q '^  full-history-secret-audit:' "$full_history_workflow"
 grep -q 'gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0' "$full_history_workflow"
 if grep -Eqi 'baseline-path|gitleaks-ignore|gitleaks:allow|allowlist' "$workflow" "$full_history_workflow" "$secret_range"; then exit 1; fi

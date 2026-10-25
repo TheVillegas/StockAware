@@ -3,18 +3,31 @@
  * distinguir "el navegador no pidio nada" de "pidio y fallo", que desde el
  * servidor no se puede diferenciar de otra forma.
  */
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
+
+import { entrarCorrelacion, idEntrante } from './correlacion';
+import { registro } from './registro';
 
 @Injectable()
 export class PeticionesMiddleware implements NestMiddleware {
-  private readonly log = new Logger('HTTP');
-
   use(req: Request, res: Response, next: NextFunction): void {
     const inicio = Date.now();
-    res.on('finish', () => {
-      this.log.log(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - inicio}ms)`);
+    const id = idEntrante(req.header('x-request-id'));
+    res.setHeader('x-request-id', id);
+    entrarCorrelacion(id, () => {
+      res.on('finish', () => {
+        registro({
+          nivel: 'info',
+          evento: 'peticion',
+          correlation_id: id,
+          method: req.method,
+          path: req.path,
+          status: res.statusCode,
+          duration_ms: Date.now() - inicio,
+        });
+      });
+      next();
     });
-    next();
   }
 }
