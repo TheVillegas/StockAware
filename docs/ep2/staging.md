@@ -19,7 +19,7 @@ Los planes son los gratuitos publicados en la documentación de Render: `free` p
 | `stockaware-intelligence` | web service Docker | `free` |
 | `stockaware-db` | Postgres | `free` |
 
-La base no acepta conexiones desde internet (`ipAllowList` vacío). El plan gratis no acepta un comando de pre-deploy, así que `dockerCommand` apunta a `database/render-start.sh`, que carga la réplica y después arranca NestJS. El dump `02_datos.sql.gz` viaja en la imagen. Si el esquema ya existe y la marca `replica_carga` no, el arranque vacía las tablas y vuelve a cargar datos, vistas y secuencias. Compose local no usa ese comando. `JWT_SECRET` no va en el archivo: el Dashboard lo pide al aplicar el Blueprint.
+La base no acepta conexiones desde internet (`ipAllowList` vacío). El plan gratis no acepta un comando de pre-deploy, así que `dockerCommand` apunta a `database/render-start.sh`, que carga la réplica y después arranca NestJS. El dump `02_datos.sql.gz` viaja en la imagen y se lee por partes: la instancia gratis tiene 512 MB y el archivo descomprimido pesa unos 62 MB. Si el esquema ya existe y la marca `replica_carga` no, el arranque vacía las tablas y vuelve a cargar datos, vistas y secuencias. Compose local no usa ese comando. `JWT_SECRET` no va en el archivo: el Dashboard lo pide al aplicar el Blueprint.
 
 El frontend de Render llama a `https://<api>/api`. En local, Compose sigue usando `http://localhost:3000/api`.
 
