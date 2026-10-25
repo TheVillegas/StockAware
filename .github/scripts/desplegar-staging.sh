@@ -86,9 +86,14 @@ consultar() {
 }
 
 echo "Desplegando ${STAGING_SHA}"
-deploy_api="$(pedir_deploy "$RENDER_SERVICE_ID_API")"
-deploy_intel="$(pedir_deploy "$RENDER_SERVICE_ID_INTELLIGENCE")"
-deploy_web="$(pedir_deploy "$RENDER_SERVICE_ID_WEB")"
+# Bash no aborta set -e dentro de una sustitución. El || exit cubre un POST rechazado.
+deploy_api="$(pedir_deploy "$RENDER_SERVICE_ID_API")" || exit 1
+deploy_intel="$(pedir_deploy "$RENDER_SERVICE_ID_INTELLIGENCE")" || exit 1
+deploy_web="$(pedir_deploy "$RENDER_SERVICE_ID_WEB")" || exit 1
+if [[ -z "$deploy_api" || -z "$deploy_intel" || -z "$deploy_web" ]]; then
+  echo "Render no devolvió el id del deploy" >&2
+  exit 1
+fi
 esperar "$RENDER_SERVICE_ID_API" "$deploy_api"
 esperar "$RENDER_SERVICE_ID_INTELLIGENCE" "$deploy_intel"
 esperar "$RENDER_SERVICE_ID_WEB" "$deploy_web"
