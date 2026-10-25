@@ -49,6 +49,20 @@ Un CI verde de un pull request no demuestra el despliegue: `staging-deploy` solo
 - El resultado de los health checks de NestJS y FastAPI con ese mismo SHA, incluido `postgres: ok` en NestJS.
 - Una muestra sanitizada de los registros de petición y de error de fuente externa, con `correlation_id` y `duration_ms`, sin credenciales.
 
+### Evidencia verificada (2026-10-25)
+
+El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/40223109497), **intento 2**, terminó correctamente para el commit `238669b69006624fb17f82e5b258dc344ab70d2f` de `develop`. El job **Staging deploy** (`121302802508`) aprobó el paso **Deploy this commit and check health**. El script exige que los tres despliegues estén `live`, que NestJS responda `estado: ok`, `postgres: ok` y la versión exacta del commit, que FastAPI responda saludable con esa misma versión y que el sitio web devuelva HTTP 200.
+
+| Servicio | URL verificada por el job |
+| --- | --- |
+| NestJS | <https://stockaware-api.onrender.com/api/health> |
+| FastAPI | <https://stockaware-intelligence.onrender.com/health> |
+| Frontend | <https://stockaware-web.onrender.com/> |
+
+Esto acredita el despliegue y los health checks de **ese corte**; no garantiza disponibilidad futura ni que cambios posteriores estén desplegados. La captura de Render con los tres servicios `Deployed` es evidencia complementaria, no reemplaza la comprobación del SHA. Para el cierre de #51 resta anexar la muestra sanitizada de logs exigida arriba si aún no está adjunta. Para la EP2 completa, revisar el [checklist de entrega](entrega.md#checklist-de-cierre-documental-y-académico).
+
+## Validar el contrato de seguridad de CI
+
 El check `Validate Trivy severity contracts` analiza el YAML y comprueba las severidades y el código de salida de cada paso de Trivy. Las listas dentro de mapas YAML en línea deben llevar comillas (`severity: 'HIGH,CRITICAL'`); sin ellas, la coma separa entradas del mapa y se pierde `CRITICAL`. La comprobación local es:
 
 ```bash

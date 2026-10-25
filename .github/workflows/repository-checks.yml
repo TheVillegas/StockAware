@@ -353,6 +353,17 @@ jobs:
       - run: uv run --frozen ruff format --check .
       - run: uv run --frozen mypy .
       - run: uv run --frozen pytest
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: apps/backend/package-lock.json
+      - name: Install Nest dependencies for live HTTP integration
+        run: npm ci --prefix ../backend
+      - name: Exercise Nest to FastAPI over HTTP
+        run: |
+          INTELLIGENCE_PYTHON="$(uv run --frozen python -c 'import sys; print(sys.executable)')" \
+            npm --prefix ../backend run test:http:ci
       - name: Write redacted intelligence evidence
         if: ${{ always() }}
         run: bash "$GITHUB_WORKSPACE/.github/scripts/ci-contract.sh" evidence intelligence "$GITHUB_WORKSPACE/ci-evidence" "${{ job.status }}"
