@@ -20,9 +20,9 @@ Estado revisado el 2026-10-25. Este documento complementa el corte publicado: fu
 | Staging | Verificado para el run | [Run 40243507519](https://github.com/TheVillegas/StockAware/actions/runs/40243507519), job `121320670304`: tres servicios live y salud NestJS/FastAPI/PostgreSQL/web en develop |
 | Datos reales y métrica | Verificado con alcance acotado | [Medición 2026-10-24](metrica/README.md): 26/32 materiales con precio (81,3 %), 100 % de candidatos devueltos válidos; no mide precisión semántica ni persiste precios |
 | NestJS ↔ FastAPI | Verificado en CI | [Job 121326542791](https://github.com/TheVillegas/StockAware/actions/runs/40245633645/job/121326542791): ocho pruebas HTTP aprobadas |
-| Persistencia | Pruebas parciales verificadas | [Job PostgreSQL 121326645647](https://github.com/TheVillegas/StockAware/actions/runs/40245633645/job/121326645647) aprobado; no demuestra por sí solo el recorrido de navegador completo |
-| Demo completa | Pendiente de ejecución registrada | Existe el [recorrido](entrega.md#recorrido-funcional-comprobable), no un registro nuevo de UI→fuente→Python→base→UI |
-| Logs de petición/fuente | Parcial | CI comprueba correlación real en FastAPI; falta anexar muestra sanitizada de petición y falla de fuente externa |
+| Persistencia | Verificada en demo local y CI | [Registro SQL y recarga](demo-local.md), además del [job PostgreSQL 121326645647](https://github.com/TheVillegas/StockAware/actions/runs/40245633645/job/121326645647) |
+| Demo completa | Ejecutada localmente | [UI→fuente→Python→base→UI](demo-local.md), rechazo persistente y error/recuperación; no equivale a defensa realizada |
+| Logs de petición/fuente | Muestra local registrada | [JSONL sanitizado](evidence/local-2026-10-25/requests.jsonl): petición real correlacionada y falla de Dartel provocada solo en la réplica |
 | Presentación breve | Material preparado | [Guion](presentacion.md); no se afirma que ya se haya presentado |
 | Participación | Registro consolidado | [Contribuciones públicas](gestion.md#participación-verificable); no acredita horas ni reemplaza la explicación individual |
 | Tablero | Acceso/enlace pendiente | [Índice de gestión](gestion.md) preparado; no se encontró un enlace verificado al tablero real del equipo |
@@ -41,17 +41,17 @@ El registro del job de main identifica Python **3.13.7**, Node **22.23.3** y:
 
 Comprueba preparación, procesamiento y deduplicación, validación pública, contenido inválido, fallas FastAPI/502, propagación de correlación a logs reales y upstream detenido. No llama a tiendas reales ni autentica un navegador o escribe PostgreSQL. Las 45 pruebas Python también aprobaron; el job informó dos advertencias.
 
-## Intento de reproducción local
+## Reproducción local
 
-No se obtuvo nueva evidencia de ejecución local. El acceso explícito al Docker local `unix:///var/run/docker.sock` devolvió `permission denied`, también al repetir fuera del sandbox. No se cambió el grupo Docker, no se usó sudo ni se reutilizó otro contexto remoto.
+El primer intento quedó limitado por permisos de Docker y por la ausencia de Python 3.13/PostgreSQL nativos. Después, con autorización explícita, se abrió una terminal visible de Omarchy para sudo y se levantó una réplica Docker aislada. No se cambió el grupo Docker, el socket ni sudoers, y no se reutilizó otro contexto remoto o secretos de staging.
 
-No hay servidor PostgreSQL local alternativo disponible. La verificación HTTP tampoco se lanzó: el proyecto requiere Python `>=3.13,<3.14`, pero los intérpretes disponibles son 3.14.8 y 3.12.14, sin un entorno 3.13 existente. Esto es **no ejecutado por entorno**, no una prueba fallida de la aplicación ni un resultado de cero fallas.
+La [demo local](demo-local.md) registra las acciones, resultados, configuración de puertos, procedencia del tag, capturas, SQL y logs. Las ocho pruebas HTTP no se volvieron a lanzar en los intérpretes nativos incompatibles; su resultado verificado sigue siendo el CI de main. No confundir esa suite con la nueva prueba de navegador ejecutada contra contenedores.
 
-Para repetir: habilitar un entorno local autorizado con Docker, o PostgreSQL y Python compatibles, sin copiar secretos de staging. Compose usa nombres fijos `erp-*`; un nombre de proyecto distinto no basta para evitar colisiones. No borrar volúmenes existentes. Usar la réplica anonimizada y las cuentas exclusivamente locales de la [guía](../ep1/reproducibility.md), sin incluir sus claves en evidencias.
+Para repetir: usar un entorno local autorizado, sin copiar secretos de staging. Compose usa nombres fijos `erp-*`; un nombre de proyecto distinto no basta para evitar colisiones. No borrar volúmenes existentes. Usar la réplica anonimizada y las cuentas exclusivamente locales de la [guía](../ep1/reproducibility.md), sin incluir sus claves en evidencias.
 
-## Registro requerido al completar la demo
+## Alcance del registro
 
-Anexar únicamente resultados realmente observados:
+El [registro ejecutado](demo-local.md) conserva:
 
 1. Tag/SHA, fecha, entorno y material consultado; separar recuperación nueva de reutilización de caché.
 2. Solicitud frontend a NestJS y salto a FastAPI, sin JWT, cookies ni encabezados de autorización.
@@ -59,4 +59,4 @@ Anexar únicamente resultados realmente observados:
 4. Resultado visible, procedencia y estado de fuente; captura sanitizada como complemento, no única prueba.
 5. Escenario de error sin derribar staging y logs de petición/fuente con correlación y duración.
 
-Hasta obtener ese registro, el requisito de demo permanece abierto. La [gestión](gestion.md) concentra los restantes pasos humanos y la consulta docente lista para enviar.
+La demo local y su muestra de logs quedan registradas; la defensa, el tablero, la aprobación docente y Figma no se dan por completados. La [gestión](gestion.md) concentra esos pasos y la consulta docente lista para enviar.

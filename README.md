@@ -20,7 +20,7 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 
 El [staging verificado](https://github.com/TheVillegas/StockAware/actions/runs/40243507519) corresponde a `develop` `4a7b16186738ab21fbcdb300d06e8a1bc7828087`; tiene el mismo árbol que el corte de main. Render sigue desde develop: no se afirma un despliegue del SHA de squash. Los documentos de cierre añadidos después del tag son complementarios, no parte de esa etiqueta inmutable.
 
-La demo completa, el enlace real del tablero y la autorización docente de infraestructura equivalente siguen pendientes de evidencia. El enlace de Figma conservado abajo corresponde a EP1; su actualización queda expresamente pendiente.
+La [demo local registrada](docs/ep2/demo-local.md) comprueba consulta real, procesamiento, persistencia, recarga y fallas controladas. El enlace real del tablero y la autorización docente de infraestructura equivalente siguen pendientes de evidencia. El enlace de Figma conservado abajo corresponde a EP1; su actualización queda expresamente pendiente.
 
 ## Base y referencias EP1
 

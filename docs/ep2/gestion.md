@@ -24,7 +24,7 @@ El [listado de issues del repositorio](https://github.com/TheVillegas/StockAware
 | [#45](https://github.com/TheVillegas/StockAware/issues/45), [#46](https://github.com/TheVillegas/StockAware/issues/46), [#47](https://github.com/TheVillegas/StockAware/issues/47), [#48](https://github.com/TheVillegas/StockAware/issues/48) | `Sptfff` | Abiertos; la aplicación integrada contiene recuperación, procesamiento, persistencia y panel; revisar aceptación antes de cerrar |
 | [#49](https://github.com/TheVillegas/StockAware/issues/49) | `Sptfff` | Abierto; medición real documentada, con límites explícitos |
 | [#50](https://github.com/TheVillegas/StockAware/issues/50) | `Sptfff` | Abierto; especificación preliminar publicada, no motor final |
-| [#51](https://github.com/TheVillegas/StockAware/issues/51) | `TheVillegas` | Abierto; staging comprobado, falta adjuntar muestra sanitizada de petición/falla de fuente |
+| [#51](https://github.com/TheVillegas/StockAware/issues/51) | `TheVillegas` | Abierto en la revisión; staging comprobado y [muestra local de petición/falla](demo-local.md) preparada, todavía sin publicar en GitHub |
 | [#52](https://github.com/TheVillegas/StockAware/issues/52) | `TheVillegas` | Abierto; tag publicado, falta prueba completa de demostración y cierre documental |
 | [#58](https://github.com/TheVillegas/StockAware/issues/58) | Ambos integrantes | Abierto; Figma queda pendiente por instrucción del equipo |
 | [#77](https://github.com/TheVillegas/StockAware/issues/77) | `Sptfff` | Cerrado; corrección integrada por #88 y publicada en el corte |
@@ -43,7 +43,7 @@ Adjuntar la respuesta real y su fecha al obtenerla. Hasta entonces, la equivalen
 
 ## Acciones del equipo antes de entregar
 
-1. Ejecutar y registrar la [demo](entrega.md) del tag con su persistencia y escenario de error.
+1. Publicar la [evidencia local ejecutada](demo-local.md) por el flujo de revisión del repositorio; el tag existente permanece inmutable. Repetir el ensayo antes de la defensa.
 2. Aportar enlace/acceso al tablero y confirmar el registro de contribuciones.
 3. Adjuntar autorización de equivalencia o resolver el requisito de infraestructura con el docente.
 4. Ensayar el [guion breve](presentacion.md) y comprobar staging antes de presentar.

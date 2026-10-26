@@ -69,7 +69,7 @@ Después de la aprobación de Matías Romero, [#90](https://github.com/TheVilleg
 
 Los dos commits tienen el árbol `8bffd49c49ef49dda6cadbac356536445d09f94b`: mismo contenido, distintas identidades por el squash. No se cambió la rama de Render, ningún secreto ni el tag anterior. La disponibilidad futura debe comprobarse antes de la demo; este registro es evidencia del run, no una nueva consulta al entorno.
 
-Sigue pendiente una muestra sanitizada de petición y falla de fuente externa para cerrar completamente #51. Las aserciones de correlación del CI no sustituyen esa muestra ni una demo de interfaz y persistencia; ver [matriz de evidencias](evidencias.md).
+La [demo local posterior](demo-local.md) añade interfaz, persistencia y una muestra sanitizada correlacionada de petición/falla de fuente provocada en la réplica. No es una nueva falla ni una nueva medición de Render. El paquete complementario todavía debe publicarse/enlazarse en #51; no se cerró automáticamente el issue ni se movió el tag. Ver [matriz de evidencias](evidencias.md).
 
 ## Validar el contrato de seguridad de CI
 

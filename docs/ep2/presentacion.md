@@ -40,7 +40,7 @@ El [staging verificado](https://github.com/TheVillegas/StockAware/actions/runs/4
 
 La [especificación preliminar](especificacion-adaptativa.md) identifica beneficiarios, datos web, variables de contexto, decisión y resultado esperado. El motor adaptativo, su evaluación final y las pruebas con usuarios corresponden a la siguiente etapa.
 
-Declarar los pendientes reales: Figma actualizado, evidencia completa de demo/logs si aún no está registrada, enlace/acceso al tablero y autorización docente de infraestructura equivalente. El tag publicado no cierra automáticamente estos puntos.
+La [demo local con SQL y logs](demo-local.md) ya está registrada. Declarar los pendientes reales: publicar esta evidencia complementaria, actualizar Figma, verificar enlace/acceso al tablero y acreditar autorización docente de infraestructura equivalente. El tag publicado no cierra automáticamente estos puntos ni prueba que la defensa ya se realizó.
 
 ## Preparación y reparto sugerido
 
