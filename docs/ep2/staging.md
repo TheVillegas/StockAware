@@ -61,6 +61,16 @@ El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/4022
 
 Esto acredita el despliegue y los health checks de **ese corte**; no garantiza disponibilidad futura ni que cambios posteriores estén desplegados. La captura de Render con los tres servicios `Deployed` es evidencia complementaria, no reemplaza la comprobación del SHA. Para el cierre de #51 resta anexar la muestra sanitizada de logs exigida arriba si aún no está adjunta. Para la EP2 completa, revisar el [checklist de entrega](entrega.md#checklist-de-cierre-documental-y-académico).
 
+### Corte publicado y staging equivalente
+
+El [run 40243507519](https://github.com/TheVillegas/StockAware/actions/runs/40243507519) terminó correctamente para `develop` `4a7b16186738ab21fbcdb300d06e8a1bc7828087`. El job `121320670304` confirmó los tres servicios `live` y la comprobación final de NestJS, FastAPI, PostgreSQL y web para ese SHA.
+
+Después de la aprobación de Matías Romero, [#90](https://github.com/TheVillegas/StockAware/pull/90) se fusionó mediante squash a `main` `cc02c2398bac3d2e604bb0613be964d6a9f3fbe8`. El [CI de main](https://github.com/TheVillegas/StockAware/actions/runs/40245633645) terminó `success`; su job de staging se omitió según la configuración. El [tag/release v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) apunta a ese commit final.
+
+Los dos commits tienen el árbol `8bffd49c49ef49dda6cadbac356536445d09f94b`: mismo contenido, distintas identidades por el squash. No se cambió la rama de Render, ningún secreto ni el tag anterior. La disponibilidad futura debe comprobarse antes de la demo; este registro es evidencia del run, no una nueva consulta al entorno.
+
+Sigue pendiente una muestra sanitizada de petición y falla de fuente externa para cerrar completamente #51. Las aserciones de correlación del CI no sustituyen esa muestra ni una demo de interfaz y persistencia; ver [matriz de evidencias](evidencias.md).
+
 ## Validar el contrato de seguridad de CI
 
 El check `Validate Trivy severity contracts` analiza el YAML y comprueba las severidades y el código de salida de cada paso de Trivy. Las listas dentro de mapas YAML en línea deben llevar comillas (`severity: 'HIGH,CRITICAL'`); sin ellas, la coma separa entradas del mapa y se pierde `CRITICAL`. La comprobación local es:

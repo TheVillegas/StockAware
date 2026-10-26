@@ -1,6 +1,6 @@
 # EP2: demostración y evidencias de entrega
 
-La EP2 demuestra datos web → NestJS → FastAPI → validación/persistencia → interfaz. El staging del commit `238669b` tiene despliegue verificado; eso no acredita por sí solo el prototipo actualizado, una demo funcional completa ni el cierre de todos los entregables.
+La EP2 demuestra datos web → NestJS → FastAPI → validación/persistencia → interfaz. El [corte publicado v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) está en main `cc02c23`, con CI aprobado y el mismo contenido que el staging verificado `4a7b161`. Esto no acredita por sí solo el prototipo actualizado, una demo funcional completa ni el cierre de todos los entregables. Ver [evidencias](evidencias.md), [gestión y participación](gestion.md) y [guion de presentación](presentacion.md).
 
 ## Ruta rápida de revisión
 
@@ -50,8 +50,8 @@ Los conteos globales no prueban por sí solos qué material originó una observa
 | Evidencia | Alcance y límite |
 | --- | --- |
 | [Medición real del 2026-10-24](metrica/resultado-2026-10-24.json) | 32 materiales, 100 % de candidatos devueltos válidos y 26/32 con precio (81,3 %). No es precisión semántica ni una demo de persistencia/UI: el runner no escribe precios en la base. |
-| [Pruebas de integración HTTP](../../tests/integration/README.md) | Instrucciones y alcance del salto NestJS ↔ FastAPI con entradas deterministas. Su resultado local o en CI debe registrarse aparte del despliegue histórico. |
-| [Actions y staging verificados](staging.md#evidencia-verificada-2026-10-25) | Run `40223109497`, intento 2, commit `238669b`, despliegue y health checks aprobados. No acredita cambios posteriores a ese SHA. |
+| [Pruebas de integración HTTP](../../tests/integration/README.md) | En el CI de main `40245633645`, job `121326542791`: ocho pruebas aprobadas, Node 22.23.3 y Python 3.13.7. No incluye navegador, autenticación, base de datos ni tiendas reales. |
+| [Actions y staging verificados](staging.md#corte-publicado-y-staging-equivalente) | Staging `40243507519` para develop `4a7b161`, mismo árbol que main/tag `cc02c23`. Health checks aprobados; no es una demostración completa del flujo de negocio. |
 | [Propuesta adaptativa](especificacion-adaptativa.md) | Especificación preliminar; no se presenta como motor implementado ni evaluación con usuarios. |
 
 ## Checklist de cierre documental y académico
@@ -61,11 +61,13 @@ Requisitos revisados en `ProyectoFinal.pdf` del curso: pp. 26, 38, 40 y 50–51.
 - [x] Fuentes, contratos, decisiones y resultado de una métrica real documentados en el repositorio.
 - [x] Enlace a un run con despliegue real y health checks del mismo commit; ver detalle de [#51](staging.md#verificar-el-cierre-de-51).
 - [ ] Conservar evidencia funcional del recorrido anterior: entrada, procesamiento, procedencia persistida y resultado visible; anexar logs sanitizados de petición y falla de fuente.
-- [ ] Verificar las pruebas de integración y el CI del commit que se entregará, no solo el run histórico.
+- [x] Verificar las pruebas de integración y el CI del commit entregado: [main cc02c23](https://github.com/TheVillegas/StockAware/actions/runs/40245633645), ocho pruebas HTTP aprobadas.
 - [ ] Actualizar/verificar el prototipo de Figma y su acceso. El [enlace conservado en README](../../README.md) está rotulado EP1; no se ha proporcionado un enlace EP2 verificado.
-- [ ] Definir el corte evaluable y publicar su tag/release con enlaces de evidencia cuando el equipo lo autorice. Este documento no crea ninguno.
-- [ ] Revisar tablero, responsables, pendientes y registro de participación; aportar sus enlaces/evidencias reales.
-- [ ] Preparar presentación breve y demostración funcional, incluyendo límites de cobertura y de la propuesta adaptativa.
+- [x] Publicar y verificar [tag/release v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) sobre el commit final de main `cc02c23`.
+- [x] Consolidar responsables y contribuciones verificables en el [registro de gestión](gestion.md), sin atribuir horas ni porcentajes no demostrados.
+- [ ] Verificar el enlace y acceso al tablero usado por el equipo; el índice de issues no acredita por sí solo un tablero externo.
+- [x] Preparar el [guion de presentación breve](presentacion.md), incluyendo alcance, métrica, límites y reparto sugerido.
+- [ ] Ejecutar y registrar la demostración funcional completa y presentar el avance; un guion preparado no equivale a una presentación realizada.
 - [ ] Acreditar la autorización docente de Render Blueprint como equivalente, si corresponde. Terraform continúa `defined-not-deployed`; un staging verde no prueba esa autorización.
 
 Antes de la defensa, volver a comprobar disponibilidad del entorno y vigencia de su base; las limitaciones operativas se conservan en [staging](staging.md). No se afirma que todos los pendientes anteriores estén resueltos.

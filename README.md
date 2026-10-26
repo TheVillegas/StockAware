@@ -12,8 +12,15 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 - [Métrica de calidad y sus límites](docs/ep2/metrica/README.md)
 - [Especificación adaptativa preliminar](docs/ep2/especificacion-adaptativa.md)
 - [Staging EP2 y despliegue verificado](docs/ep2/staging.md#evidencia-verificada-2026-10-25)
+- [Estado de evidencias y bloqueos de cierre](docs/ep2/evidencias.md)
+- [Gestión y participación verificable](docs/ep2/gestion.md)
+- [Guion de presentación breve](docs/ep2/presentacion.md)
 
-El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/40223109497), intento 2 del 2026-10-25, verificó el despliegue del commit `238669b` y sus health checks. Es evidencia de ese corte, no de cambios posteriores ni del cierre de toda la entrega. El enlace de Figma conservado abajo corresponde a EP1; falta verificar el prototipo actualizado.
+**Corte publicado:** [v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2), commit de `main` `cc02c2398bac3d2e604bb0613be964d6a9f3fbe8`, integrado mediante squash en [#90](https://github.com/TheVillegas/StockAware/pull/90). Su [CI](https://github.com/TheVillegas/StockAware/actions/runs/40245633645) terminó correctamente.
+
+El [staging verificado](https://github.com/TheVillegas/StockAware/actions/runs/40243507519) corresponde a `develop` `4a7b16186738ab21fbcdb300d06e8a1bc7828087`; tiene el mismo árbol que el corte de main. Render sigue desde develop: no se afirma un despliegue del SHA de squash. Los documentos de cierre añadidos después del tag son complementarios, no parte de esa etiqueta inmutable.
+
+La demo completa, el enlace real del tablero y la autorización docente de infraestructura equivalente siguen pendientes de evidencia. El enlace de Figma conservado abajo corresponde a EP1; su actualización queda expresamente pendiente.
 
 ## Base y referencias EP1
 
