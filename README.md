@@ -14,13 +14,15 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 - [Staging EP2 y despliegue verificado](docs/ep2/staging.md#evidencia-verificada-2026-10-25)
 - [Estado de evidencias y bloqueos de cierre](docs/ep2/evidencias.md)
 - [Gestión y participación verificable](docs/ep2/gestion.md)
+- [Prototipo Figma EP2 y recorrido](docs/ep2/prototipo.md)
+- [Infraestructura desplegada y equivalencia académica](docs/ep2/infraestructura.md)
 - [Guion de presentación breve](docs/ep2/presentacion.md)
 
 **Corte publicado:** [v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2), commit de `main` `cc02c2398bac3d2e604bb0613be964d6a9f3fbe8`, integrado mediante squash en [#90](https://github.com/TheVillegas/StockAware/pull/90). Su [CI](https://github.com/TheVillegas/StockAware/actions/runs/40245633645) terminó correctamente.
 
 El [staging verificado](https://github.com/TheVillegas/StockAware/actions/runs/40243507519) corresponde a `develop` `4a7b16186738ab21fbcdb300d06e8a1bc7828087`; tiene el mismo árbol que el corte de main. Render sigue desde develop: no se afirma un despliegue del SHA de squash. Los documentos de cierre añadidos después del tag son complementarios, no parte de esa etiqueta inmutable.
 
-La [demo local registrada](docs/ep2/demo-local.md) comprueba consulta real, procesamiento, persistencia, recarga y fallas controladas. El enlace real del tablero y la autorización docente de infraestructura equivalente siguen pendientes de evidencia. El enlace de Figma conservado abajo corresponde a EP1; su actualización queda expresamente pendiente.
+La [demo local registrada](docs/ep2/demo-local.md) comprueba consulta real, procesamiento, persistencia, recarga y fallas controladas; su paquete complementario está adjunto a la release. El [Figma EP2](docs/ep2/prototipo.md) añade siete pantallas editables y navegación de consulta, revisión y errores, sin reemplazar EP1. Hay actividad comprobada de GitHub Projects; todavía falta su enlace directo y acceso docente. La infraestructura real está acreditada técnicamente; su autorización docente como equivalente sigue pendiente de evidencia.
 
 ## Base y referencias EP1
 

@@ -1,6 +1,6 @@
 # EP2: evidencias verificadas y cierre pendiente
 
-Estado revisado el 2026-10-25. Este documento complementa el corte publicado: fue preparado después de `v0.2.0-ep2` y no se afirma que forme parte de ese tag. La etiqueta no se mueve.
+Estado revisado el 2026-10-26. Este documento complementa el corte publicado: fue preparado después de `v0.2.0-ep2` y no se afirma que forme parte de ese tag. La etiqueta no se mueve. El paquete anterior de demo ya está adjunto a la release; los ajustes actuales de Figma/gestión/infraestructura todavía son locales.
 
 ## Corte y alcance
 
@@ -25,9 +25,9 @@ Estado revisado el 2026-10-25. Este documento complementa el corte publicado: fu
 | Logs de petición/fuente | Muestra local registrada | [JSONL sanitizado](evidence/local-2026-10-25/requests.jsonl): petición real correlacionada y falla de Dartel provocada solo en la réplica |
 | Presentación breve | Material preparado | [Guion](presentacion.md); no se afirma que ya se haya presentado |
 | Participación | Registro consolidado | [Contribuciones públicas](gestion.md#participación-verificable); no acredita horas ni reemplaza la explicación individual |
-| Tablero | Acceso/enlace pendiente | [Índice de gestión](gestion.md) preparado; no se encontró un enlace verificado al tablero real del equipo |
-| Infraestructura equivalente | Aprobación pendiente de evidencia | Blueprint existente; Terraform sigue `defined-not-deployed`; no hay autorización docente adjunta verificada |
-| Figma | Pendiente por decisión del equipo | Se conserva el enlace EP1, sin presentarlo como EP2 actualizado |
+| Tablero | Uso real acreditado; enlace/acceso pendientes | [Eventos Projects v2](gestion.md#github-projects-actividad-comprobada-enlace-directo-pendiente) de #51, #52 y #77; no exponen la URL del proyecto |
+| Infraestructura equivalente | Técnica acreditada; autorización académica pendiente | [Blueprint y pipeline reales](infraestructura.md); Terraform sigue `defined-not-deployed`; no hay respuesta docente adjunta verificada |
+| Figma | EP2 actualizado; acceso docente por confirmar | [Siete pantallas editables y flujo navegable](prototipo.md), con EP1 intacto; abierto en navegador sin solicitud de inicio de sesión |
 
 ## Qué prueba el CI HTTP
 
@@ -59,4 +59,4 @@ El [registro ejecutado](demo-local.md) conserva:
 4. Resultado visible, procedencia y estado de fuente; captura sanitizada como complemento, no única prueba.
 5. Escenario de error sin derribar staging y logs de petición/fuente con correlación y duración.
 
-La demo local y su muestra de logs quedan registradas; la defensa, el tablero, la aprobación docente y Figma no se dan por completados. La [gestión](gestion.md) concentra esos pasos y la consulta docente lista para enviar.
+La demo local y sus logs ya están publicados como [paquete complementario de la release](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2). La actualización visual de Figma está realizada. Siguen pendientes el enlace/acceso del tablero, confirmar acceso docente al prototipo y acreditar la equivalencia académica. La defensa está fuera de esta actualización. La [gestión](gestion.md) concentra el cierre externo y la consulta docente preparada, todavía sin enviar.

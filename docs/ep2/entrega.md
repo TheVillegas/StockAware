@@ -1,6 +1,6 @@
 # EP2: demostración y evidencias de entrega
 
-La EP2 demuestra datos web → NestJS → FastAPI → validación/persistencia → interfaz. El [corte publicado v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) está en main `cc02c23`, con CI aprobado y el mismo contenido que el staging verificado `4a7b161`. La [demo local ejecutada](demo-local.md) registra el flujo y sus errores; esto no acredita el prototipo actualizado, una defensa realizada ni el cierre de todos los entregables. Ver [evidencias](evidencias.md), [gestión y participación](gestion.md) y [guion de presentación](presentacion.md).
+La EP2 demuestra datos web → NestJS → FastAPI → validación/persistencia → interfaz. El [corte publicado v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) está en main `cc02c23`, con CI aprobado y el mismo contenido que el staging verificado `4a7b161`. La [demo local ejecutada](demo-local.md) registra el flujo y sus errores; el [Figma EP2](prototipo.md) representa consulta, revisión y errores. Esto no acredita una defensa realizada ni el cierre de todos los entregables. Ver [evidencias](evidencias.md), [gestión y participación](gestion.md) y [guion de presentación](presentacion.md).
 
 ## Ruta rápida de revisión
 
@@ -62,13 +62,14 @@ Requisitos revisados en `ProyectoFinal.pdf` del curso: pp. 26, 38, 40 y 50–51.
 - [x] Enlace a un run con despliegue real y health checks del mismo commit; ver detalle de [#51](staging.md#verificar-el-cierre-de-51).
 - [x] Conservar [evidencia funcional local](demo-local.md): entrada, procesamiento, procedencia persistida, recarga/rechazo y resultado visible; incluye logs sanitizados de petición y falla controlada de fuente.
 - [x] Verificar las pruebas de integración y el CI del commit entregado: [main cc02c23](https://github.com/TheVillegas/StockAware/actions/runs/40245633645), ocho pruebas HTTP aprobadas.
-- [ ] Actualizar/verificar el prototipo de Figma y su acceso. El [enlace conservado en README](../../README.md) está rotulado EP1; no se ha proporcionado un enlace EP2 verificado.
+- [x] Actualizar el [prototipo Figma EP2](prototipo.md): siete pantallas editables, consulta, revisión y errores; EP1 conservado.
+- [ ] Confirmar acceso al prototipo desde la cuenta/dispositivo docente; el flujo abre en el navegador de comprobación sin solicitar inicio de sesión.
 - [x] Publicar y verificar [tag/release v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) sobre el commit final de main `cc02c23`.
 - [x] Consolidar responsables y contribuciones verificables en el [registro de gestión](gestion.md), sin atribuir horas ni porcentajes no demostrados.
-- [ ] Verificar el enlace y acceso al tablero usado por el equipo; el índice de issues no acredita por sí solo un tablero externo.
+- [ ] Incorporar el enlace directo y verificar acceso docente al tablero existente. [Eventos Projects v2](gestion.md#github-projects-actividad-comprobada-enlace-directo-pendiente) acreditan uso real, no su visibilidad o estado actual.
 - [x] Preparar el [guion de presentación breve](presentacion.md), incluyendo alcance, métrica, límites y reparto sugerido.
 - [x] Ejecutar y registrar la [demostración funcional local](demo-local.md), con su configuración y límites explícitos.
 - [ ] Presentar/defender el avance; un guion preparado y una demo registrada no equivalen a una presentación realizada.
-- [ ] Acreditar la autorización docente de Render Blueprint como equivalente, si corresponde. Terraform continúa `defined-not-deployed`; un staging verde no prueba esa autorización.
+- [ ] Acreditar la autorización docente de Render Blueprint como equivalente. La [infraestructura técnica](infraestructura.md) sí está desplegada; Terraform continúa `defined-not-deployed` y un staging verde no prueba autorización académica.
 
 Antes de la defensa, volver a comprobar disponibilidad del entorno y vigencia de su base; las limitaciones operativas se conservan en [staging](staging.md). No se afirma que todos los pendientes anteriores estén resueltos.
