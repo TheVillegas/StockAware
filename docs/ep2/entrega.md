@@ -66,7 +66,8 @@ Requisitos revisados en `ProyectoFinal.pdf` del curso: pp. 26, 38, 40 y 50–51.
 - [ ] Confirmar acceso al prototipo desde la cuenta/dispositivo docente; el flujo abre en el navegador de comprobación sin solicitar inicio de sesión.
 - [x] Publicar y verificar [tag/release v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) sobre el commit final de main `cc02c23`.
 - [x] Consolidar responsables y contribuciones verificables en el [registro de gestión](gestion.md), sin atribuir horas ni porcentajes no demostrados.
-- [ ] Incorporar el enlace directo y verificar acceso docente al tablero existente. [Eventos Projects v2](gestion.md#github-projects-actividad-comprobada-enlace-directo-pendiente) acreditan uso real, no su visibilidad o estado actual.
+- [x] Incorporar el [enlace al tablero #2 indicado por el equipo](https://github.com/users/TheVillegas/projects/2).
+- [ ] Verificar contenido y acceso docente del tablero: devuelve 404 sin sesión y falta `read:project` en la credencial `gh` disponible. [Eventos Projects v2](gestion.md#github-projects-tablero-y-acceso-docente) acreditan uso, pero no identifican ese proyecto ni sus permisos actuales.
 - [x] Preparar el [guion de presentación breve](presentacion.md), incluyendo alcance, métrica, límites y reparto sugerido.
 - [x] Ejecutar y registrar la [demostración funcional local](demo-local.md), con su configuración y límites explícitos.
 - [ ] Presentar/defender el avance; un guion preparado y una demo registrada no equivalen a una presentación realizada.

@@ -42,4 +42,4 @@ Los dos primeros arranques fallaron por permisos restrictivos del archivo extra�
 
 Para ensayar otra vez, usar el [recorrido](entrega.md#recorrido-funcional-comprobable) con una réplica aislada; los precios y las respuestas comerciales pueden cambiar. No borrar datos ni detener staging para forzar un escenario. La instancia local quedó encendida para el ensayo, con las fallas temporales restauradas; `MC_203` conserva sus URLs deliberadamente inválidas y las pausas de fuentes pueden seguir vigentes en esa base de prueba.
 
-Quedan las [acciones humanas](gestion.md#acciones-del-equipo-antes-de-entregar): verificar tablero, acreditar equivalencia de infraestructura, presentar/defender y actualizar Figma. Esta ejecución no resuelve esos puntos.
+Quedan las [acciones humanas](gestion.md#acciones-del-equipo-antes-de-entregar): verificar acceso al tablero y al prototipo, acreditar equivalencia de infraestructura y presentar/defender. La [actualización posterior de Figma EP2](prototipo.md) está realizada; no se atribuye a esta demo local ni acredita una defensa.

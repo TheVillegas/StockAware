@@ -29,9 +29,13 @@ El [listado de issues del repositorio](https://github.com/TheVillegas/StockAware
 | [#58](https://github.com/TheVillegas/StockAware/issues/58) | Ambos integrantes | Abierto en la revisión; [prototipo EP2 actualizado](prototipo.md), sin cerrar automáticamente el issue |
 | [#77](https://github.com/TheVillegas/StockAware/issues/77) | `Sptfff` | Cerrado; corrección integrada por #88 y publicada en el corte |
 
-### GitHub Projects: actividad comprobada, enlace directo pendiente
+### GitHub Projects: tablero y acceso docente
 
-El equipo sí usa Projects v2. Los eventos de GitHub permiten acreditar su actividad, aunque no exponen el identificador ni la URL del proyecto:
+El equipo proporcionó el enlace directo de su [GitHub Projects #2](https://github.com/users/TheVillegas/projects/2) el 2026-10-26. Al abrirlo en el navegador sin sesión de GitHub, la respuesta visible fue **404 / Page not found**. Por tanto, el enlace queda registrado, pero no se verificaron el título, las columnas, los elementos ni el acceso docente. No se concluye que el proyecto no exista ni que sea privado solo por esa respuesta.
+
+La revisión autenticada con `gh`, autorizada por el equipo, quedó limitada porque la credencial disponible no tiene el alcance `read:project`. No se amplió ese permiso ni se cambiaron opciones del proyecto. Hasta obtener acceso autorizado, el contenido y los permisos del tablero siguen sin comprobarse.
+
+Los siguientes eventos acreditan actividad de Projects v2, pero no exponen el identificador del proyecto. No permiten atribuirla automáticamente al Project #2:
 
 | Issue | Evento verificable | Fecha UTC |
 | --- | --- | --- |
@@ -39,7 +43,7 @@ El equipo sí usa Projects v2. Los eventos de GitHub permiten acreditar su activ
 | #52 | [Añadido al proyecto](https://api.github.com/repos/TheVillegas/StockAware/issues/events/33545272191) | 2026-10-17 |
 | #77 | [Cambio de estado en el proyecto](https://api.github.com/repos/TheVillegas/StockAware/issues/events/34210784972) | 2026-10-25 |
 
-**Falta incorporar el enlace directo del tablero existente y comprobar el acceso docente.** El índice público del repositorio no muestra proyectos enlazados; esto no descarta un proyecto privado, no enlazado o de otro propietario. No crear un reemplazo ni ampliar visibilidad para compensar esa limitación. Los eventos prueban uso, no el estado actual, columnas o permisos del tablero.
+**Falta una revisión autenticada del tablero indicado y comprobar el acceso docente.** No crear un reemplazo, cambiar estados ni ampliar visibilidad para compensar esa limitación. Los eventos prueban uso, no el estado actual, columnas o permisos del tablero.
 
 ## Autorización de infraestructura equivalente
 
@@ -53,9 +57,9 @@ Adjuntar la respuesta real y su fecha al obtenerla. Hasta entonces, la equivalen
 
 ## Acciones del equipo antes de entregar
 
-1. Aportar enlace directo/acceso al tablero existente y confirmar el registro de contribuciones.
+1. Comprobar el contenido y acceso docente del [tablero #2 ya enlazado](https://github.com/users/TheVillegas/projects/2), y confirmar el registro de contribuciones.
 2. Adjuntar autorización de equivalencia o resolver ese requisito con el docente; no rehacer staging sin esa decisión.
 3. Verificar el [Figma EP2](prototipo.md) desde el dispositivo/cuenta de evaluación. EP1 permanece conservado.
-4. Integrar estos ajustes documentales mediante el flujo habitual del repositorio, sin mover `v0.2.0-ep2`. El [paquete anterior](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) ya está publicado; estos nuevos ajustes aún son locales.
+4. Mantener estos documentos complementarios mediante PR hacia `develop`, sin mover `v0.2.0-ep2`. El [paquete publicado en la release](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) conserva el snapshot anterior; no incluye las actualizaciones posteriores de Figma y tablero.
 
 La defensa está expresamente fuera de esta actualización; el guion y la demo previos no equivalen a una defensa realizada.
