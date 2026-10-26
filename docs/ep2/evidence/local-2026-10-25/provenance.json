@@ -1,0 +1,20 @@
+{
+  "release": "v0.2.0-ep2",
+  "source_sha": "cc02c2398bac3d2e604bb0613be964d6a9f3fbe8",
+  "source_tree": "8bffd49c49ef49dda6cadbac356536445d09f94b",
+  "tracked_files_checked": 250,
+  "missing_files": [],
+  "configuration_overrides": {
+    "apps/frontend/src/app/core/auth.service.ts": {
+      "api_url": "http://localhost:3007/api",
+      "reason": "Preserve unrelated service already using port3000"
+    }
+  },
+  "temporary_source_fault": {
+    "method": "Docker extra_hosts for Dartel mapped to127.0.0.1 in disposable backend only",
+    "restored_at_utc": "2026-10-26T02:38:35Z",
+    "restored_extra_hosts": []
+  },
+  "environment": "disposable local Docker replica, fresh owned PostgreSQL volume, anonymous ERP seed, loopback-only bindings",
+  "date_local": "2026-10-25"
+}

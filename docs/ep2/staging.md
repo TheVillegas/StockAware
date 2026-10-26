@@ -59,7 +59,17 @@ El [run 40223109497](https://github.com/TheVillegas/StockAware/actions/runs/4022
 | FastAPI | <https://stockaware-intelligence.onrender.com/health> |
 | Frontend | <https://stockaware-web.onrender.com/> |
 
-Esto acredita el despliegue y los health checks de **ese corte**; no garantiza disponibilidad futura ni que cambios posteriores estén desplegados. La captura de Render con los tres servicios `Deployed` es evidencia complementaria, no reemplaza la comprobación del SHA. Para el cierre de #51 resta anexar la muestra sanitizada de logs exigida arriba si aún no está adjunta. Para la EP2 completa, revisar el [checklist de entrega](entrega.md#checklist-de-cierre-documental-y-académico).
+Esto acredita el despliegue y los health checks de **ese corte**; no garantiza disponibilidad futura ni que cambios posteriores estén desplegados. La captura de Render con los tres servicios `Deployed` es evidencia complementaria, no reemplaza la comprobación del SHA. La [muestra local sanitizada](demo-local.md) ya está enlazada en [#51](https://github.com/TheVillegas/StockAware/issues/51#issuecomment-6407313416); no se presenta como logs de producción. Para la EP2 completa, revisar el [checklist de entrega](entrega.md#checklist-de-cierre-documental-y-académico).
+
+### Corte publicado y staging equivalente
+
+El [run 40243507519](https://github.com/TheVillegas/StockAware/actions/runs/40243507519) terminó correctamente para `develop` `4a7b16186738ab21fbcdb300d06e8a1bc7828087`. El job `121320670304` confirmó los tres servicios `live` y la comprobación final de NestJS, FastAPI, PostgreSQL y web para ese SHA.
+
+Después de la aprobación de Matías Romero, [#90](https://github.com/TheVillegas/StockAware/pull/90) se fusionó mediante squash a `main` `cc02c2398bac3d2e604bb0613be964d6a9f3fbe8`. El [CI de main](https://github.com/TheVillegas/StockAware/actions/runs/40245633645) terminó `success`; su job de staging se omitió según la configuración. El [tag/release v0.2.0-ep2](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) apunta a ese commit final.
+
+Los dos commits tienen el árbol `8bffd49c49ef49dda6cadbac356536445d09f94b`: mismo contenido, distintas identidades por el squash. No se cambió la rama de Render, ningún secreto ni el tag anterior. La disponibilidad futura debe comprobarse antes de la demo; este registro es evidencia del run, no una nueva consulta al entorno.
+
+La [demo local posterior](demo-local.md) añade interfaz, persistencia y una muestra sanitizada correlacionada de petición/falla de fuente provocada en la réplica. No es una nueva falla ni una nueva medición de Render. El paquete y su checksum están adjuntos a la [release](https://github.com/TheVillegas/StockAware/releases/tag/v0.2.0-ep2) y enlazados en [#51](https://github.com/TheVillegas/StockAware/issues/51#issuecomment-6407313416); no se cerró automáticamente el issue ni se movió el tag. Ver [matriz de evidencias](evidencias.md) y [alcance de infraestructura/equivalencia](infraestructura.md).
 
 ## Validar el contrato de seguridad de CI
 
