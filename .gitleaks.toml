@@ -1,0 +1,10 @@
+title = "StockAware"
+
+[extend]
+useDefault = true
+
+# The Angular cache was committed in 77dd060 and removed in 299d869.
+# generic-api-key matches minified Ionic strings inside that generated tree.
+[[allowlists]]
+description = "Ignore the generated Angular cache that was committed once and then removed"
+paths = ['''(^|/)apps/frontend/\.angular/cache/''']
