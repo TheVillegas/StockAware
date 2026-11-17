@@ -207,5 +207,9 @@ rm -f "$tmp_salud"
 grep -q '^  full-history-secret-audit:' "$full_history_workflow"
 grep -q 'gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0' "$full_history_workflow"
 if grep -Eqi 'baseline-path|gitleaks-ignore|gitleaks:allow|allowlist' "$workflow" "$full_history_workflow" "$secret_range"; then exit 1; fi
+gitleaks_config="$root/.gitleaks.toml"
+grep -q 'useDefault = true' "$gitleaks_config"
+[[ "$(grep -c '^\[\[allowlists\]\]$' "$gitleaks_config")" -eq 1 ]]
+grep -Fx "paths = ['''(^|/)apps/frontend/\\.angular/cache/''']" "$gitleaks_config"
 
 echo "CI contract fixtures passed"
