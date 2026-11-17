@@ -1,0 +1,10 @@
+BEGIN
+ cod_material | fuente | estado | definido_por | publicacion_id | observacion_id | precio_normal | precio_oferta | disponible | obtenido_en | verificado_en
+--------------+--------+--------+--------------+----------------+----------------+---------------+---------------+------------+-------------+---------------
+(0 rows)
+
+ fuente | causa | ocurrida_en
+--------+-------+-------------
+(0 rows)
+
+COMMIT

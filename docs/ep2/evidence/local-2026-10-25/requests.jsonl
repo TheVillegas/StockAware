@@ -1,0 +1,19 @@
+{"evento": "peticion", "correlation_id": "7bba5784-9ce1-45b0-aab2-57a7b252cb37", "method": "POST", "path": "/v1/precios/preparar", "status": 200, "duration_ms": 1}
+{"evento": "peticion", "correlation_id": "7bba5784-9ce1-45b0-aab2-57a7b252cb37", "method": "POST", "path": "/v1/precios/procesar", "status": 200, "duration_ms": 3}
+{"evento": "peticion", "correlation_id": "ba9a502c-59cd-4a01-a6f3-8c32ff6b3d96", "method": "POST", "path": "/v1/precios/preparar", "status": 200, "duration_ms": 1}
+{"evento": "peticion", "correlation_id": "ba9a502c-59cd-4a01-a6f3-8c32ff6b3d96", "method": "POST", "path": "/v1/precios/procesar", "status": 200, "duration_ms": 2}
+{"time": "2026-10-26T02:24:27.855Z", "nivel": "info", "evento": "peticion", "correlation_id": "7bba5784-9ce1-45b0-aab2-57a7b252cb37", "method": "GET", "path": "/api/precios/MC_202", "status": 200, "duration_ms": 1850}
+{"time": "2026-10-26T02:26:02.749Z", "nivel": "info", "evento": "peticion", "correlation_id": "308e4459-73b0-48af-960f-7b3f9032ec99", "method": "GET", "path": "/api/precios/MC_202", "status": 304, "duration_ms": 15}
+{"time": "2026-10-26T02:27:24.663Z", "nivel": "info", "evento": "peticion", "correlation_id": "72c489e8-8201-485e-83b9-6f51255b08e4", "method": "GET", "path": "/api/precios/MC_203", "status": 502, "duration_ms": 3017}
+{"time": "2026-10-26T02:28:29.975Z", "nivel": "info", "evento": "peticion", "correlation_id": "ba9a502c-59cd-4a01-a6f3-8c32ff6b3d96", "method": "GET", "path": "/api/precios/MC_203", "status": 200, "duration_ms": 1561}
+{"time": "2026-10-26T02:29:17.764Z", "nivel": "info", "evento": "peticion", "correlation_id": "04e61741-ccc2-42f8-a741-e29986763015", "method": "PUT", "path": "/api/precios/MC_203/fuente-url", "status": 200, "duration_ms": 1289}
+{"time": "2026-10-26T02:29:18.294Z", "nivel": "info", "evento": "peticion", "correlation_id": "bfeb352b-d683-4027-8108-de2f84acb646", "method": "GET", "path": "/api/precios/MC_203", "status": 200, "duration_ms": 527}
+{"time": "2026-10-26T02:30:03.125Z", "nivel": "info", "evento": "peticion", "correlation_id": "1432e35b-dab7-436b-8bf5-1c8c146ac6c3", "method": "PATCH", "path": "/api/precios/vinculos/8", "status": 200, "duration_ms": 15}
+{"evento": "peticion", "correlation_id": "bfeb352b-d683-4027-8108-de2f84acb646", "method": "POST", "path": "/v1/precios/preparar", "status": 200, "duration_ms": 0}
+{"time": "2026-10-26T02:31:23.809Z", "nivel": "info", "evento": "peticion", "correlation_id": "be4e89cd-265b-4a6c-8e11-089936031158", "method": "GET", "path": "/api/precios/MC_203", "status": 200, "duration_ms": 15}
+{"time": "2026-10-26T02:37:36.072Z", "nivel": "error", "evento": "fuente_externa", "correlation_id": "081105c2-b5be-44c0-a521-660e359572b6", "fuente": "dartel", "causa": "http_error", "host": "www.dartel.cl"}
+{"time": "2026-10-26T02:37:38.504Z", "nivel": "info", "evento": "peticion", "correlation_id": "081105c2-b5be-44c0-a521-660e359572b6", "method": "GET", "path": "/api/precios/MC_204", "status": 200, "duration_ms": 2503}
+{"evento": "peticion", "correlation_id": "33064062-4b7a-4740-a54e-4a0685c733c1", "method": "POST", "path": "/v1/precios/preparar", "status": 200, "duration_ms": 0}
+{"evento": "peticion", "correlation_id": "33064062-4b7a-4740-a54e-4a0685c733c1", "method": "POST", "path": "/v1/precios/procesar", "status": 200, "duration_ms": 335}
+{"evento": "peticion", "correlation_id": "081105c2-b5be-44c0-a521-660e359572b6", "method": "POST", "path": "/v1/precios/preparar", "status": 200, "duration_ms": 0}
+{"evento": "peticion", "correlation_id": "081105c2-b5be-44c0-a521-660e359572b6", "method": "POST", "path": "/v1/precios/procesar", "status": 200, "duration_ms": 1}
