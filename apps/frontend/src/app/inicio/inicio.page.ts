@@ -7,7 +7,7 @@
  */
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { IonButton, IonContent, IonSkeletonText } from '@ionic/angular/standalone';
 import { API, AuthService } from '../core/auth.service';
@@ -108,9 +108,30 @@ const mensaje = (e: unknown, defecto: string): string => {
     .carga { padding: var(--sa-space-3) var(--sa-space-4); border-top: var(--sa-border) solid var(--sa-line); }
     .carga ion-skeleton-text { block-size: 2.25rem; margin: var(--sa-space-1) 0; }
     .sin-accesos { color: var(--sa-ink-soft); }
-
+    .movil-inicio { display: none; }
+    .pendientes-head { margin-bottom: var(--sa-space-4); }
+    .pendientes-head p { color: var(--sa-ink-soft); }
+    .pendientes-nota { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); }
+    .recibir { margin-bottom: var(--sa-space-4); }
     @media (max-width: 1100px) { .etapas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); } }
     @media (max-width: 767.98px) {
+      .escritorio-inicio, .inicio-paneles { display: none; }
+      .vista-pendientes .inicio-paneles { display: block; }
+      .movil-inicio { display: grid; gap: var(--sa-space-4); }
+      .movil-inicio h1 { margin: 0; font-size: var(--sa-text-page); }
+      .movil-inicio p { margin: var(--sa-space-1) 0 0; color: var(--sa-ink-soft); }
+      .tarea { padding: var(--sa-space-4); border-radius: var(--sa-ep1-radius-card);
+        background: var(--sa-shell); color: var(--sa-shell-strong); }
+      .tarea p { color: var(--sa-shell-ink); }
+      .tarea ion-button { margin: var(--sa-space-3) 0 0; }
+      .acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sa-space-2); }
+      .accion-movil { min-height: 5.5rem; padding: var(--sa-space-3); background: var(--sa-surface);
+        border: var(--sa-border) solid var(--sa-line-strong); border-radius: var(--sa-ep1-radius-card);
+        color: var(--sa-ink); text-decoration: none; display: flex; flex-direction: column; gap: var(--sa-space-2); }
+      .accion-movil:focus-visible, .pendientes-link:focus-visible { outline: var(--sa-focus-ring); outline-offset: var(--sa-focus-offset); }
+      .pendientes-link { min-height: 2.75rem; display: flex; align-items: center; justify-content: center;
+        border: var(--sa-border) solid var(--sa-border-input); border-radius: var(--sa-radius);
+        background: var(--sa-surface); color: var(--sa-ink); text-decoration: none; font-weight: 700; }
       .etapas { grid-template-columns: 1fr; padding: 0 var(--sa-space-3); }
       .etapa { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: var(--sa-space-3); }
       .etapa__valor { font-size: var(--sa-text-page); min-inline-size: 4.5rem; }
@@ -120,10 +141,31 @@ const mensaje = (e: unknown, defecto: string): string => {
     }
   `],
   template: `
-    <app-page-header title="Inicio"></app-page-header>
+    <app-page-header [title]="esPendientes ? 'Pendientes' : 'Inicio'"></app-page-header>
 
     <ion-content>
-      <main class="page-content page-content--wide">
+      <main class="page-content page-content--wide" [class.vista-pendientes]="esPendientes">
+        @if (!esPendientes) {
+        <div class="movil-inicio">
+          <header><h1>Inicio de operaciones</h1><p>Elige qué necesitas hacer.</p></header>
+          @if (registrar(); as r) {
+            <section class="tarea"><h2>Registrar movimiento</h2><p>Registra ingresos, salidas o entregas.</p>
+              <ion-button [routerLink]="r.ruta">Iniciar movimiento</ion-button>
+            </section>
+          }
+          @if (ingreso() || stock()) {
+            <section><h2>Otras tareas</h2><div class="acciones">
+              @if (ingreso(); as ingreso) {
+                <a class="accion-movil" [routerLink]="ingreso.ruta"><sa-icon name="warehouse" [size]="20" /><strong>Ingreso a bodega</strong></a>
+              }
+              @if (stock(); as stock) {
+                <a class="accion-movil" [routerLink]="stock.ruta"><sa-icon name="warehouse" [size]="20" /><strong>Consultar stock</strong></a>
+              }
+            </div></section>
+          }
+          <a class="pendientes-link" routerLink="/pendientes">Ver pendientes</a>
+        </div>
+        <div class="escritorio-inicio">
         <sa-page-head [title]="'Hola, ' + (auth.sesion()?.nombre ?? '')" [subtitle]="subtitulo()" area="inicio">
           <div saActions>
             @if (registrar(); as r) {
@@ -166,6 +208,21 @@ const mensaje = (e: unknown, defecto: string): string => {
           </section>
         }
 
+        </div>
+        } @else {
+          <header class="pendientes-head">
+            <h1>Por resolver</h1><p>Revisa las tareas disponibles para tu perfil.</p>
+            <p class="pendientes-nota">Los listados muestran hasta tres elementos; abre cada pantalla para ver más. El stock considera un máximo de 500 registros.</p>
+          </header>
+          @if (pendienteRecibir(); as recibir) {
+            <section class="sa-panel recibir" data-area="compras">
+              <div class="cabeza"><div><h2>{{ recibir.titulo }}</h2><p>{{ recibir.detalle }}</p></div></div>
+              <div class="pie"><a [routerLink]="recibir.ruta" [queryParams]="recibir.query">Ver órdenes por recibir <sa-icon name="chevron-right" [size]="16" /></a></div>
+            </section>
+          }
+          @if (!paneles().size) { <p class="sin-accesos">No hay tareas pendientes disponibles para tu perfil.</p> }
+        }
+        <div class="inicio-paneles">
         @if (paneles().size) {
           <div class="sa-panels">
             @if (paneles().has('reponer')) {
@@ -295,15 +352,17 @@ const mensaje = (e: unknown, defecto: string): string => {
           </div>
         }
 
-        @if (!etapas().length && !paneles().size && !registrar() && !nuevaOc()) {
+        @if (!esPendientes && !etapas().length && !paneles().size && !registrar() && !nuevaOc()) {
           <p class="sin-accesos">Tu perfil no tiene tareas de abastecimiento. Usa el menú para abrir tus pantallas.</p>
         }
+        </div>
       </main>
     </ion-content>
   `,
 })
 export class InicioPage {
   readonly auth = inject(AuthService);
+  readonly esPendientes = inject(ActivatedRoute).snapshot.data['pendientes'] === true;
   private readonly http = inject(HttpClient);
   readonly FILAS = FILAS;
   readonly num = num;
@@ -320,6 +379,10 @@ export class InicioPage {
   readonly ordenes = computed(() => this.entradas().get('ordenes') ?? null);
   readonly registrar = computed(() => this.entradas().get('registrar') ?? null);
   readonly nuevaOc = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'oc') ?? null);
+  readonly ingreso = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'ingreso') ?? null);
+  readonly stock = computed(() => this.entradas().get('stock') ?? null);
+  readonly pendienteRecibir = computed(() => pendientesPerfil(this.navegacion(), this.auth.sesion()?.permisos ?? [])
+    .find((p) => p.key === 'oc-recibir') ?? null);
 
   // Compras
   readonly cargaOc = signal<Carga>('cargando');
