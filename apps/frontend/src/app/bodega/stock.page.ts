@@ -6,6 +6,7 @@
  */
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -76,12 +77,22 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     .pedido strong { font-variant-numeric: tabular-nums; }
     .pedido__acciones { display: flex; gap: var(--sa-space-2); flex-wrap: wrap; }
     .stock-layout { display: flex; flex-direction: column; }
-    .stock-mobile { display: none; }
-    .detalle { padding: var(--sa-space-4); color: var(--sa-ink); }
+    .stock-mobile, .stock-intro, .stock-section { display: none; }
+    .stock-search { display: grid; gap: var(--sa-space-1); flex: 1 1 16rem; min-inline-size: 12rem; }
+    .stock-search label { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); font-weight: 600; }
+    ion-modal.stock-sheet { --height: min(80dvh, 34rem); --border-radius: var(--sa-ep1-radius-card) var(--sa-ep1-radius-card) 0 0; }
+    .detalle-content { --background: var(--sa-surface); }
+    .detalle { padding: var(--sa-space-4); padding-bottom: max(var(--sa-space-4), env(safe-area-inset-bottom)); color: var(--sa-ink); }
     .detalle h2 { font-size: var(--sa-text-page); }
     .detalle__datos { background: var(--sa-surface-2); border: 1px solid var(--sa-line-strong); border-radius: var(--sa-radius); padding: var(--sa-space-3); }
     .detalle__acciones { display: flex; flex-wrap: wrap; gap: var(--sa-space-2); }
     @media (max-width: 767.98px) {
+      .stock-intro { display: grid; gap: var(--sa-space-1); margin-bottom: var(--sa-space-3); }
+      .stock-intro span { color: var(--sa-area-bodega); font-size: var(--sa-text-label); font-weight: 750; letter-spacing: .085em; text-transform: uppercase; }
+      .stock-intro h1 { margin: 0; font-size: var(--sa-text-page); line-height: 1.12; letter-spacing: -.025em; }
+      .stock-section { display: block; margin: var(--sa-space-4) var(--sa-space-3) var(--sa-space-2); font-size: var(--sa-text-title); }
+      .stock-search { order: -1; min-inline-size: 0; flex-basis: 100%; }
+      .stock-search ion-searchbar { min-inline-size: 0; width: 100%; }
       .stock-layout sa-list { order: 0; }
       .stock-layout .sa-stats { order: 1; margin-top: var(--sa-space-4); }
       .stock-desktop { display: none; }
@@ -102,6 +113,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
 
     <ion-content>
       <div class="page-content page-content--wide">
+      <div class="stock-intro"><span>Bodega · Catálogo operativo</span><h1>Stock por bodega</h1></div>
       <sa-page-head title="Stock" area="bodega" icon="warehouse"
                     subtitle="Qué pedir antes de que falte. La cobertura usa el consumo del último año.">
         <div saActions>
@@ -117,6 +129,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         </div>
       </sa-page-head>
 
+      @if (errorConsulta()) { <div class="sa-notice sa-notice--crit" role="alert">{{ errorConsulta() }}</div> }
       @if (error()) { <div class="sa-notice sa-notice--crit" role="alert">{{ error() }}</div> }
       @if (mensaje()) { <div class="sa-notice sa-notice--ok" role="status">{{ mensaje() }}</div> }
 
@@ -148,7 +161,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         }
 
         <div class="stock-layout">
-        @if (hayConsulta() && !cargando() && !error()) {
+        @if (hayConsulta() && !cargando() && !errorConsulta()) {
           <div class="sa-stats">
             <div class="sa-stat sa-stat--crit">
               <div class="sa-stat__label">Urgente</div>
@@ -174,12 +187,15 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         }
 
         <sa-list [loading]="cargando()" [empty]="listaVacia()"
-                 [emptyTitle]="error() ? 'No se pudo cargar el stock' : tituloVacio()" [emptyText]="error() ? '' : textoVacio()"
+                 [emptyTitle]="errorConsulta() ? 'No se pudo cargar el stock' : tituloVacio()" [emptyText]="errorConsulta() ? '' : textoVacio()"
                  [foot]="hayConsulta() && datos().length > 0" [range]="rango()" [pages]="1">
           <div saFilters>
             <app-bodega-combobox [bodegas]="bodegas()" [value]="bodega()" (valueChange)="bodega.set($event)" />
-            <ion-searchbar placeholder="Código o nombre del material" [debounce]="350"
-                           (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+            <div class="stock-search">
+              <label for="stock-buscar">Buscar por material o código</label>
+              <ion-searchbar id="stock-buscar" aria-label="Buscar por material o código" placeholder="Código o nombre del material" [debounce]="350"
+                             (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+            </div>
             @if (hayConsulta()) {
               <div class="sa-chips vistas" role="group" aria-label="Vista">
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'urgente'"
@@ -195,6 +211,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               </div>
             }
           </div>
+          <h2 class="stock-section">Disponibilidad</h2>
           <div class="stock-mobile">
             @if (puedePedir()) {
               <label class="stock-mobile__select"><input type="checkbox" [checked]="todosMarcados()"
@@ -288,8 +305,10 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         </sa-list>
         </div>
       }
-      <ion-modal #modal [isOpen]="!!detalle()" (didDismiss)="cerrarDetalle()" aria-labelledby="stock-detalle-titulo">
+      <ion-modal #modal class="stock-sheet" [isOpen]="!!detalle()" (didDismiss)="cerrarDetalle()"
+                 [breakpoints]="[0, 1]" [initialBreakpoint]="1" aria-label="Detalle de material">
         <ng-template>
+          <ion-content class="detalle-content">
           @if (detalle(); as f) {
             <div class="detalle">
               <ion-button fill="outline" (click)="modal.dismiss()">Volver</ion-button>
@@ -310,6 +329,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               }
             </div>
           }
+          </ion-content>
         </ng-template>
       </ion-modal>
       </div>
@@ -348,21 +368,29 @@ export class StockPage {
   readonly prontoDias = PRONTO_DIAS;
   readonly cargando = signal(false);
   readonly error = signal('');
+  readonly errorConsulta = signal('');
   readonly mensaje = signal('');
   readonly trabajando = signal(false);
   readonly ajustando = signal<FilaStock | null>(null);
   /** Material whose "Precios de mercado" panel is open. */
   readonly precios = signal<FilaStock | null>(null);
-  readonly detalle = signal<FilaStock | null>(null);
+  private readonly detalleClave = signal<string | null>(null);
+  readonly detalle = computed(() => this.datos().find((f) => this.clave(f) === this.detalleClave()) ?? null);
   private detalleOrigen: HTMLElement | null = null;
+  private readonly location = inject(Location);
 
   abrirDetalle(f: FilaStock, event: Event): void {
     this.detalleOrigen = event.currentTarget as HTMLElement;
-    this.detalle.set(f);
+    void this.router.navigate([], { queryParams: { stockDetalle: this.clave(f) }, queryParamsHandling: 'merge',
+      state: { stockDetalleAbierto: true } });
   }
 
   cerrarDetalle(): void {
-    this.detalle.set(null);
+    if (this.detalleClave()) {
+      const state = this.location.getState() as { stockDetalleAbierto?: boolean } | null;
+      if (state?.stockDetalleAbierto) this.location.back();
+      else void this.router.navigate([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    }
     if (!this.ajustando() && !this.precios()) this.detalleOrigen?.focus({ preventScroll: true });
     this.detalleOrigen = null;
   }
@@ -461,11 +489,12 @@ export class StockPage {
     void this.cargarBodegas();
     inject(ActivatedRoute).queryParamMap.pipe(takeUntilDestroyed()).subscribe((q) => {
       this.soloReponer.set(q.get('bajo') === '1');
+      this.detalleClave.set(q.get('stockDetalle'));
     });
     effect(() => {
       const b = this.bodega(); const q = this.buscar(); const r = this.soloReponer();
       // Sin bodega ni busqueda el listado seria enorme: se pide algo primero.
-      if (!b && !q.trim() && !r) { this.datos.set([]); return; }
+      if (!b && !q.trim() && !r) { this.datos.set([]); this.errorConsulta.set(''); return; }
       void this.cargar(b, q);
     });
   }
@@ -479,6 +508,7 @@ export class StockPage {
   private async cargar(bodega: number, buscar: string): Promise<void> {
     this.cargando.set(true);
     this.error.set('');
+    this.errorConsulta.set('');
     try {
       const q = new URLSearchParams();
       if (bodega) q.set('bodega', String(bodega));
@@ -491,7 +521,7 @@ export class StockPage {
       if (!this.filtroElegido) this.filtro.set(this.resumen().urgente > 0 ? 'urgente' : 'todos');
     } catch (e: any) {
       this.datos.set([]);
-      this.error.set(e?.error?.message ?? 'No se pudo cargar el stock');
+      this.errorConsulta.set(e?.error?.message ?? 'No se pudo cargar el stock');
     } finally {
       this.cargando.set(false);
     }

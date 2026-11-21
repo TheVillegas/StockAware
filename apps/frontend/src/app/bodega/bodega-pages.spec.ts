@@ -92,6 +92,12 @@ describe('Bodega pages UI system migration', () => {
     expect(template).toMatch(/class="stock-mobile"/);
     expect(template).toMatch(/\(click\)="abrirDetalle\(f, \$event\)"/);
     expect(template).toMatch(/<ion-modal[^>]*\[isOpen\]="!!detalle\(\)"[^>]*\(didDismiss\)="cerrarDetalle\(\)"/);
+    expect(template).toMatch(/\[breakpoints\]="\[0, 1\]"/);
+    expect(template).toMatch(/\[initialBreakpoint\]="1"/);
+    expect(template).toMatch(/aria-label="Detalle de material"/);
+    expect(template).toMatch(/<ion-content class="detalle-content">/);
+    expect(template).toMatch(/hayConsulta\(\) && !cargando\(\) && !errorConsulta\(\)/);
+    expect(template).toMatch(/\[emptyTitle\]="errorConsulta\(\)/);
     expect(template).toMatch(/Volver/);
     expect(template).toMatch(/f\.nombre[\s\S]*f\.cod_material[\s\S]*f\.bodega[\s\S]*f\.stock[\s\S]*f\.stock_minimo/);
     expect(template).toMatch(/estadoStock\(f\.stock, f\.stock_minimo\)/);
@@ -100,6 +106,57 @@ describe('Bodega pages UI system migration', () => {
     expect(template).toMatch(/precios\.set\(f\)/);
     expect(content).toMatch(/focus\(\{ preventScroll: true \}\)/);
     expect(content).toMatch(/primeros 500: acota bodega o búsqueda/);
+  });
+
+  it('keeps operation failures distinct from query failures through the Stock class', () => {
+    const ts = require('typescript');
+    const vm = require('node:vm');
+    const code = ts.transpileModule(source('stock.page.ts'), { compilerOptions: {
+      module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, experimentalDecorators: true,
+    } }).outputText;
+    const signal = (initial) => { let value = initial; const get = () => value; get.set = (next) => { value = next; }; return get; };
+    let onParams;
+    const route = { queryParamMap: { pipe: () => ({ subscribe: (fn) => { onParams = fn; fn({ get: () => null }); } }) } };
+    const router = { navigate: jest.fn() };
+    const location = { getState: () => ({ stockDetalleAbierto: true }), back: jest.fn() };
+    const http = { get: () => ({}) };
+    class HttpClient {} class AuthService {} class ActivatedRoute {} class Router {} class Location {}
+    const services = new Map([[HttpClient, http], [AuthService, {}], [ActivatedRoute, route], [Router, router], [Location, location]]);
+    const core = { Component: () => (target) => target, inject: (token) => services.get(token), signal,
+      computed: (fn) => fn, effect: () => {} };
+    const modules = {
+      '@angular/core': core, '@angular/common/http': { HttpClient }, '@angular/common': { Location },
+      '@angular/router': { ActivatedRoute, Router }, '../core/auth.service': { AuthService, API: '/api' },
+      '@angular/core/rxjs-interop': { takeUntilDestroyed: () => ({}) },
+      rxjs: { firstValueFrom: () => Promise.resolve([]) },
+      './stock-state': require('./stock-state'), '../shared/consulta': require('../shared/consulta'),
+    };
+    const exports = {};
+    vm.runInNewContext(code, { exports, require: (name) => modules[name] ?? {}, URLSearchParams });
+    const page = new exports.StockPage();
+    page.bodega.set(1);
+    const row = { cod_material: 'A', id_bodega: 1, stock: 20, stock_minimo: 10, tarifa: 1 };
+    page.datos.set([row]); page.filtro.set('crit'); page.alternar(row);
+    page.crearPedido();
+    expect(page.error()).toBe('Los materiales elegidos ya tienen stock suficiente: no hay nada que pedir');
+    expect(page.errorConsulta()).toBe('');
+    expect(page.tituloVacio()).toBe('Nada en este estado');
+    expect(page.resumen().total).toBe(1);
+    expect(page.seleccion().size).toBe(1);
+    expect(router.navigate).not.toHaveBeenCalled();
+    const focus = jest.fn();
+    page.abrirDetalle(row, { currentTarget: { focus } });
+    expect(router.navigate).toHaveBeenCalledWith([], { queryParams: { stockDetalle: 'A|1' }, queryParamsHandling: 'merge', state: { stockDetalleAbierto: true } });
+    onParams({ get: (key) => key === 'stockDetalle' ? 'A|1' : null });
+    expect(page.detalle()).toBe(row);
+    page.cerrarDetalle();
+    expect(location.back).toHaveBeenCalledTimes(1);
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    onParams({ get: () => null });
+    expect(page.detalle()).toBeNull();
+    expect(page.bodega()).toBe(1);
+    expect(page.filtro()).toBe('crit');
+    expect(page.seleccion().size).toBe(1);
   });
 
   it('stock.page delegates the stock state to the tested stockState helper', () => {
