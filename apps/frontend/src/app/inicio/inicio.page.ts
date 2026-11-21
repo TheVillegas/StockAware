@@ -113,25 +113,40 @@ const mensaje = (e: unknown, defecto: string): string => {
     .pendientes-head p { color: var(--sa-ink-soft); }
     .pendientes-nota { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); }
     .recibir { margin-bottom: var(--sa-space-4); }
+    .resumen { padding: var(--sa-space-4); margin-bottom: var(--sa-space-4); gap: var(--sa-space-2); }
+    .resumen p { margin: 0; color: var(--sa-ink-soft); }
+    .filtros { display: flex; flex-wrap: wrap; gap: var(--sa-space-2); margin-bottom: var(--sa-space-4); }
+    .filtros button { min-height: 2.75rem; padding: var(--sa-space-2) var(--sa-space-3); color: var(--sa-ink);
+      background: var(--sa-surface); border: var(--sa-border) solid var(--sa-border-input); border-radius: var(--sa-radius); }
+    .filtros button[aria-pressed="true"] { color: var(--sa-info-fg); background: var(--sa-info-bg); border-color: var(--sa-info-line); }
+    .filtros button:focus-visible { outline: var(--sa-focus-ring); outline-offset: var(--sa-focus-offset); }
     @media (max-width: 1100px) { .etapas { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); } }
     @media (max-width: 767.98px) {
       .escritorio-inicio, .inicio-paneles { display: none; }
       .vista-pendientes .inicio-paneles { display: block; }
       .movil-inicio { display: grid; gap: var(--sa-space-4); }
-      .movil-inicio h1 { margin: 0; font-size: var(--sa-text-page); }
+      .movil-inicio h1 { margin: var(--sa-space-1) 0; font-size: var(--sa-text-page); line-height: 1.12; letter-spacing: -.025em; }
       .movil-inicio p { margin: var(--sa-space-1) 0 0; color: var(--sa-ink-soft); }
-      .tarea { padding: var(--sa-space-4); border-radius: var(--sa-ep1-radius-card);
+      .ceja { font-size: var(--sa-text-label); font-weight: 750; letter-spacing: .085em; text-transform: uppercase; }
+      .tarea { padding: var(--sa-space-4); border-radius: var(--sa-ep1-radius-card); display: grid; gap: var(--sa-space-2);
         background: var(--sa-shell); color: var(--sa-shell-strong); }
-      .tarea p { color: var(--sa-shell-ink); }
-      .tarea ion-button { margin: var(--sa-space-3) 0 0; }
+      .tarea p, .tarea .ceja { margin: 0; color: var(--sa-shell-ink); }
+      .tarea ion-button { justify-self: start; margin: var(--sa-space-1) 0 0; --border-radius: var(--sa-radius); }
       .acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sa-space-2); }
       .accion-movil { min-height: 5.5rem; padding: var(--sa-space-3); background: var(--sa-surface);
         border: var(--sa-border) solid var(--sa-line-strong); border-radius: var(--sa-ep1-radius-card);
         color: var(--sa-ink); text-decoration: none; display: flex; flex-direction: column; gap: var(--sa-space-2); }
+      .acciones { margin-top: var(--sa-space-2); }
+      .icono-tarea { width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border-radius: var(--sa-radius);
+        color: var(--sa-area-bodega); background: var(--sa-area-bodega-tint); }
+      .icono-stock { color: var(--sa-area-compras); background: var(--sa-area-compras-tint); }
+      .accion-movil small { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); }
       .accion-movil:focus-visible, .pendientes-link:focus-visible { outline: var(--sa-focus-ring); outline-offset: var(--sa-focus-offset); }
-      .pendientes-link { min-height: 2.75rem; display: flex; align-items: center; justify-content: center;
-        border: var(--sa-border) solid var(--sa-border-input); border-radius: var(--sa-radius);
+      .pendientes-link { min-height: 2.75rem; display: flex; gap: var(--sa-space-2); align-items: center; justify-content: center;
+        padding: var(--sa-space-2) var(--sa-space-3); flex-wrap: wrap; border: var(--sa-border) solid var(--sa-border-input); border-radius: var(--sa-radius);
         background: var(--sa-surface); color: var(--sa-ink); text-decoration: none; font-weight: 700; }
+      .atencion-real { color: var(--sa-warn-fg); background: var(--sa-warn-bg); border-radius: var(--sa-radius-pill);
+        padding: var(--sa-space-1) var(--sa-space-2); font-size: var(--sa-text-meta); }
       .etapas { grid-template-columns: 1fr; padding: 0 var(--sa-space-3); }
       .etapa { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: var(--sa-space-3); }
       .etapa__valor { font-size: var(--sa-text-page); min-inline-size: 4.5rem; }
@@ -139,6 +154,7 @@ const mensaje = (e: unknown, defecto: string): string => {
       .fila { flex-wrap: wrap; }
       .fila__accion { flex-direction: row; align-items: center; }
     }
+    @media (max-width: 350px) { .acciones { grid-template-columns: 1fr; } }
   `],
   template: `
     <app-page-header [title]="esPendientes ? 'Pendientes' : 'Inicio'"></app-page-header>
@@ -147,23 +163,23 @@ const mensaje = (e: unknown, defecto: string): string => {
       <main class="page-content page-content--wide" [class.vista-pendientes]="esPendientes">
         @if (!esPendientes) {
         <div class="movil-inicio">
-          <header><h1>Inicio de operaciones</h1><p>Elige qué necesitas hacer.</p></header>
+          <header><span class="ceja">Operaciones</span><h1>Inicio de operaciones</h1><p>Elige qué necesitas hacer.</p></header>
           @if (registrar(); as r) {
-            <section class="tarea"><h2>Registrar movimiento</h2><p>Registra ingresos, salidas o entregas.</p>
-              <ion-button [routerLink]="r.ruta">Iniciar movimiento</ion-button>
+            <section class="tarea"><span class="ceja">Acción frecuente</span><h2>Registrar movimiento</h2><p>Registra ingresos, salidas o entregas.</p>
+              <ion-button [routerLink]="r.ruta"><sa-icon slot="start" name="move" [size]="20" />Iniciar movimiento</ion-button>
             </section>
           }
           @if (ingreso() || stock()) {
             <section><h2>Otras tareas</h2><div class="acciones">
               @if (ingreso(); as ingreso) {
-                <a class="accion-movil" [routerLink]="ingreso.ruta"><sa-icon name="warehouse" [size]="20" /><strong>Ingreso a bodega</strong></a>
+                <a class="accion-movil" [routerLink]="ingreso.ruta"><span class="icono-tarea"><sa-icon name="in" [size]="20" /></span><strong>Ingreso a bodega</strong><small>Registrar ingreso de materiales</small></a>
               }
               @if (stock(); as stock) {
-                <a class="accion-movil" [routerLink]="stock.ruta"><sa-icon name="warehouse" [size]="20" /><strong>Consultar stock</strong></a>
+                <a class="accion-movil" [routerLink]="stock.ruta"><span class="icono-tarea icono-stock"><sa-icon name="search" [size]="20" /></span><strong>Consultar stock</strong><small>Consultar disponibilidad</small></a>
               }
             </div></section>
           }
-          <a class="pendientes-link" routerLink="/pendientes">Ver pendientes</a>
+          <a class="pendientes-link" routerLink="/pendientes">Ver pendientes @if (hayAtencion()) { <span class="atencion-real">Requieren atención</span> }</a>
         </div>
         <div class="escritorio-inicio">
         <sa-page-head [title]="'Hola, ' + (auth.sesion()?.nombre ?? '')" [subtitle]="subtitulo()" area="inicio">
@@ -214,25 +230,72 @@ const mensaje = (e: unknown, defecto: string): string => {
             <h1>Por resolver</h1><p>Revisa las tareas disponibles para tu perfil.</p>
             <p class="pendientes-nota">Los listados muestran hasta tres elementos; abre cada pantalla para ver más. El stock considera un máximo de 500 registros.</p>
           </header>
+          @if (hayPendientes()) {
+            <section class="sa-panel resumen" aria-labelledby="resumen-pendientes">
+              <h2 id="resumen-pendientes">Resumen de atención</h2>
+              @if (paneles().has('reponer')) {
+                <p>Bodega:
+                  @switch (cargaStock()) {
+                    @case ('cargando') { Cargando… }
+                    @case ('error') { Sin datos. }
+                    @default {
+                      @if (totalStock(); as total) { {{ num(total) }} materiales agotados en uso. }
+                      @else if (totalStock() === 0) { Ningún material agotado en uso. }
+                      @else { Total desconocido: se alcanzó el límite de registros. }
+                    }
+                  }
+                </p>
+              }
+              @if (paneles().has('oc-aprobar')) {
+                <p>Órdenes por aprobar:
+                  @switch (cargaOc()) {
+                    @case ('cargando') { Cargando… }
+                    @case ('error') { Sin datos. }
+                    @default { {{ num(porAprobar()) }} }
+                  }
+                </p>
+              }
+              @if (paneles().has('facturas')) {
+                <p>Facturas por distribuir:
+                  @switch (cargaFacturas()) {
+                    @case ('cargando') { Cargando… }
+                    @case ('error') { Sin datos. }
+                    @default { {{ num(aceptadas()) }} }
+                  }
+                </p>
+              }
+              @if (pendienteRecibir()) { <p>Compras: revisa las órdenes emitidas por recibir.</p> }
+            </section>
+            <nav class="filtros" aria-label="Filtrar pendientes por área">
+              <button type="button" [attr.aria-pressed]="area() === 'todas'" (click)="area.set('todas')">Todas</button>
+              @if (paneles().has('reponer')) { <button type="button" [attr.aria-pressed]="area() === 'bodega'" (click)="area.set('bodega')">Bodega</button> }
+              @if (paneles().has('oc-aprobar') || pendienteRecibir()) { <button type="button" [attr.aria-pressed]="area() === 'compras'" (click)="area.set('compras')">Compras</button> }
+              @if (paneles().has('facturas')) { <button type="button" [attr.aria-pressed]="area() === 'finanzas'" (click)="area.set('finanzas')">Finanzas</button> }
+            </nav>
+          }
           @if (pendienteRecibir(); as recibir) {
+            @if (areaVisible('compras')) {
             <section class="sa-panel recibir" data-area="compras">
               <div class="cabeza"><div><h2>{{ recibir.titulo }}</h2><p>{{ recibir.detalle }}</p></div></div>
               <div class="pie"><a [routerLink]="recibir.ruta" [queryParams]="recibir.query">Ver órdenes por recibir <sa-icon name="chevron-right" [size]="16" /></a></div>
             </section>
+            }
           }
-          @if (!paneles().size) { <p class="sin-accesos">No hay tareas pendientes disponibles para tu perfil.</p> }
+          @if (!hayPendientes()) { <p class="sin-accesos">No hay tareas pendientes disponibles para tu perfil.</p> }
         }
         <div class="inicio-paneles">
         @if (paneles().size) {
           <div class="sa-panels">
-            @if (paneles().has('reponer')) {
+            @if (paneles().has('reponer') && areaVisible('bodega')) {
               <section class="sa-panel" data-area="bodega" aria-labelledby="agotados">
                 <div class="cabeza">
                   <div>
                     <h2 id="agotados">Se agotó y se sigue usando</h2>
                     @if (agotados(); as a) {
+                      @if (!esPendientes || !stockTope()) {
                       <p><strong class="num">{{ num(a.length) }}{{ stockTope() ? '+' : '' }}</strong>
                         {{ a.length === 1 ? 'material' : 'materiales' }} sin stock con consumo en el último año</p>
+                      } @else { <p>Total desconocido: se alcanzó el límite de registros.</p> }
                     }
                   </div>
                   <span class="marca"><sa-icon name="warehouse" [size]="18" /></span>
@@ -250,7 +313,11 @@ const mensaje = (e: unknown, defecto: string): string => {
                         <strong class="fila__dato num">Pedir {{ num(pedir(f)) }}</strong>
                       </a>
                     } @empty {
-                      <p class="aviso aviso--ok">Ningún material en uso está agotado.</p>
+                      @if (esPendientes && stockTope()) {
+                        <p class="aviso">No se encontraron materiales agotados en los registros consultados.</p>
+                      } @else {
+                        <p class="aviso aviso--ok">Ningún material en uso está agotado.</p>
+                      }
                     }
                     <div class="pie">
                       <ion-button color="bodega" routerLink="/f/MATERIAL_X_BODEGA" [queryParams]="{ bajo: '1' }">
@@ -262,7 +329,7 @@ const mensaje = (e: unknown, defecto: string): string => {
               </section>
             }
 
-            @if (paneles().has('oc-aprobar')) {
+            @if (paneles().has('oc-aprobar') && areaVisible('compras')) {
               <section class="sa-panel" data-area="compras" aria-labelledby="aprobar">
                 <div class="cabeza">
                   <div>
@@ -287,6 +354,7 @@ const mensaje = (e: unknown, defecto: string): string => {
                         </span>
                         <span class="fila__accion">
                           <strong class="fila__dato num">{{ clp(o.total) }}</strong>
+                          @if (!esPendientes) {
                           <ion-button size="small" [color]="hecha ? 'medium' : 'compras'" [fill]="hecha ? 'outline' : 'solid'"
                                       [disabled]="hecha || aprobando() === o.numdoc" (click)="aprobar(o)"
                                       [attr.aria-label]="(hecha ? 'Orden aprobada: ' : 'Aprobar orden ') + o.numdoc">
@@ -294,6 +362,7 @@ const mensaje = (e: unknown, defecto: string): string => {
                             @else { {{ aprobando() === o.numdoc ? 'Aprobando…' : 'Aprobar' }} }
                           </ion-button>
                           @if (errores()[o.numdoc]; as err) { <span class="fila__error" role="alert">{{ err }}</span> }
+                          }
                         </span>
                       </div>
                     } @empty {
@@ -312,7 +381,7 @@ const mensaje = (e: unknown, defecto: string): string => {
               </section>
             }
 
-            @if (paneles().has('facturas')) {
+            @if (paneles().has('facturas') && areaVisible('finanzas')) {
               <section class="sa-panel" data-area="finanzas" aria-labelledby="facturas">
                 <div class="cabeza">
                   <div>
@@ -381,8 +450,20 @@ export class InicioPage {
   readonly nuevaOc = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'oc') ?? null);
   readonly ingreso = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'ingreso') ?? null);
   readonly stock = computed(() => this.entradas().get('stock') ?? null);
-  readonly pendienteRecibir = computed(() => pendientesPerfil(this.navegacion(), this.auth.sesion()?.permisos ?? [])
-    .find((p) => p.key === 'oc-recibir') ?? null);
+  readonly pendienteRecibir = computed(() => (this.auth.sesion()?.permisos ?? []).includes('CON_DOC_EMI')
+    ? pendientesPerfil(this.navegacion(), this.auth.sesion()?.permisos ?? []).find((p) => p.key === 'oc-recibir') ?? null
+    : null);
+  readonly area = signal<'todas' | 'bodega' | 'compras' | 'finanzas'>('todas');
+  readonly hayPendientes = computed(() => this.paneles().has('reponer') || this.paneles().has('oc-aprobar')
+    || this.paneles().has('facturas') || !!this.pendienteRecibir());
+  readonly totalStock = computed(() => this.stockTope() ? null : this.agotados()?.length ?? null);
+  readonly hayAtencion = computed(() =>
+    (this.paneles().has('reponer') && this.cargaStock() === 'listo' && (this.agotados()?.length ?? 0) > 0)
+    || (this.paneles().has('oc-aprobar') && this.cargaOc() === 'listo' && (this.porAprobar() ?? 0) > 0)
+    || (this.paneles().has('facturas') && this.cargaFacturas() === 'listo' && (this.aceptadas() ?? 0) > 0));
+  areaVisible(area: 'bodega' | 'compras' | 'finanzas'): boolean {
+    return !this.esPendientes || this.area() === 'todas' || this.area() === area;
+  }
 
   // Compras
   readonly cargaOc = signal<Carga>('cargando');

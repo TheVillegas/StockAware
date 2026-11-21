@@ -34,6 +34,16 @@ describe('Inicio móvil y Pendientes', () => {
     expect(page).toContain('No hay tareas pendientes disponibles para tu perfil.');
   });
 
+  it('presenta jerarquía y acciones móviles con iconos y descripciones', () => {
+    const page = source();
+    expect(page).toContain('Operaciones');
+    expect(page).toContain('Acción frecuente');
+    expect(page).toContain('class="icono-tarea"');
+    expect(page).toContain('Consultar disponibilidad');
+    expect(page).toContain('class="atencion-real"');
+    expect(page).toContain('@media (max-width: 350px)');
+  });
+
   it('mantiene el tablero de escritorio y oculta solo su presentación en Inicio móvil', () => {
     const page = source();
     expect(page).toContain('Flujo de abastecimiento');
