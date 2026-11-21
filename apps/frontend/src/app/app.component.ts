@@ -46,6 +46,7 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
   styles: [`
     .offline, .actualizacion { padding: var(--sa-space-4); background: var(--sa-shell); color: var(--sa-shell-strong); }
     .offline { min-height: 100%; }
+    [hidden] { display: none !important; }
     .actualizacion button { margin-left: 1rem; }
     ion-menu {
       --background: var(--sa-shell);
@@ -203,16 +204,17 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
         <main class="offline" role="status">
           <h1>Sin conexión</h1>
           <p>Conéctate para acceder a StockAware. Los datos y operaciones no están disponibles sin conexión.</p>
-          <p>Los cambios no guardados pueden haberse perdido.</p>
+          <p>Los cambios sin guardar permanecen en esta pantalla mientras no la recargues ni cierres.</p>
         </main>
-      } @else {
-      @if (actualizacionDisponible()) {
+      }
+      @if (connectivity.online() && actualizacionDisponible()) {
         <div class="actualizacion" role="status">Hay una nueva versión disponible. Guarda tus cambios antes de recargar.
           <button type="button" (click)="recargar()">Recargar ahora</button>
         </div>
       }
       @if (auth.autenticado()) {
-        <ion-split-pane contentId="principal" data-visual="ep1" when="md">
+        <ion-split-pane contentId="principal" data-visual="ep1" when="md"
+                        [hidden]="!connectivity.online()" [attr.inert]="connectivity.online() ? null : ''">
           <ion-menu contentId="principal" type="overlay">
             <ion-content>
               <a class="marca" routerLink="/inicio">
@@ -274,8 +276,8 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
           <ion-router-outlet id="principal"></ion-router-outlet>
         </ion-split-pane>
       } @else {
-        <ion-router-outlet id="principal"></ion-router-outlet>
-      }
+        <ion-router-outlet id="principal" [hidden]="!connectivity.online()"
+                           [attr.inert]="connectivity.online() ? null : ''"></ion-router-outlet>
       }
     </ion-app>
   `,
