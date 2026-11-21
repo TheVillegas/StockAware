@@ -85,6 +85,8 @@ services:
   frontend:
     build:
       context: ./apps/frontend
+      args:
+        API_URL: ${API_URL:-}
     container_name: erp-frontend
     ports:
       - "${FRONTEND_PORT:-4200}:80"

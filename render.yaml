@@ -73,7 +73,7 @@ services:
     name: stockaware-web
     runtime: static
     branch: develop
-    buildCommand: cd apps/frontend && npm ci && node scripts/set-api-url.mjs && npx ng build
+    buildCommand: cd apps/frontend && npm ci && npm run build
     staticPublishPath: ./apps/frontend/dist/browser
     autoDeployTrigger: off
     routes:

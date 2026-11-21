@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node scripts/build.mjs",
     "lint": "eslint \"src/**/*.{ts,html}\" --max-warnings=0 --no-error-on-unmatched-pattern",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest --passWithNoTests"
+    "test": "node --test scripts/build.test.mjs && jest --passWithNoTests"
   },
   "dependencies": {
     "@angular/common": "^20.3.34",

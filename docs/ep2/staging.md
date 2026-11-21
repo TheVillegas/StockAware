@@ -21,7 +21,9 @@ Los planes son los gratuitos publicados en la documentación de Render: `free` p
 
 La base no acepta conexiones desde internet (`ipAllowList` vacío). El plan gratis no acepta un comando de pre-deploy, así que `dockerCommand` apunta a `database/render-start.sh`, que carga la réplica y después arranca NestJS. El dump `02_datos.sql.gz` viaja en la imagen y se lee por partes: la instancia gratis tiene 512 MB y el archivo descomprimido pesa unos 62 MB. Si el esquema ya existe y la marca `replica_carga` no, el arranque vacía las tablas y vuelve a cargar datos, vistas y secuencias. Compose local no usa ese comando. `JWT_SECRET` no va en el archivo: el Dashboard lo pide al aplicar el Blueprint.
 
-El frontend de Render llama a `https://<api>/api`. En local, Compose sigue usando `http://localhost:3000/api`.
+El frontend de Render toma `BACKEND_HOST` del hostname público del servicio API y llama a `https://<api>/api`. Sin configuración, los builds locales y Compose conservan `http://localhost:3000/api` (localhost del navegador, no del contenedor). `ng serve` y los builds directos `ng build` también conservan ese valor.
+
+Para un build de staging o Android, define `API_URL` como URL HTTPS pública completa, incluida la ruta API, por ejemplo `API_URL=https://api.example.com/api npm run build` desde `apps/frontend`. La configuración se incorpora al bundle en tiempo de build y no es secreta: no incluyas credenciales ni parámetros. Se rechazan URLs no HTTPS, con credenciales, query o fragmento, y hosts sin dominio público; `API_URL` tiene prioridad sobre `BACKEND_HOST`. Se elimina una barra final. Para Compose, `API_URL=https://api.example.com/api docker compose build frontend` pasa el mismo argumento de build; sin él mantiene el valor local. El cliente nativo necesita una API accesible desde el dispositivo: su `localhost` no es el de la máquina de desarrollo. La configuración no cambia CORS ni despliega servicios.
 
 ## Aplicar
 
