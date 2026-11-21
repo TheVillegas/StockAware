@@ -22,6 +22,17 @@ describe('SaPageHead phone heading', () => {
     expect(stock).toMatch(/<sa-page-head title="Stock"[^>]*\[phoneTitle\]="false"/);
   });
 
+  it('opts out of the phone title only on Stock', () => {
+    const { readdirSync, statSync } = require('node:fs');
+    const walk = (dir) => readdirSync(dir).flatMap((name) => {
+      const path = join(dir, name);
+      return statSync(path).isDirectory() ? walk(path) : [path];
+    });
+    const hits = walk(join(__dirname, '..')).filter((path) => path.endsWith('.ts')
+      && !path.endsWith('.spec.ts') && /<sa-page-head\b[^>]*\[phoneTitle\]="false"/.test(readFileSync(path, 'utf8')));
+    expect(hits.map((path) => path.split('/').pop())).toEqual(['stock.page.ts']);
+  });
+
   it('keeps page actions full width on phones', () => {
     expect(phone).toMatch(/\.sa-page-head__actions\s*\{\s*inline-size:\s*100%/);
   });
