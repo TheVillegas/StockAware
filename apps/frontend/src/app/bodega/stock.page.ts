@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonContent, IonFooter, IonInput, IonSearchbar,
+  IonButton, IonContent, IonFooter, IonInput, IonModal, IonSearchbar,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
@@ -46,7 +46,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
   selector: 'app-stock',
   imports: [
     FormsModule, RouterLink, PageHeaderComponent, IonContent, IonFooter,
-    IonSearchbar, IonButton, IonInput,
+    IonSearchbar, IonButton, IonInput, IonModal,
     SaIcon, SaList, SaPageHead, SaTableWrap, BodegaCombobox, PreciosPanel,
   ],
   styles: [`
@@ -75,6 +75,27 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     .oculto { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .pedido strong { font-variant-numeric: tabular-nums; }
     .pedido__acciones { display: flex; gap: var(--sa-space-2); flex-wrap: wrap; }
+    .stock-layout { display: flex; flex-direction: column; }
+    .stock-mobile { display: none; }
+    .detalle { padding: var(--sa-space-4); color: var(--sa-ink); }
+    .detalle h2 { font-size: var(--sa-text-page); }
+    .detalle__datos { background: var(--sa-surface-2); border: 1px solid var(--sa-line-strong); border-radius: var(--sa-radius); padding: var(--sa-space-3); }
+    .detalle__acciones { display: flex; flex-wrap: wrap; gap: var(--sa-space-2); }
+    @media (max-width: 767.98px) {
+      .stock-layout sa-list { order: 0; }
+      .stock-layout .sa-stats { order: 1; margin-top: var(--sa-space-4); }
+      .stock-desktop { display: none; }
+      .stock-mobile { display: block; border: 1px solid var(--sa-line-strong); border-radius: var(--sa-ep1-radius-card); overflow: hidden; background: var(--sa-surface); }
+      .stock-mobile__row + .stock-mobile__row { border-top: 1px solid var(--sa-line-strong); }
+      .stock-mobile__button { width: 100%; min-height: 44px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sa-space-1) var(--sa-space-2); text-align: left; padding: var(--sa-space-3); background: var(--sa-surface); color: var(--sa-ink); border: 0; font: inherit; }
+      .stock-mobile__button:focus-visible { outline: var(--sa-focus-ring); outline-offset: calc(-1 * var(--sa-focus-offset)); }
+      .stock-mobile__button strong, .stock-mobile__button small { display: block; overflow-wrap: anywhere; }
+      .stock-mobile__button small { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); margin-top: var(--sa-space-1); }
+      .stock-mobile__qty { text-align: right; font-variant-numeric: tabular-nums; }
+      .stock-mobile__status { grid-column: 1 / -1; }
+      .stock-mobile__select { display: flex; align-items: center; gap: var(--sa-space-2); min-height: 44px; padding: 0 var(--sa-space-3); }
+      .stock-mobile__select input { width: 1.25rem; height: 1.25rem; accent-color: var(--sa-area-bodega); }
+    }
   `],
   template: `
     <app-page-header title="Stock"></app-page-header>
@@ -126,7 +147,8 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
           </div>
         }
 
-        @if (hayConsulta()) {
+        <div class="stock-layout">
+        @if (hayConsulta() && !cargando() && !error()) {
           <div class="sa-stats">
             <div class="sa-stat sa-stat--crit">
               <div class="sa-stat__label">Urgente</div>
@@ -152,7 +174,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         }
 
         <sa-list [loading]="cargando()" [empty]="listaVacia()"
-                 [emptyTitle]="tituloVacio()" [emptyText]="textoVacio()"
+                 [emptyTitle]="error() ? 'No se pudo cargar el stock' : tituloVacio()" [emptyText]="error() ? '' : textoVacio()"
                  [foot]="hayConsulta() && datos().length > 0" [range]="rango()" [pages]="1">
           <div saFilters>
             <app-bodega-combobox [bodegas]="bodegas()" [value]="bodega()" (valueChange)="bodega.set($event)" />
@@ -173,7 +195,31 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               </div>
             }
           </div>
-          <sa-table-wrap label="Materiales">
+          <div class="stock-mobile">
+            @if (puedePedir()) {
+              <label class="stock-mobile__select"><input type="checkbox" [checked]="todosMarcados()"
+                (change)="marcarVisibles($any($event.target).checked)" /> Elegir todos los visibles para pedir</label>
+            }
+            @for (f of visibles(); track f.cod_material + '-' + f.id_bodega) {
+              @let estado = estadoStock(f.stock, f.stock_minimo);
+              <div class="stock-mobile__row">
+                <button type="button" class="stock-mobile__button" (click)="abrirDetalle(f, $event)">
+                  <span><strong>{{ f.nombre }}</strong><small>{{ f.cod_material }} · {{ f.bodega }}</small></span>
+                  <span class="stock-mobile__qty"><strong>{{ f.stock }} {{ f.unidad }}</strong><small>Mínimo {{ f.stock_minimo ?? 'No informado' }}</small></span>
+                  <span class="stock-mobile__status">
+                    @if (estado === 'crit') { <span class="sa-pill sa-pill--crit">SIN STOCK</span> }
+                    @else if (estado === 'warn') { <span class="sa-pill sa-pill--warn">BAJO MÍNIMO</span> }
+                    @else { <span class="sa-pill sa-pill--ok">OK</span> }
+                  </span>
+                </button>
+                @if (puedePedir()) {
+                  <label class="stock-mobile__select"><input type="checkbox" [checked]="marcado(f)"
+                    (change)="alternar(f)" /> Pedir {{ f.cod_material }}</label>
+                }
+              </div>
+            }
+          </div>
+          <sa-table-wrap class="stock-desktop" label="Materiales">
               <table class="sa-table">
                 <thead><tr>
                   @if (puedePedir()) {
@@ -240,7 +286,32 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               </table>
           </sa-table-wrap>
         </sa-list>
+        </div>
       }
+      <ion-modal #modal [isOpen]="!!detalle()" (didDismiss)="cerrarDetalle()" aria-labelledby="stock-detalle-titulo">
+        <ng-template>
+          @if (detalle(); as f) {
+            <div class="detalle">
+              <ion-button fill="outline" (click)="modal.dismiss()">Volver</ion-button>
+              <h2 id="stock-detalle-titulo">{{ f.nombre }}</h2>
+              <div class="detalle__datos">
+                <p>{{ f.cod_material }} · {{ f.bodega }}</p>
+                <p>Stock: {{ f.stock }} {{ f.unidad }} · Mínimo: {{ f.stock_minimo ?? 'No informado' }}</p>
+                @let estado = estadoStock(f.stock, f.stock_minimo);
+                @if (estado === 'crit') { <span class="sa-pill sa-pill--crit">SIN STOCK</span> }
+                @else if (estado === 'warn') { <span class="sa-pill sa-pill--warn">BAJO MÍNIMO</span> }
+                @else { <span class="sa-pill sa-pill--ok">OK</span> }
+              </div>
+              @if (puedeAjustar()) {
+                <div class="detalle__acciones">
+                  <ion-button fill="outline" (click)="modal.dismiss(); precios.set(f)">Precios</ion-button>
+                  <ion-button fill="outline" (click)="modal.dismiss(); abrirAjuste(f)">Ajustar</ion-button>
+                </div>
+              }
+            </div>
+          }
+        </ng-template>
+      </ion-modal>
       </div>
     </ion-content>
     @if (seleccion().size && !ajustando() && !precios()) {
@@ -282,6 +353,19 @@ export class StockPage {
   readonly ajustando = signal<FilaStock | null>(null);
   /** Material whose "Precios de mercado" panel is open. */
   readonly precios = signal<FilaStock | null>(null);
+  readonly detalle = signal<FilaStock | null>(null);
+  private detalleOrigen: HTMLElement | null = null;
+
+  abrirDetalle(f: FilaStock, event: Event): void {
+    this.detalleOrigen = event.currentTarget as HTMLElement;
+    this.detalle.set(f);
+  }
+
+  cerrarDetalle(): void {
+    this.detalle.set(null);
+    if (!this.ajustando() && !this.precios()) this.detalleOrigen?.focus({ preventScroll: true });
+    this.detalleOrigen = null;
+  }
   /** Viene del Inicio: lista lo que esta bajo el minimo sin pedir bodega. */
   readonly soloReponer = signal(false);
   private readonly router = inject(Router);

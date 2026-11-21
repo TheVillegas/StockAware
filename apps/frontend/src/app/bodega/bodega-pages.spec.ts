@@ -86,6 +86,22 @@ describe('Bodega pages UI system migration', () => {
     expect(template).toMatch(/@if\s*\(esMaterial\(\)\)\s*\{[^}]*s\.stock/);
   });
 
+  it('stock mobile exposes the existing query and a detail overlay without removing desktop operations', () => {
+    const content = source('stock.page.ts');
+    const template = content.match(/template:\s*`([\s\S]*?)`/)?.[1] ?? '';
+    expect(template).toMatch(/class="stock-mobile"/);
+    expect(template).toMatch(/\(click\)="abrirDetalle\(f, \$event\)"/);
+    expect(template).toMatch(/<ion-modal[^>]*\[isOpen\]="!!detalle\(\)"[^>]*\(didDismiss\)="cerrarDetalle\(\)"/);
+    expect(template).toMatch(/Volver/);
+    expect(template).toMatch(/f\.nombre[\s\S]*f\.cod_material[\s\S]*f\.bodega[\s\S]*f\.stock[\s\S]*f\.stock_minimo/);
+    expect(template).toMatch(/estadoStock\(f\.stock, f\.stock_minimo\)/);
+    expect(template).toMatch(/app-bodega-combobox[\s\S]*ion-searchbar/);
+    expect(template).toMatch(/abrirAjuste\(f\)/);
+    expect(template).toMatch(/precios\.set\(f\)/);
+    expect(content).toMatch(/focus\(\{ preventScroll: true \}\)/);
+    expect(content).toMatch(/primeros 500: acota bodega o búsqueda/);
+  });
+
   it('stock.page delegates the stock state to the tested stockState helper', () => {
     expect(source('stock.page.ts')).toMatch(/from '\.\/stock-state'/);
   });
