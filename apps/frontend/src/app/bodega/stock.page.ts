@@ -114,7 +114,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     <ion-content>
       <div class="page-content page-content--wide">
       <div class="stock-intro"><span>Bodega · Catálogo operativo</span><h1>Stock por bodega</h1></div>
-      <sa-page-head title="Stock" area="bodega" icon="warehouse"
+      <sa-page-head title="Stock" area="bodega" icon="warehouse" [phoneTitle]="false"
                     subtitle="Qué pedir antes de que falte. La cobertura usa el consumo del último año.">
         <div saActions>
           @if (puedeCrearMaterial()) {

@@ -50,7 +50,13 @@ describe('AppComponent shell structural contracts', () => {
     expect(source).toMatch(/<sa-icon slot="start" \[name\]="iconoEntrada\(e\.key\)"/);
     expect(source).toMatch(/<sa-icon slot="start" name="home"/);
     expect(source).not.toMatch(/ion-accordion/);
-    expect(source).not.toMatch(/pendiente/);
+    expect(source).toMatch(/routerLink="\/pendientes"/);
+  });
+
+  it('routes Pendientes through the authenticated Inicio page and marks its menu item', () => {
+    const routes = readFileSync(join(__dirname, 'app.routes.ts'), 'utf8');
+    expect(routes).toMatch(/path: 'pendientes',[\s\S]*?canActivate: \[exigeSesion\],[\s\S]*?data: \{ pendientes: true \},[\s\S]*?m\.InicioPage/);
+    expect(source).toMatch(/routerLink="\/pendientes"[\s\S]*?\[class\.activo\]="enPendientes\(\)"[\s\S]*?aria-current/);
   });
 
   it('offers a Crear menu built from the profile permissions', () => {

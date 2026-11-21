@@ -17,6 +17,12 @@ export const rutas: Routes = [
     loadComponent: () => import('./inicio/inicio.page').then((m) => m.InicioPage),
   },
   {
+    path: 'pendientes',
+    canActivate: [exigeSesion],
+    data: { pendientes: true },
+    loadComponent: () => import('./inicio/inicio.page').then((m) => m.InicioPage),
+  },
+  {
     // Las pantallas de compras se resuelven antes que el mantenedor generico.
     path: 'f/CON_DOC_EMI',
     canActivate: [exigeSesion],
