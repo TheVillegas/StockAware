@@ -4,7 +4,7 @@
  * El ajuste de stock vive dentro de esta pantalla, igual que en el ERP: no es
  * una opcion de menu aparte, es una accion sobre una fila del listado.
  */
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -199,15 +199,20 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
             @if (hayConsulta()) {
               <div class="sa-chips vistas" role="group" aria-label="Vista">
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'urgente'"
-                        (click)="elegirFiltro('urgente')">Urgente <span class="num">{{ resumen().urgente }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Urgente, cantidad desconocida' : null"
+                        (click)="elegirFiltro('urgente')">Urgente @if (!errorConsulta()) { <span class="num">{{ resumen().urgente }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'pronto'"
-                        (click)="elegirFiltro('pronto')">Se acaba en {{ prontoDias }} días <span class="num">{{ resumen().pronto }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Se acaba en ' + prontoDias + ' días, cantidad desconocida' : null"
+                        (click)="elegirFiltro('pronto')">Se acaba en {{ prontoDias }} días @if (!errorConsulta()) { <span class="num">{{ resumen().pronto }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'warn'"
-                        (click)="elegirFiltro('warn')">Bajo mínimo <span class="num">{{ resumen().bajo }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Bajo mínimo, cantidad desconocida' : null"
+                        (click)="elegirFiltro('warn')">Bajo mínimo @if (!errorConsulta()) { <span class="num">{{ resumen().bajo }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'crit'"
-                        (click)="elegirFiltro('crit')">Sin stock <span class="num">{{ resumen().sin }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Sin stock, cantidad desconocida' : null"
+                        (click)="elegirFiltro('crit')">Sin stock @if (!errorConsulta()) { <span class="num">{{ resumen().sin }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'todos'"
-                        (click)="elegirFiltro('todos')">Todo <span class="num">{{ resumen().total }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Todo, cantidad desconocida' : null"
+                        (click)="elegirFiltro('todos')">Todo @if (!errorConsulta()) { <span class="num">{{ resumen().total }}</span> }</button>
               </div>
             }
           </div>
@@ -377,6 +382,8 @@ export class StockPage {
   private readonly detalleClave = signal<string | null>(null);
   readonly detalle = computed(() => this.datos().find((f) => this.clave(f) === this.detalleClave()) ?? null);
   private detalleOrigen: HTMLElement | null = null;
+  /** Set once the first stock load finishes, so a missed deep link cannot reopen later. */
+  private detalleInicialResuelto = false;
   private readonly location = inject(Location);
 
   abrirDetalle(f: FilaStock, event: Event): void {
@@ -490,11 +497,18 @@ export class StockPage {
     inject(ActivatedRoute).queryParamMap.pipe(takeUntilDestroyed()).subscribe((q) => {
       this.soloReponer.set(q.get('bajo') === '1');
       this.detalleClave.set(q.get('stockDetalle'));
+      // Whichever arrives first (params or the query effect), a key with no query to run is dropped.
+      if (!this.hayConsulta()) this.olvidarDetalleAusente();
     });
     effect(() => {
       const b = this.bodega(); const q = this.buscar(); const r = this.soloReponer();
       // Sin bodega ni busqueda el listado seria enorme: se pide algo primero.
-      if (!b && !q.trim() && !r) { this.datos.set([]); this.errorConsulta.set(''); return; }
+      if (!b && !q.trim() && !r) {
+        this.datos.set([]); this.errorConsulta.set('');
+        // No query runs, so a cold detail key can never be found: drop it now.
+        untracked(() => this.olvidarDetalleAusente());
+        return;
+      }
       void this.cargar(b, q);
     });
   }
@@ -524,7 +538,17 @@ export class StockPage {
       this.errorConsulta.set(e?.error?.message ?? 'No se pudo cargar el stock');
     } finally {
       this.cargando.set(false);
+      this.olvidarDetalleAusente();
     }
+  }
+
+  /** A cold-load detail key missing from the first result (or with no query to run) must not stay in the URL. */
+  private olvidarDetalleAusente(): void {
+    const clave = this.detalleClave();
+    if (this.detalleInicialResuelto || !clave) return;
+    this.detalleInicialResuelto = true;
+    if (this.datos().some((f) => this.clave(f) === clave)) return;
+    void this.router.navigate([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   elegirFiltro(filtro: Filtro): void {
