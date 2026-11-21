@@ -169,13 +169,16 @@ const mensaje = (e: unknown, defecto: string): string => {
               <ion-button [routerLink]="r.ruta"><sa-icon slot="start" name="move" [size]="20" />Iniciar movimiento</ion-button>
             </section>
           }
-          @if (ingreso() || stock()) {
+          @if (ingreso() || stock() || modulosAutorizados().length) {
             <section><h2>Otras tareas</h2><div class="acciones">
               @if (ingreso(); as ingreso) {
                 <a class="accion-movil" [routerLink]="ingreso.ruta"><span class="icono-tarea"><sa-icon name="in" [size]="20" /></span><strong>Ingreso a bodega</strong><small>Registrar ingreso de materiales</small></a>
               }
               @if (stock(); as stock) {
                 <a class="accion-movil" [routerLink]="stock.ruta"><span class="icono-tarea icono-stock"><sa-icon name="search" [size]="20" /></span><strong>Consultar stock</strong><small>Consultar disponibilidad</small></a>
+              }
+              @for (modulo of modulosAutorizados(); track modulo.key) {
+                <a class="accion-movil" [routerLink]="modulo.ruta"><span class="icono-tarea"><sa-icon [name]="iconoModulo(modulo.key)" [size]="20" /></span><strong>{{ modulo.titulo }}</strong><small>{{ modulo.detalle }}</small></a>
               }
             </div></section>
           }
@@ -450,6 +453,12 @@ export class InicioPage {
   readonly nuevaOc = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'oc') ?? null);
   readonly ingreso = computed(() => accionesCrear(this.auth.menu()).find((a) => a.key === 'ingreso') ?? null);
   readonly stock = computed(() => this.entradas().get('stock') ?? null);
+  /** Menu modules for mobile Inicio when the frequent action and task tiles are absent. */
+  readonly modulosAutorizados = computed(() => (this.registrar() || this.ingreso() || this.stock())
+    ? []
+    : this.navegacion().flatMap((seccion) => seccion.entradas)
+      .filter((e) => e.key !== 'configuracion' && e.ruta !== '/inicio' && e.ruta !== '/pendientes' && e.ruta !== '/configuracion')
+      .map((e) => ({ key: e.key, titulo: e.titulo, ruta: e.ruta, detalle: e.detalle })));
   readonly pendienteRecibir = computed(() => (this.auth.sesion()?.permisos ?? []).includes('CON_DOC_EMI')
     ? pendientesPerfil(this.navegacion(), this.auth.sesion()?.permisos ?? []).find((p) => p.key === 'oc-recibir') ?? null
     : null);
@@ -463,6 +472,17 @@ export class InicioPage {
     || (this.paneles().has('facturas') && this.cargaFacturas() === 'listo' && (this.aceptadas() ?? 0) > 0));
   areaVisible(area: 'bodega' | 'compras' | 'finanzas'): boolean {
     return !this.esPendientes || this.area() === 'todas' || this.area() === area;
+  }
+
+  /** Same entry icons the sidenav already uses; unknown keys stay on an existing glyph. */
+  iconoModulo(key: string): 'orders' | 'warehouse' | 'move' | 'in' | 'split' | 'chart' | 'search' {
+    if (key === 'ordenes') return 'orders';
+    if (key === 'stock') return 'warehouse';
+    if (key === 'movimientos') return 'move';
+    if (key === 'registrar') return 'in';
+    if (key === 'distribucion') return 'split';
+    if (key === 'balance') return 'chart';
+    return 'search';
   }
 
   // Compras
