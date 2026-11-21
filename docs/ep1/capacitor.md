@@ -18,9 +18,7 @@ No se ejecutó `npx cap add`. No hay directorios `android/` ni `ios/`.
 
 ## Manifiesto
 
-`apps/frontend/src/manifest.webmanifest` es solo metadata: `name` y `short_name` StockAware, `start_url` `/`, `display` `standalone` y `lang` `es`. `src/index.html` lo enlaza. `angular.json` lo registra en `assets` para que el build lo copie.
-
-No es una PWA instalada verificada. No hay service worker y no se ejecutó `ng add @angular/pwa`.
+El manifiesto y el service worker del build web se describen en [PWA](../ef/pwa.md). El registro del worker está deshabilitado en Capacitor nativo. La instalación en navegador aún requiere validación real; no se ejecutó `ng add @angular/pwa`.
 
 ## Qué no afirma esta evidencia
 

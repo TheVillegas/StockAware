@@ -9,11 +9,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
 import {
   IonApp, IonContent, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonMenuToggle,
   IonRouterOutlet, IonSplitPane,
 } from '@ionic/angular/standalone';
 import { AuthService } from './core/auth.service';
+import { ConnectivityService } from './core/connectivity.service';
+import { SwUpdate } from '@angular/service-worker';
 import { SaIcon, SaIconName } from './shared/sa-icon.component';
 import { accionesCrear, construirNavegacion, entradaActiva } from './shared/workspace-navigation';
 
@@ -41,6 +44,9 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
     IonItem, IonLabel, IonRouterOutlet, SaIcon,
   ],
   styles: [`
+    .offline, .actualizacion { padding: var(--sa-space-4); background: var(--sa-shell); color: var(--sa-shell-strong); }
+    .offline { min-height: 100%; }
+    .actualizacion button { margin-left: 1rem; }
     ion-menu {
       --background: var(--sa-shell);
       --ion-background-color: var(--sa-shell);
@@ -193,6 +199,18 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
   `],
   template: `
     <ion-app>
+      @if (!connectivity.online()) {
+        <main class="offline" role="status">
+          <h1>Sin conexión</h1>
+          <p>Conéctate para acceder a StockAware. Los datos y operaciones no están disponibles sin conexión.</p>
+          <p>Los cambios no guardados pueden haberse perdido.</p>
+        </main>
+      } @else {
+      @if (actualizacionDisponible()) {
+        <div class="actualizacion" role="status">Hay una nueva versión disponible. Guarda tus cambios antes de recargar.
+          <button type="button" (click)="recargar()">Recargar ahora</button>
+        </div>
+      }
       @if (auth.autenticado()) {
         <ion-split-pane contentId="principal" data-visual="ep1" when="md">
           <ion-menu contentId="principal" type="overlay">
@@ -258,11 +276,15 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
       } @else {
         <ion-router-outlet id="principal"></ion-router-outlet>
       }
+      }
     </ion-app>
   `,
 })
 export class AppComponent {
   readonly auth = inject(AuthService);
+  readonly connectivity = inject(ConnectivityService);
+  readonly actualizacionDisponible = signal(false);
+  private readonly updates = inject(SwUpdate);
   readonly navegacion = computed(() => construirNavegacion(this.auth.menu()));
   readonly crear = computed(() => accionesCrear(this.auth.menu()));
   private readonly router = inject(Router);
@@ -289,11 +311,21 @@ export class AppComponent {
     return letras.toUpperCase();
   }
 
+  recargar(): void { window.location.reload(); }
+
   constructor() {
+    if (this.updates.isEnabled) {
+      this.updates.versionUpdates.pipe(takeUntilDestroyed()).subscribe((event) => {
+        if (event.type === 'VERSION_READY') this.actualizacionDisponible.set(true);
+      });
+    }
+    fromEvent(window, 'online').pipe(takeUntilDestroyed()).subscribe(() => {
+      if (this.auth.autenticado()) void this.auth.cargarMenu();
+    });
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd), takeUntilDestroyed())
       .subscribe((e) => this.url.set((e as NavigationEnd).urlAfterRedirects));
     // Al recargar la pagina la sesion vuelve de localStorage, pero el menu no.
-    if (this.auth.autenticado()) void this.auth.cargarMenu();
+    if (this.auth.autenticado() && this.connectivity.online()) void this.auth.cargarMenu();
   }
 }

@@ -75,6 +75,22 @@ services:
     branch: develop
     buildCommand: cd apps/frontend && npm ci && npm run build
     staticPublishPath: ./apps/frontend/dist/browser
+    headers:
+      - path: /ngsw-worker.js
+        name: Cache-Control
+        value: no-cache
+      - path: /ngsw.json
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Content-Type
+        value: application/manifest+json
     autoDeployTrigger: off
     routes:
       - type: rewrite
