@@ -295,6 +295,35 @@ describe('Bodega pages UI system migration', () => {
     expect(cold.page.detalle()).toBeNull();
   });
 
+  it('names unknown chip counts and does not render numeric counts on a load error', () => {
+    const chips = source('stock.page.ts').match(/<div class="sa-chips vistas"[\s\S]*?<\/div>/)?.[0] ?? '';
+    for (const label of [
+      'Urgente, cantidad desconocida',
+      "Se acaba en ' + prontoDias + ' días, cantidad desconocida",
+      'Bajo mínimo, cantidad desconocida',
+      'Sin stock, cantidad desconocida',
+      'Todo, cantidad desconocida',
+    ]) expect(chips).toContain(label);
+    expect(chips).not.toMatch(/disabled/);
+    expect((chips.match(/!errorConsulta\(\)/g) ?? []).length).toBe(5);
+  });
+
+  it('drops a missing key that arrived with its query and ignores a resolution with no key', async () => {
+    const missing = stockPageVm({ rows: [], trackEffects: true });
+    missing.onParams({ get: (key) => ({ bajo: '1', stockDetalle: 'MISSING|9' })[key] ?? null });
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(missing.location.back).not.toHaveBeenCalled();
+    expect(missing.router.navigate).toHaveBeenCalledWith([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
+
+    const idle = stockPageVm({ rows: [], trackEffects: false });
+    idle.page.olvidarDetalleAusente();
+    expect(idle.router.navigate).not.toHaveBeenCalled();
+    idle.page.detalleClave.set('MISSING|9');
+    await idle.page.cargar(1, '');
+    expect(idle.location.back).not.toHaveBeenCalled();
+    expect(idle.router.navigate).toHaveBeenCalledWith([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
+  });
+
   it('stock.page delegates the stock state to the tested stockState helper', () => {
     expect(source('stock.page.ts')).toMatch(/from '\.\/stock-state'/);
   });
