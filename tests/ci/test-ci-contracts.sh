@@ -197,6 +197,9 @@ grep -q 'terraform:applicable:${{ needs.ci-terraform.result }}' "$workflow"
 grep -q '^  staging-deploy:' "$workflow"
 grep -q 'github.ref == '\''refs/heads/develop'\''' "$workflow"
 grep -q 'bash .github/scripts/desplegar-staging.sh' "$workflow"
+# BE-10: the smoke step runs after the deploy and health step and fails the job.
+awk '/^  staging-deploy:/{j=1} j && /desplegar-staging.sh/{d=1} j && d && /python3 .github\/scripts\/smoke-staging.py/{ok=1} END{exit !ok}' "$workflow"
+python3 -I "$root/tests/ci/test_smoke_staging.py"
 tmp_salud="$(mktemp)"
 printf '%s\n' '{"estado":"ok","servicio":"erp-backend","postgres":"ok","version":"abc"}' > "$tmp_salud"
 python3 "$root/.github/scripts/comprobar-salud-staging.py" api "$tmp_salud" abc
