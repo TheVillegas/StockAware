@@ -46,7 +46,7 @@ class FakeApi(BaseHTTPRequestHandler):
 
 def sanas():
     return {
-        "POST /api/auth/login": (200, {"access_token": TOKEN}),
+        "POST /api/auth/login": (201, {"access_token": TOKEN}),  # Nest default for POST
         "GET /api/bodega/stock?bodega=3": (200, [{"cod_material": "M-1"}]),
         "GET /api/precios/M-1": (200, {"cod_material": "M-1", "fuentes": []}),
         "GET /api/recomendaciones?bodega=3&modo=adaptativo": (
@@ -115,7 +115,7 @@ class SmokeTest(unittest.TestCase):
         self.falla_en("POST /api/auth/login", (401, {"error": "x"}), "login")
 
     def test_login_sin_token(self):
-        self.falla_en("POST /api/auth/login", (200, {}), "login")
+        self.falla_en("POST /api/auth/login", (201, {}), "login")
 
     def test_stock_caido(self):
         self.falla_en("GET /api/bodega/stock?bodega=3", (500, {}), "stock")

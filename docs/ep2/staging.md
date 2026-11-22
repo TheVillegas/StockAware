@@ -57,7 +57,7 @@ El smoke necesita esta configuración en GitHub:
 | --- | --- | --- |
 | `STAGING_SMOKE_USER` y `STAGING_SMOKE_PASSWORD` | Secrets | Un usuario de prueba con `MATERIAL_X_BODEGA` y `RECOMENDACIONES` |
 | `STAGING_SMOKE_BODEGA` | Variables | El `id_bodega` numérico de la bodega |
-| `STAGING_SMOKE_MATERIAL` | Variables | Un `cod_material` cotizable de esa bodega |
+| `STAGING_SMOKE_MATERIAL` | Variables | Un `cod_material` cotizable de esa bodega que ya tenga precios guardados, para que el smoke no dependa de las fuentes externas |
 | `STAGING_SMOKE_FORBIDDEN_PATH` | Variables | Una ruta de la API, relativa a `/api`, para la que el usuario no tiene permiso |
 
 Postgres no se abre a internet. La conexión la prueba Nest con `SELECT 1`. Cada petición escribe una línea JSON con `correlation_id` y `duration_ms`. Un fallo de fuente externa escribe `evento: fuente_externa` con el host, sin la URL ni credenciales.

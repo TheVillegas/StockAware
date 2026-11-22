@@ -77,7 +77,8 @@ def main(env: Mapping[str, str], salida: Callable[[str], None]) -> int:
                 "clave": env["STAGING_SMOKE_PASSWORD"],
             },
         )
-        exigir(status == 200, f"HTTP {status}")
+        # Nest answers POST with 201 by default (auth.controller.ts has no @HttpCode).
+        exigir(status in (200, 201), f"HTTP {status}")
         token = cuerpo.get("access_token") if isinstance(cuerpo, dict) else None
         exigir(isinstance(token, str) and bool(token), "sin access_token")
         salida("login: ok")
