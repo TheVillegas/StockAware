@@ -27,6 +27,7 @@ const { NestFactory } = backendRequire('@nestjs/core');
 const { ConfigService } = backendRequire('@nestjs/config');
 const { IntelligenceService } = require(path.join(backend, 'src/inteligencia/inteligencia.service.ts'));
 const { entrarCorrelacion } = require(path.join(backend, 'src/comun/correlacion.ts'));
+const { RecomendacionesService } = require(path.join(backend, 'src/recomendaciones/recomendaciones.service.ts'));
 const correlation = 'ep2-http-integration';
 
 let child;
@@ -86,10 +87,20 @@ async function startNest(address) {
     preparar(body) { return entrarCorrelacion(correlation, () => this.service.preparar(body.cod_material, body.nombre)); }
     procesar(body) { return entrarCorrelacion(correlation, () => this.service.procesar(body.material, body.fuentes, new Date(body.referencia))); }
     normalizar(body) { return entrarCorrelacion(correlation, () => this.service.normalizar(body.descripcion)); }
+    ranking(body) { return entrarCorrelacion(correlation, () => this.service.ranking(new Date(body.referencia), body.items)); }
+    // Real RecomendacionesService over the real client; only the database is replaced by fixtures.
+    recomendaciones(body) {
+      const repo = {
+        materiales: async () => body.materiales,
+        mejoresPreciosExternos: async () => [],
+        guardaLote: async (_meta, filas) => filas.map((f) => ({ id: f.posicion, posicion: f.posicion })),
+      };
+      return new RecomendacionesService(repo, this.service).listar({ bodega: 1, modo: 'adaptativo' }, 7);
+    }
   }
   Controller('integration')(ProbeController);
   Inject(IntelligenceService)(ProbeController, undefined, 0);
-  for (const route of ['preparar', 'procesar', 'normalizar']) {
+  for (const route of ['preparar', 'procesar', 'normalizar', 'ranking', 'recomendaciones']) {
     const descriptor = Object.getOwnPropertyDescriptor(ProbeController.prototype, route);
     Post(route)(ProbeController.prototype, route, descriptor);
     HttpCode(200)(ProbeController.prototype, route, descriptor);
@@ -156,11 +167,44 @@ test('production Nest client integrates with live FastAPI', { timeout: 45_000 },
         status: 422, body: { error: 'invalid_request' },
       });
     });
+    const materiales = [
+      { cod_material: 'R-1', nombre: 'Ficticio 1', stock: 50, stock_minimo: 10, consumo_diario: 0, consumo_reciente: 0, ultimo_precio: null },
+      { cod_material: 'R-2', nombre: 'Ficticio 2', stock: 0, stock_minimo: 10, consumo_diario: 1, consumo_reciente: 2, ultimo_precio: 1000 },
+    ];
+    await t.test('ranks materials with explainable reasons across the HTTP boundary', async () => {
+      const { status, body } = await post('ranking', {
+        referencia: '2030-01-15T12:00:00Z',
+        items: [
+          { cod_material: 'R-1', stock: 50, stock_minimo: 10 },
+          { cod_material: 'R-2', stock: 0, stock_minimo: 10 },
+        ],
+      });
+      assert.equal(status, 200);
+      assert.deepEqual(body.map((i) => i.cod_material), ['R-2', 'R-1']);
+      assert.deepEqual(body[0].razones, [{ factor: 'bajo_minimo', valor: 10, peso: 0.3, texto: 'Faltan 10 unidades para el mínimo' }]);
+      assert.equal(body[0].cantidad_sugerida, 10);
+      assert.ok(body[0].factores_faltantes.includes('precio_externo_vigente'));
+    });
+    await t.test('serves adaptive recommendations from live FastAPI', async () => {
+      const { status, body } = await post('recomendaciones', { materiales });
+      assert.equal(status, 200);
+      assert.equal(body.degradado, false);
+      assert.deepEqual(body.items.map((i) => [i.codMaterial, i.posicion, i.posicionBase, i.id]), [['R-2', 1, 1, 'rec_1'], ['R-1', 2, 2, 'rec_2']]);
+      assert.equal(body.items[0].puntaje, 0.85);
+      assert.deepEqual(body.items[0].factoresFaltantes, ['precio_externo_vigente']);
+    });
     await stopPython();
+    await t.test('degrades recommendations to the base rule when FastAPI is down', async () => {
+      const { status, body } = await post('recomendaciones', { materiales });
+      assert.equal(status, 200);
+      assert.equal(body.degradado, true);
+      assert.deepEqual(body.items.map((i) => [i.codMaterial, i.puntaje, i.razones[0].factor]), [['R-2', null, 'estado_stock'], ['R-1', null, 'estado_stock']]);
+      assert.equal(body.items[0].cantidadSugerida, 30);
+    });
     await t.test('forwards correlation IDs into actual FastAPI request logs', () => {
       const logs = output.split('\n').filter(line => line.startsWith('{')).map(line => JSON.parse(line));
-      for (const route of ['preparar', 'procesar']) {
-        assert.ok(logs.some(log => log.path === `/v1/precios/${route}` && log.status === 200 && log.correlation_id === correlation));
+      for (const route of ['precios/preparar', 'precios/procesar', 'recomendaciones/ranking']) {
+        assert.ok(logs.some(log => log.path === `/v1/${route}` && log.status === 200 && log.correlation_id === correlation));
       }
     });
     await t.test('maps a stopped upstream to 502 without inventing results', async () => {
