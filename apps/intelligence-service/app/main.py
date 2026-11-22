@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel, Field
 
 from app.precios.router import router as precios_router
+from app.recomendaciones.router import router as recomendaciones_router
 from app.text import normalize_description
 
 SERVICE_NAME = "intelligence-service"
@@ -63,6 +64,7 @@ app = FastAPI(title=SERVICE_NAME)
 app.add_exception_handler(RequestValidationError, handle_invalid_request)
 app.add_exception_handler(Exception, handle_internal_error)
 app.include_router(precios_router)
+app.include_router(recomendaciones_router)
 
 
 @app.middleware("http")
