@@ -200,6 +200,16 @@ grep -q 'bash .github/scripts/desplegar-staging.sh' "$workflow"
 # BE-10: the smoke step runs after the deploy and health step and fails the job.
 awk '/^  staging-deploy:/{j=1} j && /desplegar-staging.sh/{d=1} j && d && /python3 .github\/scripts\/smoke-staging.py/{ok=1} END{exit !ok}' "$workflow"
 python3 -I "$root/tests/ci/test_smoke_staging.py"
+# BE-02: live SHA recorded before the deploy, rollback on failure, manual rollback workflow.
+awk '/^  staging-deploy:/{j=1} j && /sha-en-vivo-staging.py/{a=1} j && a && /desplegar-staging.sh/{d=1} j && d && /Roll back to the last healthy SHA/{r=1} j && r && /failure\(\) && steps.anterior.outputs.sha != '\'''\''/{ok=1} END{exit !ok}' "$workflow"
+grep -q 'group: staging-deploy' "$workflow"
+rollback_workflow="$root/.github/workflows/rollback-staging.yml"
+grep -q 'workflow_dispatch:' "$rollback_workflow"
+grep -q 'REF_OBJETIVO: ${{ inputs.ref }}' "$rollback_workflow"
+if grep -q 'run:.*inputs.ref' "$rollback_workflow"; then exit 1; fi
+grep -q 'bash .github/scripts/desplegar-staging.sh' "$rollback_workflow"
+grep -q 'group: staging-deploy' "$rollback_workflow"
+python3 -I "$root/tests/ci/test_sha_en_vivo.py"
 tmp_salud="$(mktemp)"
 printf '%s\n' '{"estado":"ok","servicio":"erp-backend","postgres":"ok","version":"abc"}' > "$tmp_salud"
 python3 "$root/.github/scripts/comprobar-salud-staging.py" api "$tmp_salud" abc
