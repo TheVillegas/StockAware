@@ -95,6 +95,15 @@ describe('migracion Recomendaciones', () => {
     return consultas;
   };
 
+  it('down sin tablas de acceso solo borra el esquema', async () => {
+    const consultas = [];
+    await new Migracion().down({
+      query: async (sql) => { consultas.push(sql); return /to_regclass/.test(sql) ? [{ tablas: false }] : []; },
+    });
+    expect(consultas.some((s) => /DELETE FROM public\./.test(s))).toBe(false);
+    expect(consultas.at(-1)).toMatch(/DROP SCHEMA IF EXISTS recomendaciones CASCADE/);
+  });
+
   it('el timestamp es posterior a la migracion de precios', () => {
     expect(Number(migracionArchivo.split('-')[0])).toBeGreaterThan(1767225600000);
     expect(new Migracion().name).toBe(`Recomendaciones${migracionArchivo.split('-')[0]}`);
@@ -130,6 +139,7 @@ describe('migracion Recomendaciones', () => {
 
   it('down quita las concesiones, el codigo y el esquema en ese orden', async () => {
     const consultas = await corre('down');
-    expect(consultas).toEqual([...QUITAR_PERMISO, 'DROP SCHEMA IF EXISTS recomendaciones CASCADE']);
+    expect(consultas[0]).toMatch(/to_regclass/);
+    expect(consultas.slice(1)).toEqual([...QUITAR_PERMISO, 'DROP SCHEMA IF EXISTS recomendaciones CASCADE']);
   });
 });

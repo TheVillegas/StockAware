@@ -55,7 +55,11 @@ export class Recomendaciones1767312000000 implements MigrationInterface {
   }
 
   async down(q: QueryRunner): Promise<void> {
-    for (const sql of QUITAR_PERMISO) await q.query(sql);
+    // Igual que en up: sin tablas de acceso (replica no cargada) no hay permiso que quitar.
+    const [acceso] = await q.query(HAY_TABLAS_DE_ACCESO);
+    if (!(acceso && acceso.tablas === false)) {
+      for (const sql of QUITAR_PERMISO) await q.query(sql);
+    }
     await q.query(`DROP SCHEMA IF EXISTS recomendaciones CASCADE`);
   }
 }
