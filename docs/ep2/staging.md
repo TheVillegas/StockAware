@@ -60,6 +60,18 @@ El smoke necesita esta configuración en GitHub:
 | `STAGING_SMOKE_MATERIAL` | Variables | Un `cod_material` cotizable de esa bodega que ya tenga precios guardados, para que el smoke no dependa de las fuentes externas |
 | `STAGING_SMOKE_FORBIDDEN_PATH` | Variables | Una ruta de la API, relativa a `/api`, para la que el usuario no tiene permiso |
 
+### Rollback
+
+Antes de desplegar, el job guarda el SHA que está en vivo. Si después falla el deploy, el health check o el smoke, el paso **Roll back to the last healthy SHA** vuelve a desplegar ese SHA y comprueba la salud contra él. El job termina en rojo igual, para que quede claro que el despliegue nuevo no se aceptó.
+
+Para volver a mano a una versión anterior:
+
+1. Ir a **Actions → Rollback staging → Run workflow**.
+2. Indicar un tag o un SHA de `develop`.
+3. Esperar a que el job termine en verde. Eso significa que los health checks reportan ese SHA.
+
+El rollback no revierte migraciones. El procedimiento para ellas y la política *expand/contract* están en el [ADR 0004](../architecture/adr/0004-rollback-de-staging.md).
+
 Postgres no se abre a internet. La conexión la prueba Nest con `SELECT 1`. Cada petición escribe una línea JSON con `correlation_id` y `duration_ms`. Un fallo de fuente externa escribe `evento: fuente_externa` con el host, sin la URL ni credenciales.
 
 ## Verificar el cierre de #51
