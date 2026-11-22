@@ -12,6 +12,7 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 
 - [Recorrido de demostración y evidencias pendientes](docs/ep2/entrega.md)
 - [Fuentes, contratos y persistencia: ADR 0002](docs/architecture/adr/0002-precios-de-mercado-externos.md)
+- [Motor de recomendaciones de reposición: ADR 0003](docs/architecture/adr/0003-motor-de-recomendaciones-de-reposicion.md)
 - [Decisiones de implementación](docs/ep2/decisiones-implementacion.md)
 - [Métrica de calidad y sus límites](docs/ep2/metrica/README.md)
 - [Especificación adaptativa preliminar](docs/ep2/especificacion-adaptativa.md)
