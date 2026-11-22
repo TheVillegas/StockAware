@@ -13,9 +13,11 @@ import { Fuente } from '../precios/fuentes/fuentes';
 import {
   ErrorFormato, PreparacionDto, ResultadoFuente, validaPreparacion, validaProcesamiento,
 } from './precios.dto';
+import { EntradaRanking, ItemRankingDto, validaRanking } from './recomendaciones.dto';
 
 const TIMEOUT_MS = 3_000;
 const TIMEOUT_PROCESAR_MS = 5_000;
+const TIMEOUT_RANKING_MS = 5_000;
 
 @Injectable()
 export class IntelligenceService {
@@ -62,6 +64,13 @@ export class IntelligenceService {
       this.log.warn(`${r.fuente}: ${r.invalidos} registros descartados por no cumplir las reglas`);
     }
     return resultados;
+  }
+
+  /** Ordena los materiales de una bodega por prioridad de reposicion (5 s). Devuelve los items en el orden de FastAPI, ya validados. */
+  async ranking(referencia: Date, items: EntradaRanking[]): Promise<ItemRankingDto[]> {
+    const cuerpo = { referencia: referencia.toISOString(), items };
+    const json = await this.pedir('/v1/recomendaciones/ranking', this.post(cuerpo), TIMEOUT_RANKING_MS, true);
+    return this.formato(() => validaRanking(json, items.map((i) => i.cod_material)));
   }
 
   private post(cuerpo: unknown): RequestInit {
