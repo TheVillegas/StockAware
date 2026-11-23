@@ -27,8 +27,11 @@ interface MaterialConjunto {
  */
 async function procesaCrudo(base: string, m: MaterialConjunto, termino: string, fuentes: object[], pedidas: Fuente[]) {
   const cuerpo = { material: { cod_material: m.cod_material, nombre: m.nombre, termino_busqueda: termino }, referencia: new Date().toISOString(), fuentes };
+  // BE-03: same shared secret IntelligenceService.pedir() sends.
+  const token = process.env.INTELLIGENCE_SERVICE_TOKEN;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(token ? { 'X-Service-Token': token } : {}) };
   const res = await fetch(`${base}/v1/precios/procesar`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo), signal: AbortSignal.timeout(TIMEOUT_PROCESAR_MS),
+    method: 'POST', headers, body: JSON.stringify(cuerpo), signal: AbortSignal.timeout(TIMEOUT_PROCESAR_MS),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
@@ -41,7 +44,8 @@ async function main() {
   const [rutaConjunto = '../../docs/ep2/metrica/conjunto.json', rutaSalida = `../../docs/ep2/metrica/resultado-${fecha}.json`] = process.argv.slice(2);
   const base = (process.env.INTELLIGENCE_SERVICE_URL ?? 'http://localhost:8000').replace(/\/$/, '');
   const conjunto: { materiales: MaterialConjunto[] } = JSON.parse(readFileSync(rutaConjunto, 'utf8'));
-  const inteligencia = new IntelligenceService({ get: () => base } as unknown as ConfigService);
+  const config = { INTELLIGENCE_SERVICE_URL: base, INTELLIGENCE_SERVICE_TOKEN: process.env.INTELLIGENCE_SERVICE_TOKEN };
+  const inteligencia = new IntelligenceService({ get: (clave: keyof typeof config) => config[clave] } as unknown as ConfigService);
   const recuperador = new RecuperadorFuentes();
   const contadores = Object.fromEntries(FUENTES.map((f) => [f, contadorVacio()])) as Record<Fuente, ContadorFuente>;
   const cotizables: Array<{ rubro: string; conPrecio: boolean }> = [];

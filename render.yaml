@@ -20,6 +20,10 @@ services:
     dockerContext: ./apps/intelligence-service
     healthCheckPath: /health
     autoDeployTrigger: off
+    envVars:
+      # BE-03: Render generates the shared secret; the API reads it from this service.
+      - key: INTELLIGENCE_SERVICE_TOKEN
+        generateValue: true
 
   - type: web
     name: stockaware-api
@@ -68,6 +72,11 @@ services:
           name: stockaware-intelligence
           type: web
           property: hostport
+      - key: INTELLIGENCE_SERVICE_TOKEN
+        fromService:
+          name: stockaware-intelligence
+          type: web
+          envVarKey: INTELLIGENCE_SERVICE_TOKEN
 
   - type: web
     name: stockaware-web

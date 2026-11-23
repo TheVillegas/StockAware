@@ -41,6 +41,45 @@ Los secretos del repositorio, una sola vez y sin pegarlos en el código, son `RE
 - `https://stockaware-intelligence.onrender.com/health`
 - `https://stockaware-web.onrender.com/`
 
+Después corre el paso **Smoke test staging after deploy** (`.github/scripts/smoke-staging.py`, BE-10). Con un usuario de prueba hace lo siguiente:
+
+1. Inicia sesión.
+2. Consulta el stock de una bodega.
+3. Consulta los precios de un material conocido.
+4. Pide las recomendaciones en modo `adaptativo`, que deben llegar sin degradar.
+5. Comprueba que una ruta sin permiso responde 403.
+
+Si un paso falla, el job falla y el despliegue no se da por bueno. El script no imprime el token, la clave ni los cuerpos de las respuestas.
+
+El smoke necesita esta configuración en GitHub:
+
+| Nombre | Dónde se guarda | Qué contiene |
+| --- | --- | --- |
+| `STAGING_SMOKE_USER` y `STAGING_SMOKE_PASSWORD` | Secrets | Un usuario de prueba con `MATERIAL_X_BODEGA` y `RECOMENDACIONES` |
+| `STAGING_SMOKE_BODEGA` | Variables | El `id_bodega` numérico de la bodega |
+| `STAGING_SMOKE_MATERIAL` | Variables | Un `cod_material` cotizable de esa bodega que ya tenga precios guardados, para que el smoke no dependa de las fuentes externas |
+| `STAGING_SMOKE_FORBIDDEN_PATH` | Variables | Una ruta de la API, relativa a `/api`, para la que el usuario no tiene permiso |
+
+### Token entre servicios (BE-03)
+
+FastAPI rechaza con `401 {"error":"unauthorized"}` cualquier ruta salvo `/health` si no recibe el header `X-Service-Token` correcto. La comparación es de tiempo constante. Si el secreto falta, el servicio queda cerrado: no se abre por error. `/docs` y `/openapi.json` de FastAPI también exigen el token, porque muestran la superficie interna. El contrato público está en el Swagger de NestJS. El script `npm run metrica:precios` lee `INTELLIGENCE_SERVICE_TOKEN` del entorno.
+
+En Render, el Blueprint genera `INTELLIGENCE_SERVICE_TOKEN` en `stockaware-intelligence` y `stockaware-api` lo toma de ahí con `fromService`, así que nadie copia el secreto a mano. **Hay que sincronizar el Blueprint antes de mergear BE-03.** Si no, FastAPI arranca sin token, rechaza todo, el smoke falla y el job revierte el despliegue.
+
+En local, definí `INTELLIGENCE_SERVICE_TOKEN` en el `.env` antes de `docker compose up`. Podés generarlo con `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+
+### Rollback
+
+Antes de desplegar, el job guarda el SHA que está en vivo. Si después falla el deploy, el health check o el smoke, el paso **Roll back to the last healthy SHA** vuelve a desplegar ese SHA y comprueba la salud contra él. El job termina en rojo igual, para que quede claro que el despliegue nuevo no se aceptó.
+
+Para volver a mano a una versión anterior:
+
+1. Ir a **Actions → Rollback staging → Run workflow**.
+2. Indicar un tag o un SHA de `develop`.
+3. Esperar a que el job termine en verde. Eso significa que los health checks reportan ese SHA.
+
+El rollback no revierte migraciones. El procedimiento para ellas y la política *expand/contract* están en el [ADR 0004](../architecture/adr/0004-rollback-de-staging.md).
+
 Postgres no se abre a internet. La conexión la prueba Nest con `SELECT 1`. Cada petición escribe una línea JSON con `correlation_id` y `duration_ms`. Un fallo de fuente externa escribe `evento: fuente_externa` con el host, sin la URL ni credenciales.
 
 ## Verificar el cierre de #51

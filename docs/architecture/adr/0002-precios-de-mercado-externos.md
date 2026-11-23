@@ -98,3 +98,14 @@ La métrica principal es la tasa de registros válidos por fuente y la complemen
 ## Qué lo reemplazaría después
 
 Si una fuente agrega anti-bot o cambia sus términos, se retira de la lista en vez de forzarla. Si aparece un producto que ninguna fuente cubre, se evalúa una tienda especializada con los mismos criterios.
+
+## Reintentos (BE-04, entrega final)
+
+**Hacia FastAPI sí se reintenta.** `IntelligenceService.pedir()` hace hasta 2 reintentos, con esperas de 200 ms y 600 ms y un ±20 % de jitter, en estos casos:
+
+- solo ante un error de red o una respuesta 502, 503 o 504;
+- nunca ante un timeout, un 4xx ni un 500.
+
+Todas las rutas de FastAPI son funciones puras (normalizar, preparar, procesar y puntuar), así que repetirlas es idempotente. El límite de 3 s o 5 s es el presupuesto **total**: cada intento recibe solo el tiempo que queda y no se reintenta si quedan menos de 250 ms. Cada reintento queda en el log con su `x-request-id`. Si se agotan los intentos, la respuesta degrada igual que antes (502, o lo último guardado).
+
+**Hacia las fuentes web no se reintenta, a propósito.** Repetir una lectura fallida multiplicaría la carga sobre sitios que no son nuestros, saltándose la pausa de 2 s entre pedidos y el respeto de robots.txt de esta decisión. Una falla deja la fuente en pausa 30 minutos y se responde con lo guardado, marcado como desactualizado. Con la vigencia de 7 días, la siguiente consulta la vuelve a intentar sin presionar a la fuente.

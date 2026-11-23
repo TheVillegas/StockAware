@@ -172,3 +172,33 @@ export class CotizableRespuestaDoc {
   @ApiProperty({ nullable: true, example: 'servicio' }) motivo: string | null;
   @ApiProperty({ example: 'usuario' }) definido_por: string;
 }
+
+export class RazonRecomendacionDoc {
+  @ApiProperty({ example: 'cobertura_dias', description: 'Factor del motor; en la regla base, estado_stock' }) factor: string;
+  @ApiProperty({ example: 6 }) valor: number;
+  @ApiProperty({ example: 0.4, description: 'Peso del factor en el puntaje' }) peso: number;
+  @ApiProperty({ example: 'Cobertura de 6 días' }) texto: string;
+}
+
+export class ItemRecomendacionDoc {
+  @ApiProperty({ example: 'rec_123', description: 'Id para POST /api/recomendaciones/{id}/decision' }) id: string;
+  @ApiProperty({ example: 'MC_001' }) codMaterial: string;
+  @ApiProperty({ example: 0.82, nullable: true, description: 'Entre 0 y 1; null en la regla base' }) puntaje: number | null;
+  @ApiProperty({ example: 1, description: 'Lugar en este orden, desde 1' }) posicion: number;
+  @ApiProperty({ example: 4, description: 'Lugar que tendria con la regla base' }) posicionBase: number;
+  @ApiProperty({ example: 120, description: 'Unidades enteras a pedir' }) cantidadSugerida: number;
+  @ApiProperty({ type: [RazonRecomendacionDoc] }) razones: RazonRecomendacionDoc[];
+  @ApiProperty({ type: [String], example: ['precio_externo_vigente'], description: 'Factores que no se pudieron calcular' })
+  factoresFaltantes: string[];
+}
+
+export class RespuestaRecomendacionesDoc {
+  @ApiProperty({ enum: ['adaptativo', 'base'], description: 'El modo pedido, tambien cuando degradado es true' }) modo: string;
+  @ApiProperty({ example: '2026-11-20T12:00:00.000Z' }) generadoEn: string;
+  @ApiProperty({ description: 'true si el motor fallo y el orden es el de la regla base' }) degradado: boolean;
+  @ApiProperty({ type: [ItemRecomendacionDoc] }) items: ItemRecomendacionDoc[];
+}
+
+export class DecisionCreadaDoc {
+  @ApiProperty({ example: 'dec_45', description: 'Id de la decision guardada' }) id: string;
+}

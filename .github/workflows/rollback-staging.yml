@@ -1,0 +1,54 @@
+name: Rollback staging
+
+# BE-02: manual rollback. Redeploys a tag or commit of develop on the three Render
+# services and checks that the health endpoints report that exact SHA.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Tag or commit SHA to redeploy on staging
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rollback-staging:
+    name: Rollback staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    concurrency:
+      group: staging-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Resolve the target commit
+        id: objetivo
+        env:
+          REF_OBJETIVO: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          # Must start with a letter or digit so it can never be read as a git option.
+          if [[ ! "$REF_OBJETIVO" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$ ]]; then
+            echo "Referencia inválida" >&2
+            exit 1
+          fi
+          sha="$(git rev-parse --verify --quiet --end-of-options "${REF_OBJETIVO}^{commit}")" || { echo "No existe ${REF_OBJETIVO}" >&2; exit 1; }
+          if ! git merge-base --is-ancestor "$sha" origin/develop; then
+            echo "${sha} no pertenece a develop" >&2
+            exit 1
+          fi
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+          echo "Rollback de staging a ${sha}"
+      - name: Redeploy the target commit and check health
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_API: ${{ secrets.RENDER_SERVICE_ID_API }}
+          RENDER_SERVICE_ID_INTELLIGENCE: ${{ secrets.RENDER_SERVICE_ID_INTELLIGENCE }}
+          RENDER_SERVICE_ID_WEB: ${{ secrets.RENDER_SERVICE_ID_WEB }}
+          STAGING_SHA: ${{ steps.objetivo.outputs.sha }}
+        run: bash .github/scripts/desplegar-staging.sh

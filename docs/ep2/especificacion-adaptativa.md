@@ -1,5 +1,7 @@
 # Reposición explicable: especificación adaptativa preliminar
 
+> Entrega final: la implementación (motor en FastAPI, endpoints NestJS, decisiones guardadas y degradación) quedó registrada en el [ADR 0003](../architecture/adr/0003-motor-de-recomendaciones-de-reposicion.md). Este documento se conserva como la especificación de la EP2.
+
 Estado: propuesta de diseño para la EP2 y el [issue #50](https://github.com/TheVillegas/StockAware/issues/50). No implementa ni declara terminado un motor adaptativo. Parte de la visión de [StockAware](../project-overview.md) y de las fuentes aceptadas en el [ADR 0002](../architecture/adr/0002-precios-de-mercado-externos.md), no de fuentes nuevas.
 
 Dependencia de fuentes: [#27](https://github.com/TheVillegas/StockAware/issues/27), cuya propuesta aceptada recoge el ADR. Su cierre debe verificarse por separado; este documento no lo cierra ni reemplaza esa decisión.

@@ -535,9 +535,19 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' && needs.ci-critical-gate.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # One staging deploy or rollback at a time (shared with rollback-staging.yml).
+    concurrency:
+      group: staging-deploy
+      cancel-in-progress: false
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Record the live SHA before deploying
+        id: anterior
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_API: ${{ secrets.RENDER_SERVICE_ID_API }}
+        run: python3 .github/scripts/sha-en-vivo-staging.py
       - name: Deploy this commit and check health
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
@@ -545,4 +555,24 @@ jobs:
           RENDER_SERVICE_ID_INTELLIGENCE: ${{ secrets.RENDER_SERVICE_ID_INTELLIGENCE }}
           RENDER_SERVICE_ID_WEB: ${{ secrets.RENDER_SERVICE_ID_WEB }}
           STAGING_SHA: ${{ github.sha }}
+        run: bash .github/scripts/desplegar-staging.sh
+      - name: Smoke test staging after deploy
+        env:
+          STAGING_SMOKE_USER: ${{ secrets.STAGING_SMOKE_USER }}
+          STAGING_SMOKE_PASSWORD: ${{ secrets.STAGING_SMOKE_PASSWORD }}
+          STAGING_SMOKE_BODEGA: ${{ vars.STAGING_SMOKE_BODEGA }}
+          STAGING_SMOKE_MATERIAL: ${{ vars.STAGING_SMOKE_MATERIAL }}
+          STAGING_SMOKE_FORBIDDEN_PATH: ${{ vars.STAGING_SMOKE_FORBIDDEN_PATH }}
+        run: python3 .github/scripts/smoke-staging.py
+      # BE-02: a failed or cancelled (e.g. timed-out) deploy, health check or smoke returns staging
+      # to the SHA that was live before. The job still fails, so the run shows the failure, the
+      # rollback and the restored health.
+      - name: Roll back to the last healthy SHA
+        if: ${{ (failure() || cancelled()) && steps.anterior.outputs.sha != '' && steps.anterior.outputs.sha != github.sha }}
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_API: ${{ secrets.RENDER_SERVICE_ID_API }}
+          RENDER_SERVICE_ID_INTELLIGENCE: ${{ secrets.RENDER_SERVICE_ID_INTELLIGENCE }}
+          RENDER_SERVICE_ID_WEB: ${{ secrets.RENDER_SERVICE_ID_WEB }}
+          STAGING_SHA: ${{ steps.anterior.outputs.sha }}
         run: bash .github/scripts/desplegar-staging.sh

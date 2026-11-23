@@ -48,6 +48,7 @@ const controladores = [
   ['distribucion/distribucion.controller.ts', 'DistribucionController'],
   ['inteligencia/inteligencia.controller.ts', 'InteligenciaController'],
   ['precios/precios.controller.ts', 'PreciosController'],
+  ['recomendaciones/recomendaciones.controller.ts', 'RecomendacionesController'],
 ].map(([archivo, nombre]) => cargaTs(path.join(src, archivo))[nombre]);
 
 // Cada controlador recibe servicios vacios: el contrato no ejecuta la logica.
@@ -85,6 +86,7 @@ describe('contrato OpenAPI', () => {
       '/api/compras/hes', '/api/bodega/stock', '/api/bodega/ajuste', '/api/distribucion/{id}',
       '/api/inteligencia/eco', '/api/precios/{codMaterial}',
       '/api/precios/vinculos/{id}', '/api/precios/{codMaterial}/fuente-url', '/api/precios/{codMaterial}/cotizable',
+      '/api/recomendaciones', '/api/recomendaciones/{id}/decision',
     ]) {
       expect(rutas).toContain(ruta);
     }
@@ -116,6 +118,23 @@ describe('contrato OpenAPI', () => {
     expect(Object.keys(p['/api/precios/{codMaterial}/fuente-url'].put.responses)).toEqual(expect.arrayContaining(['200', '404', '422']));
     expect(p['/api/precios/{codMaterial}/cotizable'].put.requestBody.content['application/json'].schema.$ref).toBe('#/components/schemas/CotizableDto');
     expect(doc.components.schemas.PublicacionPrecioDoc.required).toEqual(expect.arrayContaining(['vinculo_id', 'marca', 'ean', 'iva_incluido', 'parcial']));
+  });
+
+  it('documenta las recomendaciones con bearer, sus errores y sus respuestas', () => {
+    const lista = doc.paths['/api/recomendaciones'].get;
+    expect(lista.tags).toEqual(['recomendaciones']);
+    expect(lista.security).toEqual([{ bearer: [] }]);
+    expect(Object.keys(lista.responses)).toEqual(expect.arrayContaining(['200', '400', '403']));
+    expect(lista.responses['200'].content['application/json'].schema.$ref).toBe('#/components/schemas/RespuestaRecomendacionesDoc');
+    expect(lista.parameters.map((p) => p.name)).toEqual(expect.arrayContaining(['bodega', 'modo']));
+    const decision = doc.paths['/api/recomendaciones/{id}/decision'].post;
+    expect(decision.security).toEqual([{ bearer: [] }]);
+    expect(decision.requestBody.content['application/json'].schema.$ref).toBe('#/components/schemas/DecisionDto');
+    expect(Object.keys(decision.responses)).toEqual(expect.arrayContaining(['201', '400', '403', '404']));
+    expect(decision.responses['201'].content['application/json'].schema.$ref).toBe('#/components/schemas/DecisionCreadaDoc');
+    expect(doc.components.schemas.ItemRecomendacionDoc.required).toEqual(
+      expect.arrayContaining(['id', 'codMaterial', 'puntaje', 'posicion', 'posicionBase', 'cantidadSugerida', 'razones', 'factoresFaltantes']),
+    );
   });
 
   it('muestra los cuerpos de los DTO como esquemas', () => {
