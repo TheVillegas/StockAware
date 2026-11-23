@@ -10,7 +10,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, firstValueFrom, throwError } from 'rxjs';
 
-export const API = 'http://localhost:3000/api';
+declare const __API_URL__: string | undefined;
+export const API = typeof __API_URL__ === 'undefined' ? 'http://localhost:3000/api' : __API_URL__;
 
 export interface Sesion {
   id_usuario: number;

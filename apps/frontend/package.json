@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build",
+    "build": "node scripts/build.mjs",
     "lint": "eslint \"src/**/*.{ts,html}\" --max-warnings=0 --no-error-on-unmatched-pattern",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest --passWithNoTests"
+    "test": "node --test scripts/build.test.mjs scripts/pwa.test.mjs && jest --passWithNoTests"
   },
   "dependencies": {
     "@angular/common": "^20.3.34",
@@ -16,6 +16,8 @@
     "@angular/forms": "^20.3.34",
     "@angular/platform-browser": "^20.3.34",
     "@angular/router": "^20.3.34",
+    "@angular/service-worker": "20.3.34",
+    "@capacitor/android": "^7.6.9",
     "@capacitor/core": "^7.6.9",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
