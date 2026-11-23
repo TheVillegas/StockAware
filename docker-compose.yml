@@ -54,6 +54,8 @@ services:
       PEPPER: ""
       # Hostname de Compose, no localhost: el backend llama a FastAPI en la red interna.
       INTELLIGENCE_SERVICE_URL: http://intelligence:8000
+      # BE-03: same secret on both services; FastAPI rejects every route but /health without it.
+      INTELLIGENCE_SERVICE_TOKEN: ${INTELLIGENCE_SERVICE_TOKEN}
     ports:
       - "${BACKEND_PORT:-3000}:3000"
     depends_on:
@@ -67,6 +69,8 @@ services:
     build:
       context: ./apps/intelligence-service
     container_name: erp-intelligence
+    environment:
+      INTELLIGENCE_SERVICE_TOKEN: ${INTELLIGENCE_SERVICE_TOKEN}
     ports:
       - "${INTELLIGENCE_PORT:-8000}:8000"
     healthcheck:

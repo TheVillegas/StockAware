@@ -60,6 +60,14 @@ El smoke necesita esta configuración en GitHub:
 | `STAGING_SMOKE_MATERIAL` | Variables | Un `cod_material` cotizable de esa bodega que ya tenga precios guardados, para que el smoke no dependa de las fuentes externas |
 | `STAGING_SMOKE_FORBIDDEN_PATH` | Variables | Una ruta de la API, relativa a `/api`, para la que el usuario no tiene permiso |
 
+### Token entre servicios (BE-03)
+
+FastAPI rechaza con `401 {"error":"unauthorized"}` cualquier ruta salvo `/health` si no recibe el header `X-Service-Token` correcto. La comparación es de tiempo constante. Si el secreto falta, el servicio queda cerrado: no se abre por error.
+
+En Render, el Blueprint genera `INTELLIGENCE_SERVICE_TOKEN` en `stockaware-intelligence` y `stockaware-api` lo toma de ahí con `fromService`, así que nadie copia el secreto a mano. **Hay que sincronizar el Blueprint antes de mergear BE-03.** Si no, FastAPI arranca sin token, rechaza todo, el smoke falla y el job revierte el despliegue.
+
+En local, definí `INTELLIGENCE_SERVICE_TOKEN` en el `.env` antes de `docker compose up`. Podés generarlo con `python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+
 ### Rollback
 
 Antes de desplegar, el job guarda el SHA que está en vivo. Si después falla el deploy, el health check o el smoke, el paso **Roll back to the last healthy SHA** vuelve a desplegar ese SHA y comprueba la salud contra él. El job termina en rojo igual, para que quede claro que el despliegue nuevo no se aceptó.
