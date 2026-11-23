@@ -124,6 +124,8 @@ const mensaje = (e: unknown, defecto: string): string => {
     @media (max-width: 767.98px) {
       .escritorio-inicio, .inicio-paneles { display: none; }
       .vista-pendientes .inicio-paneles { display: block; }
+      .inicio-paneles.inicio-paneles--aprobacion { display: block; }
+      .inicio-paneles--aprobacion .sa-panels > .sa-panel:not(.panel-oc-aprobar) { display: none; }
       .movil-inicio { display: grid; gap: var(--sa-space-4); }
       .movil-inicio h1 { margin: var(--sa-space-1) 0; font-size: var(--sa-text-page); line-height: 1.12; letter-spacing: -.025em; }
       .movil-inicio p { margin: var(--sa-space-1) 0 0; color: var(--sa-ink-soft); }
@@ -286,7 +288,8 @@ const mensaje = (e: unknown, defecto: string): string => {
           }
           @if (!hayPendientes()) { <p class="sin-accesos">No hay tareas pendientes disponibles para tu perfil.</p> }
         }
-        <div class="inicio-paneles">
+        <div class="inicio-paneles"
+             [class.inicio-paneles--aprobacion]="!esPendientes && paneles().has('oc-aprobar') && ocsPendientes().length > 0">
         @if (paneles().size) {
           <div class="sa-panels">
             @if (paneles().has('reponer') && areaVisible('bodega')) {
@@ -333,7 +336,7 @@ const mensaje = (e: unknown, defecto: string): string => {
             }
 
             @if (paneles().has('oc-aprobar') && areaVisible('compras')) {
-              <section class="sa-panel" data-area="compras" aria-labelledby="aprobar">
+              <section class="sa-panel panel-oc-aprobar" data-area="compras" aria-labelledby="aprobar">
                 <div class="cabeza">
                   <div>
                     <h2 id="aprobar">Órdenes por aprobar</h2>

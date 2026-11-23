@@ -44,6 +44,14 @@ describe('Inicio móvil y Pendientes', () => {
     expect(page).toContain('@media (max-width: 350px)');
   });
 
+  it('expone en Inicio móvil únicamente la aprobación autorizada y conserva Pendientes sin ese botón', () => {
+    const page = source();
+    expect(page).toContain(`[class.inicio-paneles--aprobacion]="!esPendientes && paneles().has('oc-aprobar') && ocsPendientes().length > 0"`);
+    expect(page).toContain('.inicio-paneles.inicio-paneles--aprobacion { display: block; }');
+    expect(page).toContain('.inicio-paneles--aprobacion .sa-panels > .sa-panel:not(.panel-oc-aprobar) { display: none; }');
+    expect(page).toMatch(/<section class="sa-panel panel-oc-aprobar"[\s\S]*?@if \(!esPendientes\) \{[\s\S]*?\(click\)="aprobar\(o\)"/);
+  });
+
   it('mantiene el tablero de escritorio y oculta solo su presentación en Inicio móvil', () => {
     const page = source();
     expect(page).toContain('Flujo de abastecimiento');
