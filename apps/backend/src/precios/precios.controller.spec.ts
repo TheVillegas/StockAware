@@ -7,6 +7,16 @@ const { PreciosController } = cargaTs(path.join(__dirname, 'precios.controller.t
 const { JwtAuthGuard, PermisosGuard, PERMISO_CLAVE } = cargaTs(path.join(__dirname, '../comun/permisos.guard.ts'));
 
 describe('PreciosController', () => {
+  it('expone observaciones de solo lectura con el mismo permiso', async () => {
+    const metodo = PreciosController.prototype.observaciones;
+    expect(Reflect.getMetadata('path', metodo)).toBe(':codMaterial/observaciones');
+    expect(Reflect.getMetadata('method', metodo)).toBe(0);
+    expect(Reflect.getMetadata(PERMISO_CLAVE, metodo)).toBe('MATERIAL_X_BODEGA');
+    const observaciones = jest.fn().mockResolvedValue({ cotizable: true });
+    const ctl = new PreciosController({ observaciones }, {});
+    await expect(ctl.observaciones('MC_001')).resolves.toEqual({ cotizable: true });
+    expect(observaciones).toHaveBeenCalledWith('MC_001');
+  });
   it('cuelga de /precios con JWT y permisos, y exige MATERIAL_X_BODEGA en el GET', () => {
     expect(Reflect.getMetadata('path', PreciosController)).toBe('precios');
     expect(Reflect.getMetadata('__guards__', PreciosController)).toEqual([JwtAuthGuard, PermisosGuard]);

@@ -136,7 +136,8 @@ const lineaVacia = (): LineaNueva => ({ nombre: '', cantidad: 0, unidad: 'UNI', 
     <ion-content>
       <div class="page-content page-content--wide" data-area="compras">
         @if (cargando()) {
-          <div class="sa-skeleton">
+          <sa-page-head title="Orden de compra" area="compras" icon="orders" />
+          <div class="sa-skeleton" aria-busy="true" aria-label="Cargando orden de compra">
             <ion-skeleton-text [animated]="true"></ion-skeleton-text>
             <ion-skeleton-text [animated]="true"></ion-skeleton-text>
             <ion-skeleton-text [animated]="true"></ion-skeleton-text>
@@ -378,6 +379,10 @@ const lineaVacia = (): LineaNueva => ({ nombre: '', cantidad: 0, unidad: 'UNI', 
             }
           </div>
         } @else if (error()) {
+          <a class="volver" routerLink="/f/CON_DOC_EMI">
+            <sa-icon name="arrow-left" [size]="16" />Órdenes de compra
+          </a>
+          <sa-page-head title="Orden de compra" area="compras" icon="orders" />
           <div class="sa-notice sa-notice--crit" role="alert">{{ error() }}</div>
         }
       </div>

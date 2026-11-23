@@ -113,7 +113,7 @@ const sumaOrigenes = (lista: { total: unknown; excluido?: boolean }[]) =>
     .note { margin: 14px 0 0; font-size: var(--sa-text-dense); color: var(--sa-ink-soft); line-height: 1.5; }
     .head-row { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sa-space-3); flex-wrap: wrap; }
     .head-row span { font-size: var(--sa-text-dense); color: var(--sa-ink-soft); }
-    .meses-scroll { overflow-x: auto; margin-top: 18px; }
+    .meses-scroll { position: relative; overflow-x: auto; margin-top: 18px; }
     .meses { min-inline-size: 520px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 10px; }
     .mes { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px;
            block-size: calc(var(--plot) + 24px); border-bottom: var(--sa-border) solid var(--sa-border-input); }

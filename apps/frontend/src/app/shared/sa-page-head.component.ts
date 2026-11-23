@@ -5,13 +5,14 @@ export type SaArea = 'compras' | 'bodega' | 'finanzas' | 'sistema' | 'inicio';
 
 /**
  * Page heading inside the content: area icon tile, title, one-line purpose and
- * the page actions (`<div saActions>`). On phones the title already sits in the
- * top bar, so only the purpose and the actions show, actions full width.
+ * the page actions (`<div saActions>`). On phones the top bar shows the brand,
+ * so the title stays here; a page with its own phone intro sets
+ * `[phoneTitle]="false"` to avoid a duplicate heading. Actions go full width.
  */
 @Component({
   selector: 'sa-page-head',
   imports: [SaIcon],
-  host: { class: 'sa-page-head' },
+  host: { class: 'sa-page-head', '[class.sa-page-head--no-phone-title]': '!phoneTitle()' },
   template: `
     <div class="sa-page-head__id">
       @if (icon()) {
@@ -30,4 +31,5 @@ export class SaPageHead {
   readonly subtitle = input('');
   readonly area = input<SaArea>('inicio');
   readonly icon = input<SaIconName | null>(null);
+  readonly phoneTitle = input(true);
 }

@@ -1,0 +1,44 @@
+name: Android staging debug APK
+
+on:
+  push:
+    branches: [feat/ef-staging-multiplatform]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build and sync web assets
+        working-directory: apps/frontend
+        env:
+          API_URL: https://stockaware-api.onrender.com/api
+        run: |
+          npm ci
+          npm run build
+          npx cap sync android
+      - name: Assemble debug APK
+        working-directory: apps/frontend/android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: stockaware-staging-debug-${{ github.sha }}
+          path: apps/frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

@@ -46,6 +46,7 @@
               "sourceMap": true
             },
             "production": {
+              "serviceWorker": "ngsw-config.json",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
