@@ -4,7 +4,7 @@
  * El ajuste de stock vive dentro de esta pantalla, igual que en el ERP: no es
  * una opcion de menu aparte, es una accion sobre una fila del listado.
  */
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -387,7 +387,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     }
   `,
 })
-export class StockPage {
+export class StockPage implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
@@ -419,6 +419,20 @@ export class StockPage {
   private readonly ofertaVerificada = signal('');
   private readonly decisionLocal = signal('');
   private consultaRecomendacion = 0;
+  private vencimientoOferta = 0;
+  private temporizadorOferta: ReturnType<typeof setTimeout> | undefined;
+
+  private limpiarVencimiento(): void {
+    if (this.temporizadorOferta !== undefined) clearTimeout(this.temporizadorOferta);
+    this.temporizadorOferta = undefined;
+    this.vencimientoOferta = 0;
+  }
+  private comprobarVencimiento(): void {
+    if (this.vencimientoOferta && Date.now() >= this.vencimientoOferta) {
+      this.limpiarVencimiento();
+      this.ofertaVerificada.set('');
+    }
+  }
 
   private claveOferta(p: Publicacion): string {
     return JSON.stringify([this.materialRecomendacion()?.cod_material, p.publicacion_id, p.vinculo_id,
@@ -436,9 +450,14 @@ export class StockPage {
   readonly pasoRecomendado = computed(() => {
     const r = this.recomendacion();
     const verificada = this.ofertaVerificada();
-    return r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true
-      && verificada && r.fuentes.some((f) => f.publicaciones.some((p) => this.ofertaDisponibleConPrecio(p)
-        && this.claveOferta(p) === verificada))
+    return r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true && !r.desactualizado
+      && verificada && r.fuentes.some((f) => f.estado === 'ok' && !f.desactualizado && !f.motivo
+        && f.publicaciones.some((p) => {
+          const fecha = p.verificado_en ? Date.parse(p.verificado_en) : NaN;
+          const edad = Date.now() - fecha;
+          return Number.isFinite(fecha) && edad >= 0 && edad < 7 * 24 * 3600 * 1000
+            && this.ofertaDisponibleConPrecio(p) && this.claveOferta(p) === verificada;
+        }))
       ? 'cotizar ahora' : 'validar fuentes';
   });
   readonly decisionRecomendacion = computed(() => this.decisionLocal() === 'cotizar ahora'
@@ -446,11 +465,12 @@ export class StockPage {
 
   async consultarRecomendacion(f: FilaStock): Promise<void> {
     const consulta = ++this.consultaRecomendacion;
+    this.limpiarVencimiento();
     this.materialRecomendacion.set(f); this.recomendacion.set(null);
     this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
     this.errorRecomendacion.set(''); this.cargandoRecomendacion.set(true);
     try {
-      const respuesta = await firstValueFrom(this.http.get<RespuestaPrecios>(`${API}/precios/${encodeURIComponent(f.cod_material)}`));
+      const respuesta = await firstValueFrom(this.http.get<RespuestaPrecios>(`${API}/precios/${encodeURIComponent(f.cod_material)}/observaciones`));
       if (consulta === this.consultaRecomendacion) this.recomendacion.set(respuesta);
     } catch {
       if (consulta === this.consultaRecomendacion) this.errorRecomendacion.set('No se pudieron consultar las fuentes. Valida las fuentes antes de cotizar.');
@@ -464,15 +484,29 @@ export class StockPage {
   confirmarOferta(p: Publicacion): void {
     if (this.ofertaCargada(p) && this.ofertaAbierta() === this.claveOferta(p)
         && this.ofertaDisponibleConPrecio(p)) {
+      this.limpiarVencimiento();
+      const fecha = p.verificado_en ? Date.parse(p.verificado_en) : NaN;
+      const restante = fecha + 7 * 24 * 3600 * 1000 - Date.now();
+      if (!Number.isFinite(fecha) || fecha > Date.now() || restante <= 0) {
+        this.ofertaVerificada.set('');
+        return;
+      }
       this.ofertaVerificada.set(this.claveOferta(p));
+      this.vencimientoOferta = fecha + 7 * 24 * 3600 * 1000;
+      this.temporizadorOferta = setTimeout(() => {
+        this.temporizadorOferta = undefined;
+        this.comprobarVencimiento();
+      }, restante);
     }
   }
-  aceptarRecomendacion(): void { this.decisionLocal.set(this.pasoRecomendado()); }
+  aceptarRecomendacion(): void { this.comprobarVencimiento(); this.decisionLocal.set(this.pasoRecomendado()); }
   modificarRecomendacion(paso: 'validar fuentes' | 'cotizar ahora'): void {
+    this.comprobarVencimiento();
     this.decisionLocal.set(paso === 'cotizar ahora' && this.pasoRecomendado() !== paso ? 'validar fuentes' : paso);
   }
   rechazarRecomendacion(): void {
     ++this.consultaRecomendacion;
+    this.limpiarVencimiento();
     this.materialRecomendacion.set(null); this.recomendacion.set(null);
     this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
   }
@@ -588,6 +622,8 @@ export class StockPage {
   // El backend corta en 500 filas: con ese tope los totales son parciales y se avisa.
   rango = () => `Mostrando ${this.visibles().length} de ${this.resumen().total} materiales`
     + (this.truncado() ? ' (primeros 500: acota bodega o búsqueda)' : '');
+
+  ngOnDestroy(): void { this.limpiarVencimiento(); }
 
   constructor() {
     void this.cargarBodegas();

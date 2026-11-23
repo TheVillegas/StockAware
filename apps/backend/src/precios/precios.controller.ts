@@ -28,6 +28,16 @@ export class PreciosController {
     return this.consulta.consulta(codMaterial);
   }
 
+  @Get(':codMaterial/observaciones')
+  @Requiere('MATERIAL_X_BODEGA')
+  @ApiOperation({ summary: 'Observaciones guardadas vigentes, sin actualizar fuentes' })
+  @ApiParam({ name: 'codMaterial', example: 'MC_001' })
+  @ApiOkResponse({ type: RespuestaPreciosDoc })
+  @ApiResponse({ status: 404, description: 'material_not_found' })
+  observaciones(@Param('codMaterial') codMaterial: string) {
+    return this.consulta.observaciones(codMaterial);
+  }
+
   @Patch('vinculos/:id')
   @Requiere('MOD_MATERIALES')
   @ApiOperation({ summary: 'Confirma o rechaza un vinculo propuesto (idempotente)' })

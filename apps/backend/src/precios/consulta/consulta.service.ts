@@ -96,6 +96,29 @@ export class ConsultaPreciosService {
     return { ...base, cotizable: true, desactualizado: fuentes.some((f) => f.desactualizado), fuentes };
   }
 
+  /** Lectura aislada: no usa el cache de vacias ni inicia actualizaciones. */
+  async observaciones(codMaterial: string): Promise<RespuestaPrecios> {
+    const material = await this.erp.material(codMaterial);
+    if (!material) throw new HttpException({ error: 'material_not_found' }, HttpStatus.NOT_FOUND);
+    const marca = await this.erp.cotizable(codMaterial);
+    const base = { cod_material: codMaterial, nombre: material.nombre };
+    if (marca && !marca.cotizable) return { ...base, cotizable: false, motivo: marca.motivo ?? 'no_cotizable', fuentes: [] };
+    const filas = await this.filas(codMaterial);
+    const ahora = this.ahora().getTime();
+    const fuentes: FuenteRespuesta[] = FUENTES.map((fuente) => {
+      const elegible = !CONFIG_FUENTES[fuente].requiereUrl || (fuente === 'rhona' ? marca?.url_rhona : marca?.url_sodimac);
+      const propias = filas.filter((r) => {
+        if (!elegible || r.fuente !== fuente || !r.verificado_en) return false;
+        const fecha = new Date(r.verificado_en).getTime();
+        return Number.isFinite(fecha) && fecha <= ahora && ahora - fecha < VIGENCIA_MS[fuente];
+      });
+      const publicaciones = propias.map(({ fuente: _f, estado, ...resto }) => ({ ...resto, vinculo: estado }))
+        .sort((a, b) => b.puntaje - a.puntaje);
+      return { fuente, estado: publicaciones.length ? 'ok' : 'sin_datos', publicaciones };
+    });
+    return { ...base, cotizable: true, desactualizado: false, fuentes };
+  }
+
   private async filas(codMaterial: string): Promise<Fila[]> {
     return (await this.precios.ultimasObservaciones(codMaterial)) as unknown as Fila[];
   }
