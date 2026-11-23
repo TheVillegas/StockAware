@@ -68,6 +68,21 @@ async function codigo(promesa) {
 const falla = (motivo) => async (fuente) => ({ estado: 'falla', fuente, causa: motivo, url: `https://${fuente}.cl/q` });
 
 describe('ConsultaPreciosService', () => {
+  it('observaciones filtra cada fila vencida o invalida sin efectos ni consultas externas', async () => {
+    const a = armar({ filas: [fila('dartel'), fila('dartel', { publicacion_id: 9, verificado_en: dias(8) }), fila('dartel', { publicacion_id: 10, verificado_en: null }), fila('dartel', { publicacion_id: 11, verificado_en: 'invalid' })] });
+    const antes = JSON.stringify(a.base);
+    const r = await a.svc.observaciones('M1');
+    expect(fuenteDe(r, 'dartel').publicaciones.map((p) => p.publicacion_id)).toEqual([1]);
+    expect(JSON.stringify(a.base)).toBe(antes);
+    for (const fn of [a.precios.enPausa, a.precios.guardaObservacion, a.precios.proponeVinculo, a.precios.registraFalla, a.erp.desactivaNoDevueltas, a.inteligencia.preparar, a.inteligencia.procesar, a.recuperador.lee]) expect(fn).not.toHaveBeenCalled();
+  });
+  it('observaciones vacias y material desconocido no refrescan', async () => {
+    const a = armar();
+    const r = await a.svc.observaciones('M1');
+    expect(r.fuentes.every((f) => f.estado === 'sin_datos' && !f.publicaciones.length)).toBe(true);
+    expect(a.recuperador.lee).not.toHaveBeenCalled();
+    expect(await codigo(armar({ material: null }).svc.observaciones('X'))).toEqual([404, { error: 'material_not_found' }]);
+  });
   it('404 material_not_found si el material no existe en el ERP', async () => {
     const { svc, recuperador } = armar({ material: null });
     expect(await codigo(svc.consulta('X'))).toEqual([404, { error: 'material_not_found' }]);

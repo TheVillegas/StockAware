@@ -1039,10 +1039,20 @@ a.sa-panel:focus-visible {
   --border-radius: var(--sa-radius);
 }
 
-/* The phone top bar already shows the title: keep the purpose and full-width actions. */
+/* Phones: the top bar shows the brand, so the title stays here (artboard 04).
+   A page with its own phone intro opts out with [phoneTitle]="false". */
 @media (max-width: 767.98px) {
-  .sa-page-head__tile,
-  .sa-page-head__title {
+  .sa-page-head {
+    margin-bottom: var(--sa-space-4);
+  }
+
+  .sa-page-head__tile {
+    inline-size: 40px;
+    block-size: 40px;
+  }
+
+  .sa-page-head--no-phone-title .sa-page-head__tile,
+  .sa-page-head--no-phone-title .sa-page-head__title {
     display: none;
   }
 

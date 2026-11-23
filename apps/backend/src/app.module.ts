@@ -17,6 +17,7 @@ import { SondaPostgres } from './salud/sonda';
 import { SondaPostgresReal } from './salud/sonda.postgres';
 import { opcionesBase } from './data-source';
 import { PreciosModule } from './precios/precios.module';
+import { RecomendacionesModule } from './recomendaciones/recomendaciones.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { PreciosModule } from './precios/precios.module';
     BodegaModule,
     DistribucionModule,
     PreciosModule,
+    RecomendacionesModule,
   ],
   controllers: [SaludController],
   providers: [{ provide: SondaPostgres, useClass: SondaPostgresReal }],

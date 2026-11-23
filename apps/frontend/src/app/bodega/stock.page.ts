@@ -4,14 +4,15 @@
  * El ajuste de stock vive dentro de esta pantalla, igual que en el ERP: no es
  * una opcion de menu aparte, es una accion sobre una fila del listado.
  */
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import {
-  IonButton, IonContent, IonFooter, IonInput, IonSearchbar,
+  IonButton, IonContent, IonFooter, IonInput, IonModal, IonSearchbar,
 } from '@ionic/angular/standalone';
 
 import { API, AuthService } from '../core/auth.service';
@@ -22,7 +23,7 @@ import { SaList } from '../shared/sa-list.component';
 import { SaPageHead } from '../shared/sa-page-head.component';
 import { SaTableWrap } from '../shared/sa-table-wrap.component';
 import { accionesCrear } from '../shared/workspace-navigation';
-import { PreciosPanel } from '../precios/precios-panel.component';
+import { PreciosPanel, Publicacion, RespuestaPrecios } from '../precios/precios-panel.component';
 import { BodegaCombobox } from './bodega-combobox.component';
 import { stockState } from './stock-state';
 import {
@@ -46,7 +47,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
   selector: 'app-stock',
   imports: [
     FormsModule, RouterLink, PageHeaderComponent, IonContent, IonFooter,
-    IonSearchbar, IonButton, IonInput,
+    IonSearchbar, IonButton, IonInput, IonModal,
     SaIcon, SaList, SaPageHead, SaTableWrap, BodegaCombobox, PreciosPanel,
   ],
   styles: [`
@@ -75,13 +76,45 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     .oculto { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .pedido strong { font-variant-numeric: tabular-nums; }
     .pedido__acciones { display: flex; gap: var(--sa-space-2); flex-wrap: wrap; }
+    .stock-layout { display: flex; flex-direction: column; }
+    .stock-mobile, .stock-intro, .stock-section { display: none; }
+    .stock-search { display: grid; gap: var(--sa-space-1); flex: 1 1 16rem; min-inline-size: 12rem; }
+    .stock-search label { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); font-weight: 600; }
+    ion-modal.stock-sheet { --height: min(80dvh, 34rem); --border-radius: var(--sa-ep1-radius-card) var(--sa-ep1-radius-card) 0 0; }
+    .detalle-content { --background: var(--sa-surface); }
+    .detalle { padding: var(--sa-space-4); padding-bottom: max(var(--sa-space-4), env(safe-area-inset-bottom)); color: var(--sa-ink); }
+    .detalle h2 { font-size: var(--sa-text-page); }
+    .detalle__datos { background: var(--sa-surface-2); border: 1px solid var(--sa-line-strong); border-radius: var(--sa-radius); padding: var(--sa-space-3); }
+    .detalle__acciones { display: flex; flex-wrap: wrap; gap: var(--sa-space-2); }
+    @media (max-width: 767.98px) {
+      .stock-intro { display: grid; gap: var(--sa-space-1); margin-bottom: var(--sa-space-3); }
+      .stock-intro span { color: var(--sa-area-bodega); font-size: var(--sa-text-label); font-weight: 750; letter-spacing: .085em; text-transform: uppercase; }
+      .stock-intro h1 { margin: 0; font-size: var(--sa-text-page); line-height: 1.12; letter-spacing: -.025em; }
+      .stock-section { display: block; margin: var(--sa-space-4) var(--sa-space-3) var(--sa-space-2); font-size: var(--sa-text-title); }
+      .stock-search { order: -1; min-inline-size: 0; flex-basis: 100%; }
+      .stock-search ion-searchbar { min-inline-size: 0; width: 100%; }
+      .stock-layout sa-list { order: 0; }
+      .stock-layout .sa-stats { order: 1; margin-top: var(--sa-space-4); }
+      .stock-desktop { display: none; }
+      .stock-mobile { display: block; border: 1px solid var(--sa-line-strong); border-radius: var(--sa-ep1-radius-card); overflow: hidden; background: var(--sa-surface); }
+      .stock-mobile__row + .stock-mobile__row { border-top: 1px solid var(--sa-line-strong); }
+      .stock-mobile__button { width: 100%; min-height: 44px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sa-space-1) var(--sa-space-2); text-align: left; padding: var(--sa-space-3); background: var(--sa-surface); color: var(--sa-ink); border: 0; font: inherit; }
+      .stock-mobile__button:focus-visible { outline: var(--sa-focus-ring); outline-offset: calc(-1 * var(--sa-focus-offset)); }
+      .stock-mobile__button strong, .stock-mobile__button small { display: block; overflow-wrap: anywhere; }
+      .stock-mobile__button small { color: var(--sa-ink-soft); font-size: var(--sa-text-meta); margin-top: var(--sa-space-1); }
+      .stock-mobile__qty { text-align: right; font-variant-numeric: tabular-nums; }
+      .stock-mobile__status { grid-column: 1 / -1; }
+      .stock-mobile__select { display: flex; align-items: center; gap: var(--sa-space-2); min-height: 44px; padding: 0 var(--sa-space-3); }
+      .stock-mobile__select input { width: 1.25rem; height: 1.25rem; accent-color: var(--sa-area-bodega); }
+    }
   `],
   template: `
     <app-page-header title="Stock"></app-page-header>
 
     <ion-content>
       <div class="page-content page-content--wide">
-      <sa-page-head title="Stock" area="bodega" icon="warehouse"
+      <div class="stock-intro"><span>Bodega · Catálogo operativo</span><h1>Stock por bodega</h1></div>
+      <sa-page-head title="Stock" area="bodega" icon="warehouse" [phoneTitle]="false"
                     subtitle="Qué pedir antes de que falte. La cobertura usa el consumo del último año.">
         <div saActions>
           @if (puedeCrearMaterial()) {
@@ -96,10 +129,41 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         </div>
       </sa-page-head>
 
+      @if (errorConsulta()) { <div class="sa-notice sa-notice--crit" role="alert">{{ errorConsulta() }}</div> }
       @if (error()) { <div class="sa-notice sa-notice--crit" role="alert">{{ error() }}</div> }
       @if (mensaje()) { <div class="sa-notice sa-notice--ok" role="status">{{ mensaje() }}</div> }
 
-      @if (precios(); as p) {
+      @if (materialRecomendacion(); as material) {
+        <section class="sa-panel ajuste" aria-label="Recomendación de reposición">
+          <h2>Próximo paso: {{ pasoRecomendado() }}</h2>
+          <p>{{ material.cod_material }} · {{ material.nombre }}. Stock {{ material.stock }} {{ material.unidad }}, mínimo {{ material.stock_minimo ?? 'no informado' }}. La urgencia sigue dependiendo del stock.</p>
+          <p>La verificación es manual: abre una publicación y confirma unidad, empaque y vigencia. Sin esa confirmación se recomienda validar fuentes. Los candidatos no son equivalencias automáticas.</p>
+          <p>La consulta usa fuentes web disponibles; pueden faltar proveedores o existir sesgos. No se guardan estas decisiones; revisa la información antes de comprar.</p>
+          @if (cargandoRecomendacion()) { <p role="status">Consultando fuentes...</p> }
+          @if (errorRecomendacion()) { <p role="alert">{{ errorRecomendacion() }}</p> }
+          @if (recomendacion(); as r) {
+            @for (fuente of r.fuentes; track fuente.fuente) {
+              @for (oferta of fuente.publicaciones; track oferta.publicacion_id) {
+                <div>
+                  <a [href]="oferta.url" target="_blank" rel="noopener noreferrer" (click)="abrirOferta(oferta)">{{ oferta.nombre }}</a>
+                  <span> · {{ fuente.fuente }} · {{ moneda(oferta.precio_oferta ?? oferta.precio_normal) }} · {{ oferta.disponible ? 'Disponible' : 'No disponible' }} · Observado {{ oferta.obtenido_en }}</span>
+                  @if (ofertaDisponibleConPrecio(oferta)) {
+                    <button type="button" class="fila-accion" (click)="confirmarOferta(oferta)">Confirmo unidad, empaque y vigencia tras abrir</button>
+                  }
+                </div>
+              }
+            }
+          }
+          <p>Decisión local: {{ decisionRecomendacion() || 'Sin decidir' }}</p>
+          <div class="pedido__acciones">
+            <button type="button" class="fila-accion" (click)="aceptarRecomendacion()">Aceptar recomendación</button>
+            <button type="button" class="fila-accion" (click)="modificarRecomendacion('validar fuentes')">Modificar: validar fuentes</button>
+            <button type="button" class="fila-accion" [disabled]="pasoRecomendado() !== 'cotizar ahora'" (click)="modificarRecomendacion('cotizar ahora')">Modificar: cotizar ahora</button>
+            <button type="button" class="fila-accion" (click)="rechazarRecomendacion()">Rechazar y volver</button>
+          </div>
+          <p>Es una orientación, no crea una orden. La comparación de utilidad con una versión no adaptativa no está disponible en esta pantalla.</p>
+        </section>
+      } @else if (precios(); as p) {
         <app-precios-panel [codMaterial]="p.cod_material" [nombre]="p.nombre" (cerrar)="precios.set(null)" />
       } @else if (ajustando(); as f) {
         <section class="sa-panel ajuste" aria-labelledby="ajuste-titulo">
@@ -126,7 +190,8 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
           </div>
         }
 
-        @if (hayConsulta()) {
+        <div class="stock-layout">
+        @if (hayConsulta() && !cargando() && !errorConsulta()) {
           <div class="sa-stats">
             <div class="sa-stat sa-stat--crit">
               <div class="sa-stat__label">Urgente</div>
@@ -152,28 +217,61 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
         }
 
         <sa-list [loading]="cargando()" [empty]="listaVacia()"
-                 [emptyTitle]="tituloVacio()" [emptyText]="textoVacio()"
+                 [emptyTitle]="errorConsulta() ? 'No se pudo cargar el stock' : tituloVacio()" [emptyText]="errorConsulta() ? '' : textoVacio()"
                  [foot]="hayConsulta() && datos().length > 0" [range]="rango()" [pages]="1">
           <div saFilters>
             <app-bodega-combobox [bodegas]="bodegas()" [value]="bodega()" (valueChange)="bodega.set($event)" />
-            <ion-searchbar placeholder="Código o nombre del material" [debounce]="350"
-                           (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+            <div class="stock-search">
+              <label for="stock-buscar">Buscar por material o código</label>
+              <ion-searchbar id="stock-buscar" aria-label="Buscar por material o código" placeholder="Código o nombre del material" [debounce]="350"
+                             (ionInput)="buscar.set($any($event).detail.value ?? '')"></ion-searchbar>
+            </div>
             @if (hayConsulta()) {
               <div class="sa-chips vistas" role="group" aria-label="Vista">
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'urgente'"
-                        (click)="elegirFiltro('urgente')">Urgente <span class="num">{{ resumen().urgente }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Urgente, cantidad desconocida' : null"
+                        (click)="elegirFiltro('urgente')">Urgente @if (!errorConsulta()) { <span class="num">{{ resumen().urgente }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'pronto'"
-                        (click)="elegirFiltro('pronto')">Se acaba en {{ prontoDias }} días <span class="num">{{ resumen().pronto }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Se acaba en ' + prontoDias + ' días, cantidad desconocida' : null"
+                        (click)="elegirFiltro('pronto')">Se acaba en {{ prontoDias }} días @if (!errorConsulta()) { <span class="num">{{ resumen().pronto }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'warn'"
-                        (click)="elegirFiltro('warn')">Bajo mínimo <span class="num">{{ resumen().bajo }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Bajo mínimo, cantidad desconocida' : null"
+                        (click)="elegirFiltro('warn')">Bajo mínimo @if (!errorConsulta()) { <span class="num">{{ resumen().bajo }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'crit'"
-                        (click)="elegirFiltro('crit')">Sin stock <span class="num">{{ resumen().sin }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Sin stock, cantidad desconocida' : null"
+                        (click)="elegirFiltro('crit')">Sin stock @if (!errorConsulta()) { <span class="num">{{ resumen().sin }}</span> }</button>
                 <button type="button" class="sa-chip" [attr.aria-pressed]="filtro() === 'todos'"
-                        (click)="elegirFiltro('todos')">Todo <span class="num">{{ resumen().total }}</span></button>
+                        [attr.aria-label]="errorConsulta() ? 'Todo, cantidad desconocida' : null"
+                        (click)="elegirFiltro('todos')">Todo @if (!errorConsulta()) { <span class="num">{{ resumen().total }}</span> }</button>
               </div>
             }
           </div>
-          <sa-table-wrap label="Materiales">
+          <h2 class="stock-section">Disponibilidad</h2>
+          <div class="stock-mobile">
+            @if (puedePedir()) {
+              <label class="stock-mobile__select"><input type="checkbox" [checked]="todosMarcados()"
+                (change)="marcarVisibles($any($event.target).checked)" /> Elegir todos los visibles para pedir</label>
+            }
+            @for (f of visibles(); track f.cod_material + '-' + f.id_bodega) {
+              @let estado = estadoStock(f.stock, f.stock_minimo);
+              <div class="stock-mobile__row">
+                <button type="button" class="stock-mobile__button" (click)="abrirDetalle(f, $event)">
+                  <span><strong>{{ f.nombre }}</strong><small>{{ f.cod_material }} · {{ f.bodega }}</small></span>
+                  <span class="stock-mobile__qty"><strong>{{ f.stock }} {{ f.unidad }}</strong><small>Mínimo {{ f.stock_minimo ?? 'No informado' }}</small></span>
+                  <span class="stock-mobile__status">
+                    @if (estado === 'crit') { <span class="sa-pill sa-pill--crit">SIN STOCK</span> }
+                    @else if (estado === 'warn') { <span class="sa-pill sa-pill--warn">BAJO MÍNIMO</span> }
+                    @else { <span class="sa-pill sa-pill--ok">OK</span> }
+                  </span>
+                </button>
+                @if (puedePedir()) {
+                  <label class="stock-mobile__select"><input type="checkbox" [checked]="marcado(f)"
+                    (change)="alternar(f)" /> Pedir {{ f.cod_material }}</label>
+                }
+              </div>
+            }
+          </div>
+          <sa-table-wrap class="stock-desktop" label="Materiales">
               <table class="sa-table">
                 <thead><tr>
                   @if (puedePedir()) {
@@ -228,6 +326,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
                       <td class="num" data-label="Tarifa">{{ moneda(f.tarifa) }}</td>
                       <td data-label="Acciones">
                         @if (puedeAjustar()) {
+                          <button type="button" class="fila-accion" (click)="consultarRecomendacion(f)" [attr.aria-label]="'Recomendación de ' + f.cod_material">Recomendación</button>
                           <button type="button" class="fila-accion" (click)="precios.set(f)"
                                   [attr.aria-label]="'Precios de mercado de ' + f.cod_material">Precios</button>
                           <button type="button" class="fila-accion" (click)="abrirAjuste(f)"
@@ -240,10 +339,39 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               </table>
           </sa-table-wrap>
         </sa-list>
+        </div>
       }
+      <ion-modal #modal class="stock-sheet" [isOpen]="!!detalle()" (didDismiss)="cerrarDetalle()"
+                 [breakpoints]="[0, 1]" [initialBreakpoint]="1" aria-label="Detalle de material">
+        <ng-template>
+          <ion-content class="detalle-content">
+          @if (detalle(); as f) {
+            <div class="detalle">
+              <ion-button fill="outline" (click)="modal.dismiss()">Volver</ion-button>
+              <h2 id="stock-detalle-titulo">{{ f.nombre }}</h2>
+              <div class="detalle__datos">
+                <p>{{ f.cod_material }} · {{ f.bodega }}</p>
+                <p>Stock: {{ f.stock }} {{ f.unidad }} · Mínimo: {{ f.stock_minimo ?? 'No informado' }}</p>
+                @let estado = estadoStock(f.stock, f.stock_minimo);
+                @if (estado === 'crit') { <span class="sa-pill sa-pill--crit">SIN STOCK</span> }
+                @else if (estado === 'warn') { <span class="sa-pill sa-pill--warn">BAJO MÍNIMO</span> }
+                @else { <span class="sa-pill sa-pill--ok">OK</span> }
+              </div>
+              @if (puedeAjustar()) {
+                <div class="detalle__acciones">
+                  <ion-button fill="outline" (click)="modal.dismiss(); consultarRecomendacion(f)">Recomendación</ion-button>
+                  <ion-button fill="outline" (click)="modal.dismiss(); precios.set(f)">Precios</ion-button>
+                  <ion-button fill="outline" (click)="modal.dismiss(); abrirAjuste(f)">Ajustar</ion-button>
+                </div>
+              }
+            </div>
+          }
+          </ion-content>
+        </ng-template>
+      </ion-modal>
       </div>
     </ion-content>
-    @if (seleccion().size && !ajustando() && !precios()) {
+    @if (seleccion().size && !ajustando() && !precios() && !materialRecomendacion()) {
       <ion-footer>
         <div class="sa-actionbar pedido" role="region" aria-label="Pedido de reposición">
           <p>
@@ -259,7 +387,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
     }
   `,
 })
-export class StockPage {
+export class StockPage implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
@@ -277,11 +405,138 @@ export class StockPage {
   readonly prontoDias = PRONTO_DIAS;
   readonly cargando = signal(false);
   readonly error = signal('');
+  readonly errorConsulta = signal('');
   readonly mensaje = signal('');
   readonly trabajando = signal(false);
   readonly ajustando = signal<FilaStock | null>(null);
   /** Material whose "Precios de mercado" panel is open. */
   readonly precios = signal<FilaStock | null>(null);
+  readonly materialRecomendacion = signal<FilaStock | null>(null);
+  readonly recomendacion = signal<RespuestaPrecios | null>(null);
+  readonly cargandoRecomendacion = signal(false);
+  readonly errorRecomendacion = signal('');
+  private readonly ofertaAbierta = signal('');
+  private readonly ofertaVerificada = signal('');
+  private readonly decisionLocal = signal('');
+  private consultaRecomendacion = 0;
+  private vencimientoOferta = 0;
+  private temporizadorOferta: ReturnType<typeof setTimeout> | undefined;
+
+  private limpiarVencimiento(): void {
+    if (this.temporizadorOferta !== undefined) clearTimeout(this.temporizadorOferta);
+    this.temporizadorOferta = undefined;
+    this.vencimientoOferta = 0;
+  }
+  private comprobarVencimiento(): void {
+    if (this.vencimientoOferta && Date.now() >= this.vencimientoOferta) {
+      this.limpiarVencimiento();
+      this.ofertaVerificada.set('');
+    }
+  }
+
+  private claveOferta(p: Publicacion): string {
+    return JSON.stringify([this.materialRecomendacion()?.cod_material, p.publicacion_id, p.vinculo_id,
+      p.url, p.precio_normal, p.precio_oferta, p.disponible, p.obtenido_en, p.verificado_en]);
+  }
+  private ofertaCargada(p: Publicacion): boolean {
+    const r = this.recomendacion();
+    return !!r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true
+      && r.fuentes.some((f) => f.publicaciones.some((x) => this.claveOferta(x) === this.claveOferta(p)));
+  }
+  ofertaDisponibleConPrecio(p: Publicacion): boolean {
+    const precio = p.precio_oferta ?? p.precio_normal;
+    return p.disponible === true && Number.isFinite(precio) && precio > 0;
+  }
+  readonly pasoRecomendado = computed(() => {
+    const r = this.recomendacion();
+    const verificada = this.ofertaVerificada();
+    return r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true && !r.desactualizado
+      && verificada && r.fuentes.some((f) => f.estado === 'ok' && !f.desactualizado && !f.motivo
+        && f.publicaciones.some((p) => {
+          const fecha = p.verificado_en ? Date.parse(p.verificado_en) : NaN;
+          const edad = Date.now() - fecha;
+          return Number.isFinite(fecha) && edad >= 0 && edad < 7 * 24 * 3600 * 1000
+            && this.ofertaDisponibleConPrecio(p) && this.claveOferta(p) === verificada;
+        }))
+      ? 'cotizar ahora' : 'validar fuentes';
+  });
+  readonly decisionRecomendacion = computed(() => this.decisionLocal() === 'cotizar ahora'
+    && this.pasoRecomendado() !== 'cotizar ahora' ? 'validar fuentes' : this.decisionLocal());
+
+  async consultarRecomendacion(f: FilaStock): Promise<void> {
+    const consulta = ++this.consultaRecomendacion;
+    this.limpiarVencimiento();
+    this.materialRecomendacion.set(f); this.recomendacion.set(null);
+    this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
+    this.errorRecomendacion.set(''); this.cargandoRecomendacion.set(true);
+    try {
+      const respuesta = await firstValueFrom(this.http.get<RespuestaPrecios>(`${API}/precios/${encodeURIComponent(f.cod_material)}/observaciones`));
+      if (consulta === this.consultaRecomendacion) this.recomendacion.set(respuesta);
+    } catch {
+      if (consulta === this.consultaRecomendacion) this.errorRecomendacion.set('No se pudieron consultar las fuentes. Valida las fuentes antes de cotizar.');
+    } finally {
+      if (consulta === this.consultaRecomendacion) this.cargandoRecomendacion.set(false);
+    }
+  }
+  abrirOferta(p: Publicacion): void {
+    if (this.ofertaCargada(p)) this.ofertaAbierta.set(this.claveOferta(p));
+  }
+  confirmarOferta(p: Publicacion): void {
+    if (this.ofertaCargada(p) && this.ofertaAbierta() === this.claveOferta(p)
+        && this.ofertaDisponibleConPrecio(p)) {
+      this.limpiarVencimiento();
+      const fecha = p.verificado_en ? Date.parse(p.verificado_en) : NaN;
+      const restante = fecha + 7 * 24 * 3600 * 1000 - Date.now();
+      if (!Number.isFinite(fecha) || fecha > Date.now() || restante <= 0) {
+        this.ofertaVerificada.set('');
+        return;
+      }
+      this.ofertaVerificada.set(this.claveOferta(p));
+      this.vencimientoOferta = fecha + 7 * 24 * 3600 * 1000;
+      const comprobar = () => {
+        this.temporizadorOferta = undefined;
+        this.comprobarVencimiento();
+        if (this.vencimientoOferta) {
+          const demora = Math.max(0, this.vencimientoOferta - Date.now());
+          this.temporizadorOferta = setTimeout(comprobar, Math.min(demora, 2_147_483_647));
+        }
+      };
+      this.temporizadorOferta = setTimeout(comprobar, restante);
+    }
+  }
+  aceptarRecomendacion(): void { this.comprobarVencimiento(); this.decisionLocal.set(this.pasoRecomendado()); }
+  modificarRecomendacion(paso: 'validar fuentes' | 'cotizar ahora'): void {
+    this.comprobarVencimiento();
+    this.decisionLocal.set(paso === 'cotizar ahora' && this.pasoRecomendado() !== paso ? 'validar fuentes' : paso);
+  }
+  rechazarRecomendacion(): void {
+    ++this.consultaRecomendacion;
+    this.limpiarVencimiento();
+    this.materialRecomendacion.set(null); this.recomendacion.set(null);
+    this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
+  }
+  private readonly detalleClave = signal<string | null>(null);
+  readonly detalle = computed(() => this.datos().find((f) => this.clave(f) === this.detalleClave()) ?? null);
+  private detalleOrigen: HTMLElement | null = null;
+  /** Set once the first stock load finishes, so a missed deep link cannot reopen later. */
+  private detalleInicialResuelto = false;
+  private readonly location = inject(Location);
+
+  abrirDetalle(f: FilaStock, event: Event): void {
+    this.detalleOrigen = event.currentTarget as HTMLElement;
+    void this.router.navigate([], { queryParams: { stockDetalle: this.clave(f) }, queryParamsHandling: 'merge',
+      state: { stockDetalleAbierto: true } });
+  }
+
+  cerrarDetalle(): void {
+    if (this.detalleClave()) {
+      const state = this.location.getState() as { stockDetalleAbierto?: boolean } | null;
+      if (state?.stockDetalleAbierto) this.location.back();
+      else void this.router.navigate([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    }
+    if (!this.ajustando() && !this.precios()) this.detalleOrigen?.focus({ preventScroll: true });
+    this.detalleOrigen = null;
+  }
   /** Viene del Inicio: lista lo que esta bajo el minimo sin pedir bodega. */
   readonly soloReponer = signal(false);
   private readonly router = inject(Router);
@@ -373,15 +628,25 @@ export class StockPage {
   rango = () => `Mostrando ${this.visibles().length} de ${this.resumen().total} materiales`
     + (this.truncado() ? ' (primeros 500: acota bodega o búsqueda)' : '');
 
+  ngOnDestroy(): void { this.limpiarVencimiento(); }
+
   constructor() {
     void this.cargarBodegas();
     inject(ActivatedRoute).queryParamMap.pipe(takeUntilDestroyed()).subscribe((q) => {
       this.soloReponer.set(q.get('bajo') === '1');
+      this.detalleClave.set(q.get('stockDetalle'));
+      // Whichever arrives first (params or the query effect), a key with no query to run is dropped.
+      if (!this.hayConsulta()) this.olvidarDetalleAusente();
     });
     effect(() => {
       const b = this.bodega(); const q = this.buscar(); const r = this.soloReponer();
       // Sin bodega ni busqueda el listado seria enorme: se pide algo primero.
-      if (!b && !q.trim() && !r) { this.datos.set([]); return; }
+      if (!b && !q.trim() && !r) {
+        this.datos.set([]); this.errorConsulta.set('');
+        // No query runs, so a cold detail key can never be found: drop it now.
+        untracked(() => this.olvidarDetalleAusente());
+        return;
+      }
       void this.cargar(b, q);
     });
   }
@@ -395,6 +660,7 @@ export class StockPage {
   private async cargar(bodega: number, buscar: string): Promise<void> {
     this.cargando.set(true);
     this.error.set('');
+    this.errorConsulta.set('');
     try {
       const q = new URLSearchParams();
       if (bodega) q.set('bodega', String(bodega));
@@ -407,10 +673,20 @@ export class StockPage {
       if (!this.filtroElegido) this.filtro.set(this.resumen().urgente > 0 ? 'urgente' : 'todos');
     } catch (e: any) {
       this.datos.set([]);
-      this.error.set(e?.error?.message ?? 'No se pudo cargar el stock');
+      this.errorConsulta.set(e?.error?.message ?? 'No se pudo cargar el stock');
     } finally {
       this.cargando.set(false);
+      this.olvidarDetalleAusente();
     }
+  }
+
+  /** A cold-load detail key missing from the first result (or with no query to run) must not stay in the URL. */
+  private olvidarDetalleAusente(): void {
+    const clave = this.detalleClave();
+    if (this.detalleInicialResuelto || !clave) return;
+    this.detalleInicialResuelto = true;
+    if (this.datos().some((f) => this.clave(f) === clave)) return;
+    void this.router.navigate([], { queryParams: { stockDetalle: null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   elegirFiltro(filtro: Filtro): void {

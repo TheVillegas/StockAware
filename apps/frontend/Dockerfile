@@ -6,9 +6,11 @@ FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-COPY angular.json tsconfig.json ./
+COPY angular.json tsconfig.json ngsw-config.json ./
 COPY src ./src
-RUN npx ng build
+COPY scripts ./scripts
+ARG API_URL=""
+RUN npm run build
 
 FROM nginx:alpine
 # Patch Alpine OpenSSL in the nginx runtime so HIGH/CRITICAL libssl/libcrypto

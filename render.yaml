@@ -20,6 +20,10 @@ services:
     dockerContext: ./apps/intelligence-service
     healthCheckPath: /health
     autoDeployTrigger: off
+    envVars:
+      # BE-03: Render generates the shared secret; the API reads it from this service.
+      - key: INTELLIGENCE_SERVICE_TOKEN
+        generateValue: true
 
   - type: web
     name: stockaware-api
@@ -68,13 +72,34 @@ services:
           name: stockaware-intelligence
           type: web
           property: hostport
+      - key: INTELLIGENCE_SERVICE_TOKEN
+        fromService:
+          name: stockaware-intelligence
+          type: web
+          envVarKey: INTELLIGENCE_SERVICE_TOKEN
 
   - type: web
     name: stockaware-web
     runtime: static
     branch: develop
-    buildCommand: cd apps/frontend && npm ci && node scripts/set-api-url.mjs && npx ng build
+    buildCommand: cd apps/frontend && npm ci && npm run build
     staticPublishPath: ./apps/frontend/dist/browser
+    headers:
+      - path: /ngsw-worker.js
+        name: Cache-Control
+        value: no-cache
+      - path: /ngsw.json
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Content-Type
+        value: application/manifest+json
     autoDeployTrigger: off
     routes:
       - type: rewrite

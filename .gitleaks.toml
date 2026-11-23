@@ -1,0 +1,14 @@
+title = "StockAware"
+
+[extend]
+useDefault = true
+
+# The Angular cache was committed in 77dd060 and removed in 299d869 (.angular/cache is ignored).
+# Run 42609747789 reported 361 findings, all generic-api-key, all in one third-party bundle
+# (@ionic_angular_standalone.js): Stencil vdom template keys `key: "<hex>"`, not credentials.
+# Scoped to that path AND that rule: any other rule, or any other path, still fails.
+# Needs gitleaks >= 8.25 (targetRules); both scanners pin 8.30.1.
+[[allowlists]]
+description = "Ignore generic-api-key in the generated Angular cache that was committed once and then removed"
+targetRules = ["generic-api-key"]
+paths = ['''(^|/)apps/frontend/\.angular/cache/''']
