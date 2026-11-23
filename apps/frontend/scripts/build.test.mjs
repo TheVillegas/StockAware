@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, chmodSync, rmSync, readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync, chmodSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -58,6 +58,35 @@ test('build configures public endpoints without rewriting source', () => {
       assert.equal(result.stdout, '');
       assert.equal(result.stderr, 'Invalid public API configuration\n');
       assert.equal(readFileSync(source, 'utf8'), before);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the legacy Render command sets only the API fallback and can run twice', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'frontend-legacy-build-test-'));
+  try {
+    const scripts = join(dir, 'scripts');
+    const core = join(dir, 'src/app/core');
+    mkdirSync(scripts, { recursive: true });
+    mkdirSync(core, { recursive: true });
+    const entry = join(scripts, 'set-api-url.mjs');
+    const auth = join(core, 'auth.service.ts');
+    const original = readFileSync(source, 'utf8');
+    writeFileSync(auth, original);
+    writeFileSync(entry, readFileSync(join(root, 'scripts/set-api-url.mjs')));
+    const run = (BACKEND_HOST) => spawnSync(process.execPath, [entry], {
+      cwd: dir, encoding: 'utf8', env: { ...process.env, BACKEND_HOST },
+    });
+    const missing = run('');
+    assert.deepEqual([missing.status, missing.stdout, missing.stderr], [0, '', '']);
+    assert.equal(readFileSync(auth, 'utf8'), original);
+    const expected = original.replace("'http://localhost:3000/api'", '"https://api.example.com/api"');
+    for (const attempt of [1, 2]) {
+      const result = run('api.example.com');
+      assert.deepEqual([result.status, result.stdout, result.stderr], [0, 'frontend API set to https://api.example.com/api\n', ''], `attempt ${attempt}`);
+      assert.equal(readFileSync(auth, 'utf8'), expected);
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
