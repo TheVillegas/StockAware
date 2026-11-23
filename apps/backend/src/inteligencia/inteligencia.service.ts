@@ -96,9 +96,11 @@ export class IntelligenceService {
   private async pedir(ruta: string, init: RequestInit, timeoutMs = TIMEOUT_MS, internoEs502 = false) {
     let respuesta: Response;
     const correlacion = idCorrelacion();
-    const headers = correlacion === 'sin-correlacion'
-      ? init.headers
-      : { ...(init.headers as Record<string, string> | undefined), 'x-request-id': correlacion };
+    // BE-03: FastAPI rejects every route except /health without this shared secret.
+    const token = this.config.get<string>('INTELLIGENCE_SERVICE_TOKEN');
+    const headers: Record<string, string> = { ...(init.headers as Record<string, string> | undefined) };
+    if (token) headers['X-Service-Token'] = token;
+    if (correlacion !== 'sin-correlacion') headers['x-request-id'] = correlacion;
     try {
       respuesta = await fetch(`${this.base()}${ruta}`, {
         ...init,

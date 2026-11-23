@@ -29,6 +29,8 @@ const { IntelligenceService } = require(path.join(backend, 'src/inteligencia/int
 const { entrarCorrelacion } = require(path.join(backend, 'src/comun/correlacion.ts'));
 const { RecomendacionesService } = require(path.join(backend, 'src/recomendaciones/recomendaciones.service.ts'));
 const correlation = 'ep2-http-integration';
+// BE-03: shared secret, fixed for the test only (never a real credential).
+const serviceToken = 'integration-service-token';
 
 let child;
 let nest;
@@ -55,7 +57,7 @@ async function startPython() {
   // Port 0 lets Uvicorn bind an available loopback port atomically.
   child = spawn(python, ['-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', '0', '--no-access-log'], {
     cwd: path.join(root, 'apps/intelligence-service'),
-    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1' },
+    env: { ...process.env, PYTHONDONTWRITEBYTECODE: '1', INTELLIGENCE_SERVICE_TOKEN: serviceToken },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   let spawnError;
@@ -109,7 +111,7 @@ async function startNest(address) {
   class ProbeModule {}
   Module({
     controllers: [ProbeController],
-    providers: [IntelligenceService, { provide: ConfigService, useValue: new ConfigService({ INTELLIGENCE_SERVICE_URL: address }) }],
+    providers: [IntelligenceService, { provide: ConfigService, useValue: new ConfigService({ INTELLIGENCE_SERVICE_URL: address, INTELLIGENCE_SERVICE_TOKEN: serviceToken }) }],
   })(ProbeModule);
   nest = await NestFactory.create(ProbeModule, { logger: false, abortOnError: false });
   await nest.listen(0, '127.0.0.1');
@@ -118,7 +120,8 @@ async function startNest(address) {
 
 test('production Nest client integrates with live FastAPI', { timeout: 45_000 }, async t => {
   try {
-    const address = await startNest(await startPython());
+    const pythonAddress = await startPython();
+    const address = await startNest(pythonAddress);
     const post = async (route, body) => {
       const response = await fetch(`${address}/integration/${route}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -136,6 +139,14 @@ test('production Nest client integrates with live FastAPI', { timeout: 45_000 },
       material, referencia: '2030-01-15T12:00:00Z',
       fuentes: [{ fuente: 'dartel', tipo: 'json', contenido: [JSON.stringify([product, product, { ...product, productId: 'bad-host', link: 'https://example.invalid/item' }])] }],
     };
+    await t.test('FastAPI rejects a direct call without the service token', async () => {
+      const direct = await fetch(`${pythonAddress}/v1/precios/preparar`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cod_material: 'HTTP-1', nombre: 'Cable' }), signal: AbortSignal.timeout(7000),
+      });
+      assert.equal(direct.status, 401);
+      assert.deepEqual(await direct.json(), { error: 'unauthorized' });
+    });
     await t.test('prepares a normalized quotable search term', async () => {
       assert.deepEqual(await post('preparar', { cod_material: 'HTTP-1', nombre: 'Cable ficticio talla XL' }), {
         status: 200, body: { termino_busqueda: 'cable ficticio', cotizable: true, motivo: null },

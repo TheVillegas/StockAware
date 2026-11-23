@@ -1,3 +1,4 @@
+import hmac
 import json
 import os
 import time
@@ -65,6 +66,30 @@ app.add_exception_handler(RequestValidationError, handle_invalid_request)
 app.add_exception_handler(Exception, handle_internal_error)
 app.include_router(precios_router)
 app.include_router(recomendaciones_router)
+
+
+RUTAS_PUBLICAS = frozenset({"/health"})
+
+
+def token_valido(recibido: str | None) -> bool:
+    """BE-03: shared secret with NestJS. A missing secret closes the service."""
+    esperado = os.getenv("INTELLIGENCE_SERVICE_TOKEN", "")
+    if not esperado or recibido is None:
+        return False
+    return hmac.compare_digest(recibido.encode(), esperado.encode())
+
+
+# Declared before registrar_peticion so that one wraps it: rejections are logged too.
+@app.middleware("http")
+async def exigir_token(
+    request: Request,
+    call_next: Callable[[Request], Awaitable[Response]],
+) -> Response:
+    if request.url.path in RUTAS_PUBLICAS or token_valido(
+        request.headers.get("x-service-token")
+    ):
+        return await call_next(request)
+    return JSONResponse(status_code=401, content={"error": "unauthorized"})
 
 
 @app.middleware("http")

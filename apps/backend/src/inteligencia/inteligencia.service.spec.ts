@@ -30,6 +30,45 @@ describe('IntelligenceService', () => {
     global.fetch = originalFetch;
   });
 
+  describe('service token (BE-03)', () => {
+    const ok = () => jest.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ eco: 'x' }) });
+    const conToken = (token) => ({
+      get: (clave) => ({ INTELLIGENCE_SERVICE_URL: 'http://intelligence:8000', INTELLIGENCE_SERVICE_TOKEN: token })[clave],
+    });
+
+    it('sends X-Service-Token on every call, keeping the JSON headers', async () => {
+      svc = new IntelligenceService(conToken('secreto-ficticio'));
+      global.fetch = ok();
+      await svc.eco('hola');
+      await svc.salud();
+      for (const [, init] of global.fetch.mock.calls) {
+        expect(init.headers['X-Service-Token']).toBe('secreto-ficticio');
+      }
+      expect(global.fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/json');
+    });
+
+    it('keeps the token alongside the correlation id', async () => {
+      svc = new IntelligenceService(conToken('secreto-ficticio'));
+      global.fetch = ok();
+      await entrarCorrelacion('corr-token-1', () => svc.eco('hola'));
+      const { headers } = global.fetch.mock.calls[0][1];
+      expect(headers).toMatchObject({ 'X-Service-Token': 'secreto-ficticio', 'x-request-id': 'corr-token-1' });
+    });
+
+    it('sends no token header when none is configured', async () => {
+      global.fetch = ok();
+      await svc.eco('hola');
+      expect(global.fetch.mock.calls[0][1].headers).not.toHaveProperty('X-Service-Token');
+    });
+
+    it('maps a 401 from FastAPI to 502 without exposing it', async () => {
+      svc = new IntelligenceService(conToken('malo'));
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 401, json: async () => ({ error: 'unauthorized' }) });
+      const err = await svc.eco('hola').catch((e) => e);
+      expectHttp(err, 502, { error: 'intelligence_error' });
+    });
+  });
+
   it('prefixes a private host:port with http', async () => {
     svc = new IntelligenceService(configCon('stockaware-intelligence:10000'));
     global.fetch = jest.fn().mockResolvedValue({

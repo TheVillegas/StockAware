@@ -41,7 +41,8 @@ async function main() {
   const [rutaConjunto = '../../docs/ep2/metrica/conjunto.json', rutaSalida = `../../docs/ep2/metrica/resultado-${fecha}.json`] = process.argv.slice(2);
   const base = (process.env.INTELLIGENCE_SERVICE_URL ?? 'http://localhost:8000').replace(/\/$/, '');
   const conjunto: { materiales: MaterialConjunto[] } = JSON.parse(readFileSync(rutaConjunto, 'utf8'));
-  const inteligencia = new IntelligenceService({ get: () => base } as unknown as ConfigService);
+  const config = { INTELLIGENCE_SERVICE_URL: base, INTELLIGENCE_SERVICE_TOKEN: process.env.INTELLIGENCE_SERVICE_TOKEN };
+  const inteligencia = new IntelligenceService({ get: (clave: keyof typeof config) => config[clave] } as unknown as ConfigService);
   const recuperador = new RecuperadorFuentes();
   const contadores = Object.fromEntries(FUENTES.map((f) => [f, contadorVacio()])) as Record<Fuente, ContadorFuente>;
   const cotizables: Array<{ rubro: string; conPrecio: boolean }> = [];
