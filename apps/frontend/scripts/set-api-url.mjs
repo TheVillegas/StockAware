@@ -8,8 +8,11 @@ if (!host) {
 }
 
 const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '../src/app/core/auth.service.ts');
-const needle = "export const API = 'http://localhost:3000/api';";
-const next = `export const API = 'https://${host}/api';`;
+// Older Render services may still run this script before `ng build`.
+// Match only the fallback; the Angular define still takes precedence.
+const fallback = "export const API = typeof __API_URL__ === 'undefined' ? ";
+const needle = `${fallback}'http://localhost:3000/api' : __API_URL__;`;
+const next = `${fallback}${JSON.stringify(`https://${host}/api`)} : __API_URL__;`;
 const source = fs.readFileSync(file, 'utf8');
 if (!source.includes(needle) && !source.includes(next)) {
   console.error('API constant not found');
