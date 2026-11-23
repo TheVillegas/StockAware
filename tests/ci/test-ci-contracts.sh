@@ -226,5 +226,12 @@ gitleaks_config="$root/.gitleaks.toml"
 grep -q 'useDefault = true' "$gitleaks_config"
 [[ "$(grep -c '^\[\[allowlists\]\]$' "$gitleaks_config")" -eq 1 ]]
 grep -Fx "paths = ['''(^|/)apps/frontend/\\.angular/cache/''']" "$gitleaks_config"
+# BE-05: the exception covers only the rule that produced the 361 findings.
+grep -Fx 'targetRules = ["generic-api-key"]' "$gitleaks_config"
+# BE-05: [[allowlists]]/targetRules need gitleaks >= 8.25; the action defaults to 8.24.3 and
+# silently ignores them, so the scheduled audit must run the same version as the PR gate.
+gate_version="$(sed -n 's/^ *GITLEAKS_VERSION: *\([0-9.]*\) *$/\1/p' "$workflow")"
+audit_version="$(sed -n 's/^ *GITLEAKS_VERSION: *\([0-9.]*\) *$/\1/p' "$full_history_workflow")"
+[[ -n "$gate_version" && "$audit_version" == "$gate_version" ]]
 
 echo "CI contract fixtures passed"
