@@ -58,6 +58,25 @@ describe('Stock advisory recommendation', () => {
       expect(page.decisionRecomendacion()).toBe('validar fuentes');
     } finally { jest.useRealTimers(); }
   });
+  it('expires the panel and accepted decision after the device clock moves backward', async () => {
+    jest.useFakeTimers();
+    try {
+      const now = Date.now();
+      const publication = { ...offer, verificado_en: new Date(now - 7 * 86400000 + 1000).toISOString() };
+      const { page } = setup({ ...response, fuentes: [{ ...response.fuentes[0], publicaciones: [publication] }] });
+      await page.consultarRecomendacion(row);
+      page.abrirOferta(publication); page.confirmarOferta(publication);
+      page.aceptarRecomendacion();
+      expect(page.decisionRecomendacion()).toBe('cotizar ahora');
+      jest.setSystemTime(now - 500);
+      jest.advanceTimersByTime(1499);
+      expect(page.pasoRecomendado()).toBe('cotizar ahora');
+      expect(page.decisionRecomendacion()).toBe('cotizar ahora');
+      jest.advanceTimersByTime(1);
+      expect(page.pasoRecomendado()).toBe('validar fuentes');
+      expect(page.decisionRecomendacion()).toBe('validar fuentes');
+    } finally { jest.useRealTimers(); }
+  });
   it('does not let an earlier panel timer invalidate a replacement selection', async () => {
     jest.useFakeTimers();
     try {

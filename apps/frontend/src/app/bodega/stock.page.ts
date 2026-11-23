@@ -493,10 +493,15 @@ export class StockPage implements OnDestroy {
       }
       this.ofertaVerificada.set(this.claveOferta(p));
       this.vencimientoOferta = fecha + 7 * 24 * 3600 * 1000;
-      this.temporizadorOferta = setTimeout(() => {
+      const comprobar = () => {
         this.temporizadorOferta = undefined;
         this.comprobarVencimiento();
-      }, restante);
+        if (this.vencimientoOferta) {
+          const demora = Math.max(0, this.vencimientoOferta - Date.now());
+          this.temporizadorOferta = setTimeout(comprobar, Math.min(demora, 2_147_483_647));
+        }
+      };
+      this.temporizadorOferta = setTimeout(comprobar, restante);
     }
   }
   aceptarRecomendacion(): void { this.comprobarVencimiento(); this.decisionLocal.set(this.pasoRecomendado()); }
