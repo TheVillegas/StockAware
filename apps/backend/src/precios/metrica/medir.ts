@@ -27,8 +27,11 @@ interface MaterialConjunto {
  */
 async function procesaCrudo(base: string, m: MaterialConjunto, termino: string, fuentes: object[], pedidas: Fuente[]) {
   const cuerpo = { material: { cod_material: m.cod_material, nombre: m.nombre, termino_busqueda: termino }, referencia: new Date().toISOString(), fuentes };
+  // BE-03: same shared secret IntelligenceService.pedir() sends.
+  const token = process.env.INTELLIGENCE_SERVICE_TOKEN;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', ...(token ? { 'X-Service-Token': token } : {}) };
   const res = await fetch(`${base}/v1/precios/procesar`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo), signal: AbortSignal.timeout(TIMEOUT_PROCESAR_MS),
+    method: 'POST', headers, body: JSON.stringify(cuerpo), signal: AbortSignal.timeout(TIMEOUT_PROCESAR_MS),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();

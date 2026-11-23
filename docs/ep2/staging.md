@@ -62,7 +62,7 @@ El smoke necesita esta configuración en GitHub:
 
 ### Token entre servicios (BE-03)
 
-FastAPI rechaza con `401 {"error":"unauthorized"}` cualquier ruta salvo `/health` si no recibe el header `X-Service-Token` correcto. La comparación es de tiempo constante. Si el secreto falta, el servicio queda cerrado: no se abre por error.
+FastAPI rechaza con `401 {"error":"unauthorized"}` cualquier ruta salvo `/health` si no recibe el header `X-Service-Token` correcto. La comparación es de tiempo constante. Si el secreto falta, el servicio queda cerrado: no se abre por error. `/docs` y `/openapi.json` de FastAPI también exigen el token, porque muestran la superficie interna. El contrato público está en el Swagger de NestJS. El script `npm run metrica:precios` lee `INTELLIGENCE_SERVICE_TOKEN` del entorno.
 
 En Render, el Blueprint genera `INTELLIGENCE_SERVICE_TOKEN` en `stockaware-intelligence` y `stockaware-api` lo toma de ahí con `fromService`, así que nadie copia el secreto a mano. **Hay que sincronizar el Blueprint antes de mergear BE-03.** Si no, FastAPI arranca sin token, rechaza todo, el smoke falla y el job revierte el despliegue.
 
