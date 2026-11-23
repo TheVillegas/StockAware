@@ -23,7 +23,7 @@ import { SaList } from '../shared/sa-list.component';
 import { SaPageHead } from '../shared/sa-page-head.component';
 import { SaTableWrap } from '../shared/sa-table-wrap.component';
 import { accionesCrear } from '../shared/workspace-navigation';
-import { PreciosPanel } from '../precios/precios-panel.component';
+import { PreciosPanel, Publicacion, RespuestaPrecios } from '../precios/precios-panel.component';
 import { BodegaCombobox } from './bodega-combobox.component';
 import { stockState } from './stock-state';
 import {
@@ -133,7 +133,37 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
       @if (error()) { <div class="sa-notice sa-notice--crit" role="alert">{{ error() }}</div> }
       @if (mensaje()) { <div class="sa-notice sa-notice--ok" role="status">{{ mensaje() }}</div> }
 
-      @if (precios(); as p) {
+      @if (materialRecomendacion(); as material) {
+        <section class="sa-panel ajuste" aria-label="Recomendación de reposición">
+          <h2>Próximo paso: {{ pasoRecomendado() }}</h2>
+          <p>{{ material.cod_material }} · {{ material.nombre }}. Stock {{ material.stock }} {{ material.unidad }}, mínimo {{ material.stock_minimo ?? 'no informado' }}. La urgencia sigue dependiendo del stock.</p>
+          <p>La verificación es manual: abre una publicación y confirma unidad, empaque y vigencia. Sin esa confirmación se recomienda validar fuentes. Los candidatos no son equivalencias automáticas.</p>
+          <p>La consulta usa fuentes web disponibles; pueden faltar proveedores o existir sesgos. No se guardan estas decisiones; revisa la información antes de comprar.</p>
+          @if (cargandoRecomendacion()) { <p role="status">Consultando fuentes...</p> }
+          @if (errorRecomendacion()) { <p role="alert">{{ errorRecomendacion() }}</p> }
+          @if (recomendacion(); as r) {
+            @for (fuente of r.fuentes; track fuente.fuente) {
+              @for (oferta of fuente.publicaciones; track oferta.publicacion_id) {
+                <div>
+                  <a [href]="oferta.url" target="_blank" rel="noopener noreferrer" (click)="abrirOferta(oferta)">{{ oferta.nombre }}</a>
+                  <span> · {{ fuente.fuente }} · {{ moneda(oferta.precio_oferta ?? oferta.precio_normal) }} · {{ oferta.disponible ? 'Disponible' : 'No disponible' }} · Observado {{ oferta.obtenido_en }}</span>
+                  @if (ofertaDisponibleConPrecio(oferta)) {
+                    <button type="button" class="fila-accion" (click)="confirmarOferta(oferta)">Confirmo unidad, empaque y vigencia tras abrir</button>
+                  }
+                </div>
+              }
+            }
+          }
+          <p>Decisión local: {{ decisionRecomendacion() || 'Sin decidir' }}</p>
+          <div class="pedido__acciones">
+            <button type="button" class="fila-accion" (click)="aceptarRecomendacion()">Aceptar recomendación</button>
+            <button type="button" class="fila-accion" (click)="modificarRecomendacion('validar fuentes')">Modificar: validar fuentes</button>
+            <button type="button" class="fila-accion" [disabled]="pasoRecomendado() !== 'cotizar ahora'" (click)="modificarRecomendacion('cotizar ahora')">Modificar: cotizar ahora</button>
+            <button type="button" class="fila-accion" (click)="rechazarRecomendacion()">Rechazar y volver</button>
+          </div>
+          <p>Es una orientación, no crea una orden. La comparación de utilidad con una versión no adaptativa no está disponible en esta pantalla.</p>
+        </section>
+      } @else if (precios(); as p) {
         <app-precios-panel [codMaterial]="p.cod_material" [nombre]="p.nombre" (cerrar)="precios.set(null)" />
       } @else if (ajustando(); as f) {
         <section class="sa-panel ajuste" aria-labelledby="ajuste-titulo">
@@ -296,6 +326,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
                       <td class="num" data-label="Tarifa">{{ moneda(f.tarifa) }}</td>
                       <td data-label="Acciones">
                         @if (puedeAjustar()) {
+                          <button type="button" class="fila-accion" (click)="consultarRecomendacion(f)" [attr.aria-label]="'Recomendación de ' + f.cod_material">Recomendación</button>
                           <button type="button" class="fila-accion" (click)="precios.set(f)"
                                   [attr.aria-label]="'Precios de mercado de ' + f.cod_material">Precios</button>
                           <button type="button" class="fila-accion" (click)="abrirAjuste(f)"
@@ -328,6 +359,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
               </div>
               @if (puedeAjustar()) {
                 <div class="detalle__acciones">
+                  <ion-button fill="outline" (click)="modal.dismiss(); consultarRecomendacion(f)">Recomendación</ion-button>
                   <ion-button fill="outline" (click)="modal.dismiss(); precios.set(f)">Precios</ion-button>
                   <ion-button fill="outline" (click)="modal.dismiss(); abrirAjuste(f)">Ajustar</ion-button>
                 </div>
@@ -339,7 +371,7 @@ type Filtro = 'todos' | 'urgente' | 'crit' | 'warn' | 'pronto';
       </ion-modal>
       </div>
     </ion-content>
-    @if (seleccion().size && !ajustando() && !precios()) {
+    @if (seleccion().size && !ajustando() && !precios() && !materialRecomendacion()) {
       <ion-footer>
         <div class="sa-actionbar pedido" role="region" aria-label="Pedido de reposición">
           <p>
@@ -379,6 +411,71 @@ export class StockPage {
   readonly ajustando = signal<FilaStock | null>(null);
   /** Material whose "Precios de mercado" panel is open. */
   readonly precios = signal<FilaStock | null>(null);
+  readonly materialRecomendacion = signal<FilaStock | null>(null);
+  readonly recomendacion = signal<RespuestaPrecios | null>(null);
+  readonly cargandoRecomendacion = signal(false);
+  readonly errorRecomendacion = signal('');
+  private readonly ofertaAbierta = signal('');
+  private readonly ofertaVerificada = signal('');
+  private readonly decisionLocal = signal('');
+  private consultaRecomendacion = 0;
+
+  private claveOferta(p: Publicacion): string {
+    return JSON.stringify([this.materialRecomendacion()?.cod_material, p.publicacion_id, p.vinculo_id,
+      p.url, p.precio_normal, p.precio_oferta, p.disponible, p.obtenido_en, p.verificado_en]);
+  }
+  private ofertaCargada(p: Publicacion): boolean {
+    const r = this.recomendacion();
+    return !!r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true
+      && r.fuentes.some((f) => f.publicaciones.some((x) => this.claveOferta(x) === this.claveOferta(p)));
+  }
+  ofertaDisponibleConPrecio(p: Publicacion): boolean {
+    const precio = p.precio_oferta ?? p.precio_normal;
+    return p.disponible === true && Number.isFinite(precio) && precio > 0;
+  }
+  readonly pasoRecomendado = computed(() => {
+    const r = this.recomendacion();
+    const verificada = this.ofertaVerificada();
+    return r && r.cod_material === this.materialRecomendacion()?.cod_material && r.cotizable === true
+      && verificada && r.fuentes.some((f) => f.publicaciones.some((p) => this.ofertaDisponibleConPrecio(p)
+        && this.claveOferta(p) === verificada))
+      ? 'cotizar ahora' : 'validar fuentes';
+  });
+  readonly decisionRecomendacion = computed(() => this.decisionLocal() === 'cotizar ahora'
+    && this.pasoRecomendado() !== 'cotizar ahora' ? 'validar fuentes' : this.decisionLocal());
+
+  async consultarRecomendacion(f: FilaStock): Promise<void> {
+    const consulta = ++this.consultaRecomendacion;
+    this.materialRecomendacion.set(f); this.recomendacion.set(null);
+    this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
+    this.errorRecomendacion.set(''); this.cargandoRecomendacion.set(true);
+    try {
+      const respuesta = await firstValueFrom(this.http.get<RespuestaPrecios>(`${API}/precios/${encodeURIComponent(f.cod_material)}`));
+      if (consulta === this.consultaRecomendacion) this.recomendacion.set(respuesta);
+    } catch {
+      if (consulta === this.consultaRecomendacion) this.errorRecomendacion.set('No se pudieron consultar las fuentes. Valida las fuentes antes de cotizar.');
+    } finally {
+      if (consulta === this.consultaRecomendacion) this.cargandoRecomendacion.set(false);
+    }
+  }
+  abrirOferta(p: Publicacion): void {
+    if (this.ofertaCargada(p)) this.ofertaAbierta.set(this.claveOferta(p));
+  }
+  confirmarOferta(p: Publicacion): void {
+    if (this.ofertaCargada(p) && this.ofertaAbierta() === this.claveOferta(p)
+        && this.ofertaDisponibleConPrecio(p)) {
+      this.ofertaVerificada.set(this.claveOferta(p));
+    }
+  }
+  aceptarRecomendacion(): void { this.decisionLocal.set(this.pasoRecomendado()); }
+  modificarRecomendacion(paso: 'validar fuentes' | 'cotizar ahora'): void {
+    this.decisionLocal.set(paso === 'cotizar ahora' && this.pasoRecomendado() !== paso ? 'validar fuentes' : paso);
+  }
+  rechazarRecomendacion(): void {
+    ++this.consultaRecomendacion;
+    this.materialRecomendacion.set(null); this.recomendacion.set(null);
+    this.ofertaAbierta.set(''); this.ofertaVerificada.set(''); this.decisionLocal.set('');
+  }
   private readonly detalleClave = signal<string | null>(null);
   readonly detalle = computed(() => this.datos().find((f) => this.clave(f) === this.detalleClave()) ?? null);
   private detalleOrigen: HTMLElement | null = null;
