@@ -246,6 +246,14 @@ const ICONOS_CREAR: Record<string, SaIconName> = {
                   </ion-item>
                 </ion-menu-toggle>
 
+                <ion-menu-toggle [autoHide]="false">
+                  <ion-item routerLink="/pendientes" detail="false" [class.activo]="enPendientes()"
+                            [attr.aria-current]="enPendientes() ? 'page' : null">
+                    <sa-icon slot="start" name="orders" />
+                    <ion-label>Pendientes</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+
                 @for (seccion of navegacion(); track seccion.key) {
                   <ion-list-header class="seccion">{{ seccion.titulo }}</ion-list-header>
                   @for (e of seccion.entradas; track e.key) {
@@ -293,6 +301,7 @@ export class AppComponent {
   private readonly url = signal(this.router.url);
   readonly activa = computed(() => entradaActiva(this.navegacion(), this.url()));
   readonly enInicio = computed(() => this.url().split(/[?#]/)[0] === '/inicio');
+  readonly enPendientes = computed(() => this.url().split(/[?#]/)[0] === '/pendientes');
 
   iconoEntrada(key: string): SaIconName {
     return ICONOS[key] ?? 'home';
