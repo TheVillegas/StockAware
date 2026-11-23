@@ -4,6 +4,10 @@ StockAware es un proyecto de Ingeniería Web Avanzada de la Pontificia Universid
 
 **Estado actual (EP2):** réplica funcional del ERP VAIPS con datos anonimizados, consulta de precios desde cinco fuentes web, procesamiento en FastAPI y persistencia con procedencia en NestJS. El panel de Stock permite revisar candidatos de precios. Esto no es todavía un motor de reposición adaptativa: su alcance futuro está separado en el [contexto del proyecto](docs/project-overview.md).
 
+## Entrega final
+
+- [Guía de revisión, reproducción y evidencias pendientes](docs/ef/entrega-final.md)
+
 ## Entrega parcial 2
 
 - [Recorrido de demostración y evidencias pendientes](docs/ep2/entrega.md)
