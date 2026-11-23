@@ -564,10 +564,11 @@ jobs:
           STAGING_SMOKE_MATERIAL: ${{ vars.STAGING_SMOKE_MATERIAL }}
           STAGING_SMOKE_FORBIDDEN_PATH: ${{ vars.STAGING_SMOKE_FORBIDDEN_PATH }}
         run: python3 .github/scripts/smoke-staging.py
-      # BE-02: a failed deploy, health check or smoke returns staging to the last healthy SHA.
-      # The job still fails, so the run shows the failure, the rollback and the restored health.
+      # BE-02: a failed or cancelled (e.g. timed-out) deploy, health check or smoke returns staging
+      # to the SHA that was live before. The job still fails, so the run shows the failure, the
+      # rollback and the restored health.
       - name: Roll back to the last healthy SHA
-        if: ${{ failure() && steps.anterior.outputs.sha != '' && steps.anterior.outputs.sha != github.sha }}
+        if: ${{ (failure() || cancelled()) && steps.anterior.outputs.sha != '' && steps.anterior.outputs.sha != github.sha }}
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
           RENDER_SERVICE_ID_API: ${{ secrets.RENDER_SERVICE_ID_API }}

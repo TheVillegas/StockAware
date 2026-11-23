@@ -32,11 +32,12 @@ jobs:
           REF_OBJETIVO: ${{ inputs.ref }}
         run: |
           set -euo pipefail
-          if [[ ! "$REF_OBJETIVO" =~ ^[A-Za-z0-9._/-]{1,100}$ ]]; then
+          # Must start with a letter or digit so it can never be read as a git option.
+          if [[ ! "$REF_OBJETIVO" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,99}$ ]]; then
             echo "Referencia inválida" >&2
             exit 1
           fi
-          sha="$(git rev-parse --verify --quiet "${REF_OBJETIVO}^{commit}")" || { echo "No existe ${REF_OBJETIVO}" >&2; exit 1; }
+          sha="$(git rev-parse --verify --quiet --end-of-options "${REF_OBJETIVO}^{commit}")" || { echo "No existe ${REF_OBJETIVO}" >&2; exit 1; }
           if ! git merge-base --is-ancestor "$sha" origin/develop; then
             echo "${sha} no pertenece a develop" >&2
             exit 1

@@ -24,8 +24,8 @@ Ya existían piezas sueltas:
 
 ### Rollback automático en `staging-deploy`
 
-1. **Antes de desplegar:** `sha-en-vivo-staging.py` lee en Render cuál es el commit en vivo del servicio API. Ese es el último SHA sano, porque solo queda en vivo un deploy que pasó por este mismo job.
-2. **Si algo falla después** (el deploy, los health checks o el smoke), el paso `Roll back to the last healthy SHA` vuelve a ejecutar `desplegar-staging.sh` con ese SHA en los tres servicios. Luego comprueba que los health checks reporten el SHA anterior.
+1. **Antes de desplegar:** `sha-en-vivo-staging.py` lee en Render cuál es el commit en vivo del servicio API. En el caso normal es el último SHA sano, pero no está garantizado. Un SHA roto puede quedar en vivo si el rollback se omitió (no había SHA o falló la API de Render), si el propio rollback falló o si se agotó el tiempo del job. En esos casos el run queda en rojo y hay que usar el rollback manual con un SHA que se sepa sano.
+2. **Si algo falla después o el job se cancela**, por ejemplo por `timeout-minutes` (el deploy, los health checks o el smoke), el paso `Roll back to the last healthy SHA` vuelve a ejecutar `desplegar-staging.sh` con ese SHA en los tres servicios. Luego comprueba que los health checks reporten el SHA anterior.
 3. **El job termina en rojo de todas formas.** Así el run muestra el fallo, el rollback y la salud recuperada, y nadie lo confunde con un despliegue bueno.
 
 **Cuándo no hay rollback:**

@@ -201,12 +201,14 @@ grep -q 'bash .github/scripts/desplegar-staging.sh' "$workflow"
 awk '/^  staging-deploy:/{j=1} j && /desplegar-staging.sh/{d=1} j && d && /python3 .github\/scripts\/smoke-staging.py/{ok=1} END{exit !ok}' "$workflow"
 python3 -I "$root/tests/ci/test_smoke_staging.py"
 # BE-02: live SHA recorded before the deploy, rollback on failure, manual rollback workflow.
-awk '/^  staging-deploy:/{j=1} j && /sha-en-vivo-staging.py/{a=1} j && a && /desplegar-staging.sh/{d=1} j && d && /Roll back to the last healthy SHA/{r=1} j && r && /failure\(\) && steps.anterior.outputs.sha != '\'''\''/{ok=1} END{exit !ok}' "$workflow"
+awk '/^  staging-deploy:/{j=1} j && /sha-en-vivo-staging.py/{a=1} j && a && /desplegar-staging.sh/{d=1} j && d && /Roll back to the last healthy SHA/{r=1} j && r && /\(failure\(\) \|\| cancelled\(\)\) && steps.anterior.outputs.sha != '\'''\''/{ok=1} END{exit !ok}' "$workflow"
 grep -q 'group: staging-deploy' "$workflow"
 rollback_workflow="$root/.github/workflows/rollback-staging.yml"
 grep -q 'workflow_dispatch:' "$rollback_workflow"
 grep -q 'REF_OBJETIVO: ${{ inputs.ref }}' "$rollback_workflow"
-if grep -q 'run:.*inputs.ref' "$rollback_workflow"; then exit 1; fi
+# The input may appear only once, in env; any other use could be interpolated into a script.
+test "$(grep -c 'inputs.ref' "$rollback_workflow")" -eq 1
+grep -q -- '--end-of-options' "$rollback_workflow"
 grep -q 'bash .github/scripts/desplegar-staging.sh' "$rollback_workflow"
 grep -q 'group: staging-deploy' "$rollback_workflow"
 python3 -I "$root/tests/ci/test_sha_en_vivo.py"

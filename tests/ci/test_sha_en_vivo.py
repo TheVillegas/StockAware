@@ -33,6 +33,10 @@ class ShaEnVivoTest(unittest.TestCase):
         self.assertEqual(modulo.sha_en_vivo([deploy("live", "main; rm -rf /")]), "")
         self.assertEqual(modulo.sha_en_vivo([{"deploy": {"status": "live"}}]), "")
 
+    def test_respuesta_que_no_es_lista_devuelve_vacio(self):
+        self.assertEqual(modulo.sha_en_vivo({"message": "unauthorized"}), "")
+        self.assertEqual(modulo.sha_en_vivo(["texto", None]), "")
+
     def test_escribe_la_salida_de_github(self):
         salida = io.StringIO()
         modulo.escribir_salida(A, salida)

@@ -17,9 +17,14 @@ from typing import Any, TextIO
 SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
-def sha_en_vivo(deploys: list[dict[str, Any]]) -> str:
+def sha_en_vivo(deploys: Any) -> str:
+    # An error body (object) or unexpected items mean "unknown", never a crash.
+    if not isinstance(deploys, list):
+        return ""
     for item in deploys:
-        deploy = item.get("deploy", {})
+        deploy = item.get("deploy") if isinstance(item, dict) else None
+        if not isinstance(deploy, dict):
+            continue
         if deploy.get("status") != "live":
             continue
         sha = str((deploy.get("commit") or {}).get("id", ""))
@@ -31,7 +36,7 @@ def escribir_salida(sha: str, destino: TextIO) -> None:
     destino.write(f"sha={sha}\n")
 
 
-def consultar(servicio: str, clave: str) -> list[dict[str, Any]]:
+def consultar(servicio: str, clave: str) -> Any:
     peticion = urllib.request.Request(
         f"https://api.render.com/v1/services/{servicio}/deploys?limit=20",
         headers={"Authorization": f"Bearer {clave}", "Accept": "application/json"},
